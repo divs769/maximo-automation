@@ -1,0 +1,2 @@
+ServiceName=microservice-template
+ContainerPort=8080
