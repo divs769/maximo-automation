@@ -1,0 +1,55 @@
+#!/usr/bin/env groovy
+script {
+    def buildId = ''
+    def url = 'http://192.168.0.16:8080/build'
+    def maximoInfo = ''
+}
+
+pipeline {
+    agent none
+    stages {
+        stage('Build') {
+            steps {
+                echo 'Building..'
+                echo 'Requesting maximo-automation to create change request'
+                createChange()
+            }
+        }
+        stage('Test') {
+            steps {
+                echo 'Testing..'
+            }
+        }
+        stage('Deploy') {
+            steps {
+                echo 'Deploying....'
+            }
+        }
+    }
+
+    post {
+        success {
+            echo 'Pipeline Passed'
+
+            echo 'Closing Maximo change request'
+            maximoInfo = httpRequest httpMode: 'PUT', url: url+'/'+buildId
+            echo maximoInfo
+        }
+        failure {
+            echo 'Pipeline Failed'
+
+            echo 'Closing Maximo change request'
+            maximoInfo = httpRequest httpMode: 'PUT', url: url+'/'+buildId
+            echo maximoInfo
+        }
+    }
+
+}
+
+def createChange() {
+    httpRequest httpMode: 'POST', url: 'http://192.168.0.16:8080/build'
+}
+
+def closeChange() {
+
+}
