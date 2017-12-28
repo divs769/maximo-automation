@@ -10,6 +10,7 @@ pipeline {
     stages {
         stage('Build') {
             steps {
+                echo 'Version ' + env.BUILD_ID
                 echo 'Building..'
                 echo 'Requesting maximo-automation to create change request'
                 createChange()

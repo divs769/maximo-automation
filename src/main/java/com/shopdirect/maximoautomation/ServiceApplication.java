@@ -10,8 +10,11 @@ import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
 import org.springframework.context.annotation.Bean;
 import org.springframework.http.converter.json.Jackson2ObjectMapperBuilder;
+import org.springframework.web.servlet.config.annotation.CorsRegistry;
+import org.springframework.web.servlet.config.annotation.WebMvcConfigurer;
+import org.springframework.web.servlet.config.annotation.WebMvcConfigurerAdapter;
 
-@SpringBootApplication(scanBasePackages = { "com.shopdirect.version", "com.shopdirect.microservicetemplate" })
+@SpringBootApplication(scanBasePackages = { "com.shopdirect" })
 public class ServiceApplication {
 
 	@Bean
@@ -28,6 +31,16 @@ public class ServiceApplication {
 				objectMapper.setNodeFactory(JsonNodeFactory.withExactBigDecimals(true));
 			}
 
+		};
+	}
+
+	@Bean
+	public WebMvcConfigurer corsConfigurer() {
+		return new WebMvcConfigurerAdapter() {
+			@Override
+			public void addCorsMappings(CorsRegistry registry) {
+				registry.addMapping("/**");
+			}
 		};
 	}
 

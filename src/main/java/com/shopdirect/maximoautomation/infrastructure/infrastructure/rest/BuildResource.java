@@ -1,79 +1,65 @@
 package com.shopdirect.maximoautomation.infrastructure.infrastructure.rest;
 
+import com.rethinkdb.net.Connection;
+import com.rethinkdb.net.Cursor;
+import com.shopdirect.maximoautomation.infrastructure.DBInitializer;
+import com.shopdirect.maximoautomation.infrastructure.RethinkDBConnectionFactory;
+import com.shopdirect.maximoautomation.infrastructure.infrastructure.resource.BuildInfo;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.*;
 
+import static com.rethinkdb.RethinkDB.r;
 import static org.springframework.web.bind.annotation.RequestMethod.GET;
 import static org.springframework.web.bind.annotation.RequestMethod.POST;
 import static org.springframework.web.bind.annotation.RequestMethod.PUT;
 
 @RestController
-@RequestMapping(path = "/build")
+@RequestMapping(value = "/build")
 public class BuildResource {
+
     private static final Logger LOGGER = LoggerFactory.getLogger(BuildResource.class);
 
-    @RequestMapping(method = POST)
-    public ResponseEntity<Long> buildStarted() {
-        return ResponseEntity.ok(BuildData.createBuildInfo());
+    private RethinkDBConnectionFactory connectionFactory;
+
+    @Autowired
+    public BuildResource(RethinkDBConnectionFactory connectionFactory) {
+        this.connectionFactory = connectionFactory;
     }
 
-    //env.BUILD_ID
-    @RequestMapping(value = "/{buildId}", method = PUT)
-    public ResponseEntity<String> buildFinished(@PathVariable("buildId") Long buildId) {
-        BuildInfo buildInfo = BuildData.getBuildInfo(buildId);
-        buildInfo.finished = new Date();
-        return ResponseEntity.ok("Maximo change request closed");
+    @RequestMapping(method = POST, consumes = "application/json")
+    public ResponseEntity<HashMap> buildStarted(@RequestBody BuildInfo buildInfo) {
+        Connection connection = connectionFactory.connectToMaximoDb();
+        HashMap result = r.table(DBInitializer.BUILDS_TB).insert(buildInfo).run(connection);
+        connection.close();
+        return ResponseEntity.ok(result);
+    }
+
+    @RequestMapping(path = "/{buildId}", method = PUT)
+    public ResponseEntity<HashMap> buildFinished(@PathVariable Long buildId, @RequestBody BuildInfo buildInfo) {
+        Connection connection = connectionFactory.connectToMaximoDb();
+        HashMap result = r.table(DBInitializer.BUILDS_TB).get(buildId).update(buildInfo).run(connection);
+        connection.close();
+        return ResponseEntity.ok(result);
     }
 
     @RequestMapping(method = GET, produces = "application/json; charset=UTF-8")
-    public ResponseEntity<Collection<BuildInfo>> getAllBuilds() {
-        return ResponseEntity.ok(BuildData.getAll());
+    public ResponseEntity<HashMap> getAllBuilds() {
+        Connection connection = connectionFactory.connectToMaximoDb();
+        Cursor result = r.table(DBInitializer.BUILDS_TB).run(connection);
+        connection.close();
+        return null;//ResponseEntity.ok(result);
     }
 
     @RequestMapping(value="/{buildId}", method = GET, produces = "application/json; charset=UTF-8")
-    public ResponseEntity<BuildInfo> getBuildInfo(@PathVariable("buildId") Long buildId) {
-        return ResponseEntity.ok(BuildData.getBuildInfo(buildId));
-    }
-
-    private static class BuildData {
-        static Map<Long, BuildInfo> map = new HashMap<>();
-        static Long lastId = 0L;
-
-        static Long createBuildInfo() {
-            BuildInfo info = new BuildInfo();
-            info.id = ++lastId;
-            info.started = new Date();
-
-            map.put(info.id, info);
-
-            return lastId;
-        }
-
-        static BuildInfo getBuildInfo(Long id) {
-            return map.get(id);
-        }
-
-        static Collection<BuildInfo> getAll() {
-            return map.values();
-        }
-    }
-
-    private static class BuildInfo {
-        Long id;
-        Date started;
-        Date finished;
-
-        @Override
-        public String toString() {
-            return "BuildInfo{" +
-                    "id=" + id +
-                    ", started=" + started +
-                    ", finished=" + finished +
-                    '}';
-        }
+    public ResponseEntity<HashMap> getBuildInfo(@PathVariable("buildId") String buildId) {
+        Connection connection = connectionFactory.connectToMaximoDb();
+        HashMap result = r.table(DBInitializer.BUILDS_TB).get(buildId).run(connection);
+        connection.close();
+        return ResponseEntity.ok(result);
     }
 }

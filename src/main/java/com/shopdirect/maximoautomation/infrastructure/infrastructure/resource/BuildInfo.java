@@ -1,14 +1,20 @@
 package com.shopdirect.maximoautomation.infrastructure.infrastructure.resource;
 
-public class Build {
+import com.fasterxml.jackson.annotation.JsonCreator;
+import com.fasterxml.jackson.annotation.JsonProperty;
 
-    private String id;
+public class BuildInfo {
+
     private String url;
     private String status;
     private String time;
 
-    public String getId() {
-        return id;
+    @JsonCreator
+    public BuildInfo(@JsonProperty("url") String url,
+                     @JsonProperty("status") String status, @JsonProperty("time") String time) {
+        this.url = url;
+        this.status = status;
+        this.time = time;
     }
 
     public String getUrl() {
