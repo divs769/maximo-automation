@@ -17,6 +17,7 @@ import static com.rethinkdb.RethinkDB.r;
 import static org.springframework.web.bind.annotation.RequestMethod.GET;
 import static org.springframework.web.bind.annotation.RequestMethod.POST;
 import static org.springframework.web.bind.annotation.RequestMethod.PUT;
+import static org.springframework.http.MediaType.APPLICATION_JSON_UTF8_VALUE;
 
 @RestController
 @RequestMapping(value = "/build")
@@ -31,7 +32,7 @@ public class BuildResource {
         this.connectionFactory = connectionFactory;
     }
 
-    @RequestMapping(method = POST, consumes = "application/json")
+    @RequestMapping(method = POST, consumes = APPLICATION_JSON_UTF8_VALUE)
     public ResponseEntity<HashMap> buildStarted(@RequestBody BuildInfo buildInfo) {
         Connection connection = connectionFactory.connectToMaximoDb();
         HashMap result = r.table(DBInitializer.BUILDS_TB).insert(buildInfo).run(connection);

@@ -5,24 +5,24 @@ import com.fasterxml.jackson.annotation.JsonProperty;
 
 public class BuildInfo {
 
+    private String buildId;
     private String url;
-    private String status;
     private String time;
 
     @JsonCreator
-    public BuildInfo(@JsonProperty("url") String url,
-                     @JsonProperty("status") String status, @JsonProperty("time") String time) {
+    public BuildInfo(@JsonProperty("buildId") String buildId, @JsonProperty("url") String url,
+                     @JsonProperty("time") String time) {
+        this.buildId = buildId;
         this.url = url;
-        this.status = status;
         this.time = time;
+    }
+
+    public String getBuildId() {
+        return buildId;
     }
 
     public String getUrl() {
         return url;
-    }
-
-    public String getStatus() {
-        return status;
     }
 
     public String getTime() {
