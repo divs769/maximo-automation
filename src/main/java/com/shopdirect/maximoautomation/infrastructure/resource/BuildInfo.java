@@ -1,4 +1,4 @@
-package com.shopdirect.maximoautomation.infrastructure.infrastructure.resource;
+package com.shopdirect.maximoautomation.infrastructure.resource;
 
 import com.fasterxml.jackson.annotation.JsonCreator;
 import com.fasterxml.jackson.annotation.JsonProperty;

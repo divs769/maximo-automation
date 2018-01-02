@@ -1,10 +1,10 @@
-package com.shopdirect.maximoautomation.infrastructure.infrastructure.rest;
+package com.shopdirect.maximoautomation.infrastructure.rest;
 
 import com.rethinkdb.net.Connection;
 import com.rethinkdb.net.Cursor;
 import com.shopdirect.maximoautomation.infrastructure.DBInitializer;
 import com.shopdirect.maximoautomation.infrastructure.RethinkDBConnectionFactory;
-import com.shopdirect.maximoautomation.infrastructure.infrastructure.resource.BuildInfo;
+import com.shopdirect.maximoautomation.infrastructure.resource.BuildInfo;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -20,7 +20,7 @@ import static org.springframework.web.bind.annotation.RequestMethod.PUT;
 import static org.springframework.http.MediaType.APPLICATION_JSON_UTF8_VALUE;
 
 @RestController
-@RequestMapping(value = "/build")
+@RequestMapping(value = "/buildinfo")
 public class BuildResource {
 
     private static final Logger LOGGER = LoggerFactory.getLogger(BuildResource.class);
