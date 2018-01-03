@@ -7,25 +7,27 @@ import com.shopdirect.maximoautomation.infrastructure.DBInitializer;
 import com.shopdirect.maximoautomation.infrastructure.RethinkDBConnectionFactory;
 import com.shopdirect.model.DBResponse;
 import com.shopdirect.model.BuildRequest;
+import com.shopdirect.model.TestResponseErrorHandler;
 import cucumber.api.java.en.And;
 import cucumber.api.java.en.Given;
-import cucumber.api.java.en.Then;
 import cucumber.api.java.en.When;
 import gherkin.deps.com.google.gson.Gson;
 import gherkin.deps.com.google.gson.GsonBuilder;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.client.RestTemplate;
 
-import java.time.LocalDateTime;
+import java.time.ZonedDateTime;
 import java.time.format.DateTimeFormatter;
 import java.util.HashMap;
-import java.util.List;
 
 import static com.rethinkdb.RethinkDB.r;
 import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.Matchers.*;
 
 public class StartBuildStepDef extends CucumberStepsDefinition {
+
+    private static final String BUILD_ID = "123";
+    private static final String URL = "http://jenkins:8080/jobs/test/123";
 
     private RestTemplate restTemplate;
     private LatestResponse latestResponse;
@@ -38,32 +40,42 @@ public class StartBuildStepDef extends CucumberStepsDefinition {
         this.restTemplate = restTemplate;
         this.latestResponse = latestResponse;
         this.connectionFactory = connectionFactory;
+        this.restTemplate.setErrorHandler(new TestResponseErrorHandler());
     }
 
-    @Given("^the database has been initialised and is running$")
-    public void theDatabaseHasBeenInitialised() throws Throwable {
-        Connection connection = connectionFactory.createConnection();
-        List<String> dbList = r.dbList().run(connection);
-        assertThat(dbList.contains(DBInitializer.MAXIMO_DB), is(true));
-        List<String> tableList = r.db(DBInitializer.MAXIMO_DB).tableList().run(connection);
-        assertThat(tableList.contains(DBInitializer.BUILDS_TB), is(true));
-    }
-
-    @Given("^a valid payload$")
+    @Given("^a valid payload, containing the build info$")
     public void aValidPayload() throws Throwable {
-        DateTimeFormatter formatter = DateTimeFormatter.ofPattern("dd/MM/yyyy HH:mm:ss");
-        request = new BuildRequest("123",
-                "http://jenkins:8080/jobs/123", formatter.format(LocalDateTime.now()));
+        request = new BuildRequest(BUILD_ID, URL,  DateTimeFormatter.ISO_OFFSET_DATE_TIME.format(ZonedDateTime.now()));
+    }
+
+    @Given("^a payload missing the build ID$")
+    public void aPayloadMissingTheBuildID() throws Throwable {
+        request = new BuildRequest(null, URL, DateTimeFormatter.ISO_OFFSET_DATE_TIME.format(ZonedDateTime.now()));
+    }
+
+    @Given("^a payload missing the build URL$")
+    public void aPayloadMissingTheBuildURL() throws Throwable {
+        request = new BuildRequest(BUILD_ID, null, DateTimeFormatter.ISO_OFFSET_DATE_TIME.format(ZonedDateTime.now()));
+    }
+
+    @Given("^a payload missing the time$")
+    public void aPayloadMissingTheTime() throws Throwable {
+        request = new BuildRequest(BUILD_ID, URL, null);
+    }
+
+    @Given("^a payload with with an invalid date or time$")
+    public void aPayloadWithWithAnInvalidDateOrTime() throws Throwable {
+        request = new BuildRequest(BUILD_ID, URL, DateTimeFormatter.ISO_OFFSET_DATE_TIME.format(ZonedDateTime.now().plusMinutes(5)));
+    }
+
+    @Given("^a payload with with an invalid URL \"([^\"]*)\"$")
+    public void aPayloadWithWithAnInvalidURL(String url) throws Throwable {
+        request = new BuildRequest(BUILD_ID, url, DateTimeFormatter.ISO_OFFSET_DATE_TIME.format(ZonedDateTime.now()));
     }
 
     @When("^the post endpoint is called$")
     public void thePostEndpointIsCalled() throws Throwable {
         latestResponse.setResponse(restTemplate.postForEntity("http://localhost:8080/buildinfo", request, String.class));
-    }
-
-    @Then("^the response is success$")
-    public void theResponseIsSuccess() throws Throwable {
-        assertThat(latestResponse.getResponse().getStatusCode().is2xxSuccessful(), is(true));
     }
 
     @And("^the response body contains a valid id$")
