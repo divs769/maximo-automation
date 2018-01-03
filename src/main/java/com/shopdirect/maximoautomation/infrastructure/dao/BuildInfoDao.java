@@ -6,6 +6,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 
 import static com.shopdirect.maximoautomation.infrastructure.DBInitializer.BUILDS_TB;
@@ -21,7 +22,9 @@ public class BuildInfoDao {
     }
 
     public String save(BuildInfo buildInfo) throws Exception {
-        HashMap<String,Object> result = rethinkDBRunner.create(BUILDS_TB, objectMapper.writeValueAsString(buildInfo));
+        Map map = objectMapper.convertValue(buildInfo, Map.class);
+        map.remove("id");
+        HashMap<String,Object> result = rethinkDBRunner.create(BUILDS_TB, map);
         return getGeneratedKey(result);
     }
 
@@ -29,12 +32,12 @@ public class BuildInfoDao {
         String id = buildInfo.getId();
         Map map = objectMapper.convertValue(buildInfo, Map.class);
         map.remove("id");
-        HashMap<String,Object> result = rethinkDBRunner.update(BUILDS_TB, id, objectMapper.writeValueAsString(map));
+        HashMap<String,Object> result = rethinkDBRunner.update(BUILDS_TB, id, map);
     }
 
     private static String getGeneratedKey(HashMap<String, Object> result) {
         if (result.containsKey("generated_keys")) {
-            return ((String[]) result.get("generated_keys"))[0];
+            return ((List<String>)result.get("generated_keys")).get(0);
         }
         return null;
     }
