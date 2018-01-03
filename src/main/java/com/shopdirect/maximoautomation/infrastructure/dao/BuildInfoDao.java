@@ -3,7 +3,7 @@ package com.shopdirect.maximoautomation.infrastructure.dao;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.shopdirect.maximoautomation.infrastructure.resource.BuildInfo;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.stereotype.Component;
+import org.springframework.stereotype.Repository;
 
 import java.util.HashMap;
 import java.util.List;
@@ -11,7 +11,7 @@ import java.util.Map;
 
 import static com.shopdirect.maximoautomation.infrastructure.DBInitializer.BUILDS_TB;
 
-@Component
+@Repository
 public class BuildInfoDao {
     private final RethinkDBRunner rethinkDBRunner;
     private final ObjectMapper objectMapper = new ObjectMapper();
