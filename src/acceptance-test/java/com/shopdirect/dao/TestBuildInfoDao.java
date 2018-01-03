@@ -7,6 +7,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Repository;
 
 import java.util.List;
+import java.util.Map;
 
 import static com.rethinkdb.RethinkDB.r;
 
@@ -39,6 +40,10 @@ public class TestBuildInfoDao {
 
     public Long countRows() {
         return r.db(DBInitializer.MAXIMO_DB).table(DBInitializer.BUILDS_TB).count().run(connection);
+    }
+
+    public Map getRow(String id) {
+        return r.db(DBInitializer.MAXIMO_DB).table(DBInitializer.BUILDS_TB).get(id).run(connection);
     }
 
     public void closeConnection() {
