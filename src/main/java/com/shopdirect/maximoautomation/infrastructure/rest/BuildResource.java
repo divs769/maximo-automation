@@ -26,11 +26,7 @@ import static org.springframework.web.bind.annotation.RequestMethod.PUT;
 public class BuildResource {
 
     private static final Logger LOGGER = LoggerFactory.getLogger(BuildResource.class);
-    private static Pattern PATTERN;
-
-    static {
-        PATTERN = Pattern.compile("(https?://)?\\w+(:\\d+)?/jobs/[\\w\\-]+/\\d+");
-    }
+    private static final Pattern PATTERN = Pattern.compile("(https?://)?\\w+(:\\d+)?/jobs/[\\w\\-]+/\\d+");
 
     private final BuildInfoDao buildInfoDao;
 
