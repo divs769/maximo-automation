@@ -1,10 +1,8 @@
 package com.shopdirect.acceptancetest.buildinfo;
 
-import com.rethinkdb.net.Connection;
 import com.shopdirect.acceptancetest.CucumberStepsDefinition;
 import com.shopdirect.acceptancetest.LatestResponse;
-import com.shopdirect.maximoautomation.infrastructure.DBInitializer;
-import com.shopdirect.maximoautomation.infrastructure.RethinkDBConnectionFactory;
+import com.shopdirect.dao.TestBuildInfoDao;
 import com.shopdirect.model.BuildRequest;
 import com.shopdirect.model.TestResponseErrorHandler;
 import cucumber.api.java.en.And;
@@ -15,9 +13,8 @@ import org.springframework.web.client.RestTemplate;
 
 import java.time.ZonedDateTime;
 import java.time.format.DateTimeFormatter;
-import java.util.HashMap;
+import java.util.Map;
 
-import static com.rethinkdb.RethinkDB.r;
 import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.Matchers.*;
 
@@ -28,15 +25,15 @@ public class StartBuildStepDef extends CucumberStepsDefinition {
 
     private RestTemplate restTemplate;
     private LatestResponse latestResponse;
-    private RethinkDBConnectionFactory connectionFactory;
+    private TestBuildInfoDao testBuildInfoDao;
     private BuildRequest request;
 
     @Autowired
     public StartBuildStepDef(RestTemplate restTemplate, LatestResponse latestResponse,
-                             RethinkDBConnectionFactory connectionFactory) {
+                             TestBuildInfoDao testBuildInfoDao) {
         this.restTemplate = restTemplate;
         this.latestResponse = latestResponse;
-        this.connectionFactory = connectionFactory;
+        this.testBuildInfoDao = testBuildInfoDao;
         this.restTemplate.setErrorHandler(new TestResponseErrorHandler());
     }
 
@@ -84,9 +81,7 @@ public class StartBuildStepDef extends CucumberStepsDefinition {
     @And("^the build info record is created in the database$")
     public void theBuildInfoRecordIsCreatedInTheDatabase() throws Throwable {
         String dbResponse = (String) latestResponse.getResponse().getBody();
-        Connection connection = connectionFactory.connectToMaximoDb();
-        HashMap result = r.table(DBInitializer.BUILDS_TB).get(dbResponse).run(connection);
-        connection.close();
+        Map result = testBuildInfoDao.getRow(dbResponse);
         assertThat(result, notNullValue());
     }
 }
