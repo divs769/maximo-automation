@@ -18,7 +18,6 @@ import java.time.format.DateTimeFormatter;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
-import static org.springframework.web.bind.annotation.RequestMethod.GET;
 import static org.springframework.web.bind.annotation.RequestMethod.POST;
 import static org.springframework.web.bind.annotation.RequestMethod.PUT;
 
@@ -27,7 +26,11 @@ import static org.springframework.web.bind.annotation.RequestMethod.PUT;
 public class BuildResource {
 
     private static final Logger LOGGER = LoggerFactory.getLogger(BuildResource.class);
-    private static final String URL_PATTERN = "(https?://)?\\w+(:\\d+)?/jobs/[\\w\\-]+/\\d+";
+    private static Pattern PATTERN;
+
+    static {
+        PATTERN = Pattern.compile("(https?://)?\\w+(:\\d+)?/jobs/[\\w\\-]+/\\d+");
+    }
 
     private final BuildInfoDao buildInfoDao;
 
@@ -56,7 +59,7 @@ public class BuildResource {
         if(time.isAfter(ZonedDateTime.now())) {
             throw new InvalidDataException("Invalid date");
         }
-        Matcher matcher = Pattern.compile(URL_PATTERN).matcher(buildInfo.getUrl());
+        Matcher matcher = PATTERN.matcher(buildInfo.getUrl());
         if(!matcher.matches()) {
             throw new InvalidDataException("Invalid URL");
         }
