@@ -9,6 +9,8 @@ import org.junit.runner.RunWith;
 import org.springframework.boot.test.mock.mockito.MockBean;
 import org.springframework.test.context.junit4.SpringRunner;
 
+import java.util.Arrays;
+import java.util.Collections;
 import java.util.HashMap;
 
 import static org.mockito.Matchers.any;
@@ -33,11 +35,11 @@ public class BuildInfoDaoTest {
     @Test
     public void shouldSaveABuildInfoObject() throws Exception {
         // Given
-        resultMap.put("generated_keys", new String[]{"123"});
+        resultMap.put("generated_keys", Collections.singletonList("123"));
         when(rethinkDBRunner.create(any(), any())).thenReturn(resultMap);
 
         // When
-        String actualId = instance.save(new BuildInfo("id", "url", "time"));
+        String actualId = instance.save(new BuildInfo(null,"id", "url", "time"));
 
         // Then
         verify(rethinkDBRunner).create(any(), any());
@@ -50,7 +52,7 @@ public class BuildInfoDaoTest {
         when(rethinkDBRunner.update(any(), any(), any())).thenReturn(resultMap);
 
         // When
-        instance.update(new BuildInfo("id", "url", "time"));
+        instance.update(new BuildInfo(null,"id", "url", "time"));
 
         // Then
         verify(rethinkDBRunner).update(any(), any(), any());

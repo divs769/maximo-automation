@@ -7,19 +7,19 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
-import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
 import static org.springframework.http.MediaType.APPLICATION_JSON_UTF8_VALUE;
 import java.time.ZonedDateTime;
-import java.time.format.DateTimeFormatter;
+import java.util.Map;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
 import static org.springframework.web.bind.annotation.RequestMethod.POST;
 import static org.springframework.web.bind.annotation.RequestMethod.PUT;
+import static java.time.format.DateTimeFormatter.ISO_OFFSET_DATE_TIME;
 
 @RestController
 @RequestMapping(value = "/buildinfo")
@@ -41,31 +41,45 @@ public class BuildResource {
         return ResponseEntity.ok(buildInfoDao.save(buildInfo));
     }
 
-    @RequestMapping(path = "/{buildId}", method = PUT)
-    public ResponseEntity<Void> buildFinished(
-            @PathVariable("buildId") String id,
-            @RequestBody BuildInfo buildInfo) throws Exception {
-        buildInfo.setId(id);
-        buildInfoDao.update(buildInfo);
-        return ResponseEntity.ok().build();
-    }
-
-    private static void validateInfo(BuildInfo buildInfo) throws Exception {
+    private void validateInfo(BuildInfo buildInfo) throws Exception {
         if(buildInfo.getBuildId() == null) {
             throw new InvalidDataException("Missing build ID");
         }
         if(buildInfo.getUrl() == null) {
             throw new InvalidDataException("Missing URL");
         }
-        if(buildInfo.getTime() == null) {
-            throw new InvalidDataException("Missing time");
-        }
-        ZonedDateTime time = ZonedDateTime.parse(buildInfo.getTime(), DateTimeFormatter.ISO_OFFSET_DATE_TIME);
-        if(time.isAfter(ZonedDateTime.now())) {
-            throw new InvalidDataException("Invalid date");
-        }
+        checkInvalidTime(buildInfo.getTime());
         if(!PATTERN.matcher(buildInfo.getUrl()).matches()) {
             throw new InvalidDataException("Invalid URL");
+        }
+    }
+
+    @RequestMapping(method = PUT)
+    public ResponseEntity<Void> buildFinished(@RequestBody BuildInfo buildInfo) throws Exception {
+            checkInvalidTime(buildInfo.getTime());
+            updateValidations(buildInfo);
+            buildInfoDao.update(buildInfo);
+            return ResponseEntity.ok().build();
+        }
+
+    private void checkInvalidTime(String time) throws InvalidDataException {
+        if(time == null) {
+            throw new InvalidDataException("Missing time");
+        }
+        ZonedDateTime zonedDateTime = ZonedDateTime.parse(time, ISO_OFFSET_DATE_TIME);
+        if(zonedDateTime.isAfter(ZonedDateTime.now())) {
+            throw new InvalidDataException("Invalid date");
+        }
+    }
+
+    private void updateValidations(BuildInfo buildInfo) throws InvalidDataException {
+        Map<String, Object> existingRecord = buildInfoDao.getRecord(buildInfo.getId());
+        if(existingRecord == null) {
+            throw new InvalidDataException("Record doesn't exist in the database");
+        }
+        if(ZonedDateTime.parse(buildInfo.getTime(), ISO_OFFSET_DATE_TIME)
+                .isBefore(ZonedDateTime.parse((String)existingRecord.get("startTime"), ISO_OFFSET_DATE_TIME))) {
+            throw new InvalidDataException("Finish date should be after start date");
         }
     }
 

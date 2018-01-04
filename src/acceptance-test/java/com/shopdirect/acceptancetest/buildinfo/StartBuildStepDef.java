@@ -1,10 +1,8 @@
 package com.shopdirect.acceptancetest.buildinfo;
 
-import com.shopdirect.acceptancetest.CucumberStepsDefinition;
 import com.shopdirect.acceptancetest.LatestResponse;
 import com.shopdirect.dao.TestBuildInfoDao;
 import com.shopdirect.model.BuildRequest;
-import com.shopdirect.model.TestResponseErrorHandler;
 import cucumber.api.java.en.And;
 import cucumber.api.java.en.Given;
 import cucumber.api.java.en.When;
@@ -12,44 +10,33 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.client.RestTemplate;
 
 import java.time.ZonedDateTime;
-import java.time.format.DateTimeFormatter;
 import java.util.Map;
 
 import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.Matchers.*;
+import static java.time.format.DateTimeFormatter.ISO_OFFSET_DATE_TIME;
 
-public class StartBuildStepDef extends CucumberStepsDefinition {
-
-    private static final String BUILD_ID = "123";
-    private static final String URL = "http://jenkins:8080/jobs/test/123";
-
-    private RestTemplate restTemplate;
-    private LatestResponse latestResponse;
-    private TestBuildInfoDao testBuildInfoDao;
-    private BuildRequest request;
+public class StartBuildStepDef extends BaseBuildStepDef {
 
     @Autowired
     public StartBuildStepDef(RestTemplate restTemplate, LatestResponse latestResponse,
                              TestBuildInfoDao testBuildInfoDao) {
-        this.restTemplate = restTemplate;
-        this.latestResponse = latestResponse;
-        this.testBuildInfoDao = testBuildInfoDao;
-        this.restTemplate.setErrorHandler(new TestResponseErrorHandler());
+        super(restTemplate, latestResponse, testBuildInfoDao);
     }
 
     @Given("^a valid payload, containing the build info$")
     public void aValidPayload() throws Throwable {
-        request = new BuildRequest(BUILD_ID, URL,  DateTimeFormatter.ISO_OFFSET_DATE_TIME.format(ZonedDateTime.now()));
+        request = new BuildRequest(BUILD_ID, URL, ISO_OFFSET_DATE_TIME.format(ZonedDateTime.now()));
     }
 
     @Given("^a payload missing the build ID$")
     public void aPayloadMissingTheBuildID() throws Throwable {
-        request = new BuildRequest(null, URL, DateTimeFormatter.ISO_OFFSET_DATE_TIME.format(ZonedDateTime.now()));
+        request = new BuildRequest(null, URL, ISO_OFFSET_DATE_TIME.format(ZonedDateTime.now()));
     }
 
     @Given("^a payload missing the build URL$")
     public void aPayloadMissingTheBuildURL() throws Throwable {
-        request = new BuildRequest(BUILD_ID, null, DateTimeFormatter.ISO_OFFSET_DATE_TIME.format(ZonedDateTime.now()));
+        request = new BuildRequest(BUILD_ID, null, ISO_OFFSET_DATE_TIME.format(ZonedDateTime.now()));
     }
 
     @Given("^a payload missing the time$")
@@ -59,12 +46,12 @@ public class StartBuildStepDef extends CucumberStepsDefinition {
 
     @Given("^a payload with with an invalid date or time$")
     public void aPayloadWithWithAnInvalidDateOrTime() throws Throwable {
-        request = new BuildRequest(BUILD_ID, URL, DateTimeFormatter.ISO_OFFSET_DATE_TIME.format(ZonedDateTime.now().plusMinutes(5)));
+        request = new BuildRequest(BUILD_ID, URL, ISO_OFFSET_DATE_TIME.format(ZonedDateTime.now().plusSeconds(1)));
     }
 
     @Given("^a payload with with an invalid URL \"([^\"]*)\"$")
     public void aPayloadWithWithAnInvalidURL(String url) throws Throwable {
-        request = new BuildRequest(BUILD_ID, url, DateTimeFormatter.ISO_OFFSET_DATE_TIME.format(ZonedDateTime.now()));
+        request = new BuildRequest(BUILD_ID, url, ISO_OFFSET_DATE_TIME.format(ZonedDateTime.now()));
     }
 
     @When("^the post endpoint is called$")
@@ -83,5 +70,9 @@ public class StartBuildStepDef extends CucumberStepsDefinition {
         String dbResponse = (String) latestResponse.getResponse().getBody();
         Map result = testBuildInfoDao.getRow(dbResponse);
         assertThat(result, notNullValue());
+        assertThat(result.get("buildId"), equalTo(BUILD_ID));
+        assertThat(result.get("url"), equalTo(URL));
+        assertThat(result.get("startTime"), equalTo(request.getTime()));
+        assertThat(result.get("finishTime"), nullValue());
     }
 }

@@ -1,14 +1,13 @@
 package com.shopdirect.maximoautomation.infrastructure.dao;
 
-import com.rethinkdb.RethinkDB;
 import com.rethinkdb.net.Connection;
 import com.shopdirect.maximoautomation.infrastructure.RethinkDBConnectionFactory;
-import com.shopdirect.maximoautomation.infrastructure.resource.BuildInfo;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
-import java.util.HashMap;
 import java.util.Map;
+
+import static com.rethinkdb.RethinkDB.r;
 
 /**
  * This is a wrapper for RethinkDB calls.
@@ -23,15 +22,21 @@ public class RethinkDBRunner {
         this.connectionFactory = connectionFactory;
     }
 
-    public HashMap<String,Object> create(String table, Map document) {
+    public Map<String,Object> create(String table, Map document) {
         try(Connection connection = connectionFactory.connectToMaximoDb()) {
-            return RethinkDB.r.table(table).insert(document).run(connection);
+            return r.table(table).insert(document).run(connection);
         }
     }
 
-    public HashMap<String, Object> update(String table, String id, Map document) {
+    public Map<String, Object> update(String table, String id, Map document) {
         try(Connection connection = connectionFactory.connectToMaximoDb()) {
-            return RethinkDB.r.table(table).get(id).update(document).run(connection);
+            return r.table(table).get(id).update(document).run(connection);
+        }
+    }
+
+    public Map<String, Object> get(String table, String id) {
+        try(Connection connection = connectionFactory.connectToMaximoDb()) {
+            return r.table(table).get(id).run(connection);
         }
     }
 }
