@@ -42,7 +42,7 @@ public class BuildResourceTest {
     public void buildStartedShouldInsertBuildInfoObjectInTheDatabaseAndReturnSuccess() throws Exception {
         // Given
         when(buildInfoDao.save(any())).thenReturn("id");
-        BuildInfo payload = new BuildInfo("id", "url", "00:00:00T00:00:00");
+        BuildInfo payload = createValidBuildInfo();
 
         // When
         mockMvc.perform(post(URI_PATH)
@@ -57,7 +57,7 @@ public class BuildResourceTest {
     @Test
     public void buildFinishedShouldUpdateBuildInfoObjectInTheDatabaseAndReturnSuccess() throws Exception {
         // Given
-        BuildInfo payload = new BuildInfo("id", "url", "00:00:00T00:00:00");
+        BuildInfo payload = createValidBuildInfo();
 
         // When
         mockMvc.perform(put(URI_PATH + "/1")
@@ -67,5 +67,9 @@ public class BuildResourceTest {
 
         // Then
         verify(buildInfoDao).update(any());
+    }
+
+    private BuildInfo createValidBuildInfo() {
+        return new BuildInfo("id", "http://jenkins/jobs/project/123", "2012-04-23T18:25:43.511Z");
     }
 }

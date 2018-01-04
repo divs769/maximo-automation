@@ -37,7 +37,7 @@ public class BuildInfoDao {
 
     private static String getGeneratedKey(HashMap<String, Object> result) {
         if (result.containsKey("generated_keys")) {
-            return ((List<String>)result.get("generated_keys")).get(0);
+            return ((String[])result.get("generated_keys"))[0];
         }
         return null;
     }

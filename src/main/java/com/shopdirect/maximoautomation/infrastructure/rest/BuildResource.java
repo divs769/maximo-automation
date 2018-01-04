@@ -41,7 +41,16 @@ public class BuildResource {
         return ResponseEntity.ok(buildInfoDao.save(buildInfo));
     }
 
-    private void validateInfo(BuildInfo buildInfo) throws Exception {
+    @RequestMapping(path = "/{buildId}", method = PUT)
+    public ResponseEntity<Void> buildFinished(
+            @PathVariable("buildId") String id,
+            @RequestBody BuildInfo buildInfo) throws Exception {
+        buildInfo.setId(id);
+        buildInfoDao.update(buildInfo);
+        return ResponseEntity.ok().build();
+    }
+
+    private static void validateInfo(BuildInfo buildInfo) throws Exception {
         if(buildInfo.getBuildId() == null) {
             throw new InvalidDataException("Missing build ID");
         }
@@ -55,18 +64,10 @@ public class BuildResource {
         if(time.isAfter(ZonedDateTime.now())) {
             throw new InvalidDataException("Invalid date");
         }
-        Matcher matcher = PATTERN.matcher(buildInfo.getUrl());
-        if(!matcher.matches()) {
+        if(!PATTERN.matcher(buildInfo.getUrl()).matches()) {
             throw new InvalidDataException("Invalid URL");
         }
     }
-
-    @RequestMapping(path = "/{buildId}", method = PUT)
-    public ResponseEntity<Void> buildFinished(@PathVariable String id, @RequestBody BuildInfo buildInfo) throws Exception {
-            buildInfo.setId(id);
-            buildInfoDao.update(buildInfo);
-            return ResponseEntity.ok().build();
-        }
 
 //    @RequestMapping(method = GET, produces = "application/json; charset=UTF-8")
 //    public ResponseEntity<HashMap> getAllBuilds() {
