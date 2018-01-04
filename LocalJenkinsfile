@@ -1,9 +1,4 @@
 #!/usr/bin/env groovy
-script {
-    def buildId = ''
-    def url = 'http://192.168.0.16:8080/build'
-    def maximoInfo = ''
-}
 
 pipeline {
     agent none
@@ -33,22 +28,22 @@ pipeline {
             echo 'Pipeline Passed'
 
             echo 'Closing Maximo change request'
-            maximoInfo = httpRequest httpMode: 'PUT', url: url+'/'+buildId
-            echo maximoInfo
+            httpRequest httpMode: 'PUT', url: url+'/'+buildId
+
         }
         failure {
             echo 'Pipeline Failed'
 
             echo 'Closing Maximo change request'
-            maximoInfo = httpRequest httpMode: 'PUT', url: url+'/'+buildId
-            echo maximoInfo
+            httpRequest httpMode: 'PUT', url: url+'/'+buildId
+
         }
     }
 
 }
 
 def createChange() {
-    httpRequest httpMode: 'POST', url: 'http://192.168.0.16:8080/build'
+    httpRequest contentType: 'application/json', httpMode: 'POST', url: 'http://192.168.0.23:8080/buildinfo', body: """{"buildId":"1","url":"https://localhost:8080/jobs/project/1","time":"2012-04-23T18:25:43.511Z"}"""
 }
 
 def closeChange() {
