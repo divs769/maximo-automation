@@ -13,6 +13,8 @@ import org.springframework.boot.test.mock.mockito.MockBean;
 import org.springframework.test.context.junit4.SpringRunner;
 import org.springframework.test.web.servlet.MockMvc;
 
+import java.util.HashMap;
+
 import static org.mockito.Matchers.any;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
@@ -58,6 +60,7 @@ public class BuildResourceTest {
     public void buildFinishedShouldUpdateBuildInfoObjectInTheDatabaseAndReturnSuccess() throws Exception {
         // Given
         BuildInfo payload = createFinishedBuildInfo();
+        when(buildInfoDao.getRecord(any())).thenReturn(objectMapper.convertValue(payload, HashMap.class));
 
         // When
         mockMvc.perform(put(URI_PATH)
@@ -74,6 +77,6 @@ public class BuildResourceTest {
     }
 
     private BuildInfo createFinishedBuildInfo() {
-        return new BuildInfo("1", "2012-04-23T18:25:43.511Z");
+        return new BuildInfo("1", "2012-04-23T19:25:43.511Z");
     }
 }
