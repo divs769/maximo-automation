@@ -17,6 +17,12 @@ public class BuildInfo {
         this.time = time;
     }
 
+    public BuildInfo(String buildId, String url, String time) {
+        this.buildId = buildId;
+        this.url = url;
+        this.time = time;
+    }
+
     @JsonCreator
     public BuildInfo(@JsonProperty("id") String id, @JsonProperty("buildId") String buildId, @JsonProperty("url") String url,
                      @JsonProperty("time") String time) {

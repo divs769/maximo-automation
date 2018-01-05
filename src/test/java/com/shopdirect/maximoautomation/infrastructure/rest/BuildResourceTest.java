@@ -13,6 +13,9 @@ import org.springframework.boot.test.mock.mockito.MockBean;
 import org.springframework.test.context.junit4.SpringRunner;
 import org.springframework.test.web.servlet.MockMvc;
 
+import java.util.HashMap;
+import java.util.Map;
+
 import static org.mockito.Matchers.any;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
@@ -56,6 +59,9 @@ public class BuildResourceTest {
 
     @Test
     public void buildFinishedShouldUpdateBuildInfoObjectInTheDatabaseAndReturnSuccess() throws Exception {
+        Map<String, Object> mockResult = new HashMap<>();
+        mockResult.put("startTime", "2012-04-23T18:25:43.511Z");
+        when(buildInfoDao.getRecord("1")).thenReturn(mockResult);
         // Given
         BuildInfo payload = createFinishedBuildInfo();
 
@@ -70,10 +76,10 @@ public class BuildResourceTest {
     }
 
     private BuildInfo createStartedBuildInfo() {
-        return new BuildInfo(null, "123", "http://jenkins/jobs/project/123", "2012-04-23T18:25:43.511Z");
+        return new BuildInfo("123", "http://jenkins/jobs/project/123", "2012-04-23T18:25:43.511Z");
     }
 
     private BuildInfo createFinishedBuildInfo() {
-        return new BuildInfo("1", "2012-04-23T18:25:43.511Z");
+        return new BuildInfo("1", "2012-04-23T18:25:44.511Z");
     }
 }

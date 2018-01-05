@@ -54,7 +54,7 @@ public class BuildResource {
         }
     }
 
-    @RequestMapping(method = PUT)
+    @RequestMapping(method = PUT, consumes = APPLICATION_JSON_UTF8_VALUE)
     public ResponseEntity<Void> buildFinished(@RequestBody BuildInfo buildInfo) throws Exception {
             checkInvalidTime(buildInfo.getTime());
             updateValidations(buildInfo);
