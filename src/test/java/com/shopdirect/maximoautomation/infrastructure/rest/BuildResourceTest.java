@@ -2,7 +2,8 @@ package com.shopdirect.maximoautomation.infrastructure.rest;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.shopdirect.maximoautomation.infrastructure.dao.BuildInfoDao;
-import com.shopdirect.maximoautomation.infrastructure.resource.BuildInfo;
+import com.shopdirect.maximoautomation.infrastructure.resource.BuildFinishedRequest;
+import com.shopdirect.maximoautomation.infrastructure.resource.BuildStartedRequest;
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
@@ -45,7 +46,7 @@ public class BuildResourceTest {
     public void buildStartedShouldInsertBuildInfoObjectInTheDatabaseAndReturnSuccess() throws Exception {
         // Given
         when(buildInfoDao.save(any())).thenReturn("id");
-        BuildInfo payload = createStartedBuildInfo();
+        BuildStartedRequest payload = createStartedBuildInfo();
 
         // When
         mockMvc.perform(post(URI_PATH)
@@ -63,8 +64,7 @@ public class BuildResourceTest {
         mockResult.put("startTime", "2012-04-23T18:25:43.511Z");
         when(buildInfoDao.getRecord("1")).thenReturn(mockResult);
         // Given
-        BuildInfo payload = createFinishedBuildInfo();
-        when(buildInfoDao.getRecord(any())).thenReturn(objectMapper.convertValue(payload, HashMap.class));
+        BuildFinishedRequest payload = createFinishedBuildInfo();
 
         // When
         mockMvc.perform(put(URI_PATH)
@@ -76,11 +76,11 @@ public class BuildResourceTest {
         verify(buildInfoDao).update(any());
     }
 
-    private BuildInfo createStartedBuildInfo() {
-        return new BuildInfo("123", "http://jenkins/jobs/project/123", "2012-04-23T18:25:43.511Z");
+    private BuildStartedRequest createStartedBuildInfo() {
+        return new BuildStartedRequest("123","http://jenkins/jobs/project/123",  "2012-04-23T18:25:43.511Z");
     }
 
-    private BuildInfo createFinishedBuildInfo() {
-        return new BuildInfo("1", "2012-04-23T18:25:44.511Z");
+    private BuildFinishedRequest createFinishedBuildInfo() {
+        return new BuildFinishedRequest("1", "2012-04-23T18:25:44.511Z");
     }
 }

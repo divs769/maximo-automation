@@ -72,7 +72,7 @@ public class StartBuildStepDef extends BaseBuildStepDef {
         assertThat(result, notNullValue());
         assertThat(result.get("buildId"), equalTo(BUILD_ID));
         assertThat(result.get("url"), equalTo(URL));
-        assertThat(result.get("startTime"), equalTo(request.getTime()));
+        assertThat(result.get("startTime").toString(), equalTo(request.getTime()));
         assertThat(result.get("finishTime"), nullValue());
     }
 }

@@ -2,7 +2,9 @@ package com.shopdirect.maximoautomation.infrastructure.rest;
 
 import com.shopdirect.maximoautomation.infrastructure.dao.BuildInfoDao;
 import com.shopdirect.maximoautomation.infrastructure.exception.InvalidDataException;
+import com.shopdirect.maximoautomation.infrastructure.resource.BuildFinishedRequest;
 import com.shopdirect.maximoautomation.infrastructure.resource.BuildInfo;
+import com.shopdirect.maximoautomation.infrastructure.resource.BuildStartedRequest;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -36,7 +38,8 @@ public class BuildResource {
     }
 
     @RequestMapping(method = POST, consumes = APPLICATION_JSON_UTF8_VALUE)
-    public ResponseEntity<String> buildStarted(@RequestBody BuildInfo buildInfo) throws Exception {
+    public ResponseEntity<String> buildStarted(@RequestBody BuildStartedRequest request) throws Exception {
+        BuildInfo buildInfo = request.createBuildInfo();
         validateInfo(buildInfo);
         return ResponseEntity.ok(buildInfoDao.save(buildInfo));
     }
@@ -55,19 +58,19 @@ public class BuildResource {
     }
 
     @RequestMapping(method = PUT, consumes = APPLICATION_JSON_UTF8_VALUE)
-    public ResponseEntity<Void> buildFinished(@RequestBody BuildInfo buildInfo) throws Exception {
+    public ResponseEntity<Void> buildFinished(@RequestBody BuildFinishedRequest request) throws Exception {
+            BuildInfo buildInfo = request.createBuildInfo();
             checkInvalidTime(buildInfo.getTime());
             updateValidations(buildInfo);
             buildInfoDao.update(buildInfo);
             return ResponseEntity.ok().build();
         }
 
-    private void checkInvalidTime(String time) throws InvalidDataException {
+    private void checkInvalidTime(ZonedDateTime time) throws InvalidDataException {
         if(time == null) {
             throw new InvalidDataException("Missing time");
         }
-        ZonedDateTime zonedDateTime = ZonedDateTime.parse(time, ISO_OFFSET_DATE_TIME);
-        if(zonedDateTime.isAfter(ZonedDateTime.now())) {
+        if(time.isAfter(ZonedDateTime.now())) {
             throw new InvalidDataException("Invalid date");
         }
     }
@@ -77,8 +80,7 @@ public class BuildResource {
         if(existingRecord == null) {
             throw new InvalidDataException("Record doesn't exist in the database");
         }
-        if(ZonedDateTime.parse(buildInfo.getTime(), ISO_OFFSET_DATE_TIME)
-                .isBefore(ZonedDateTime.parse((String)existingRecord.get("startTime"), ISO_OFFSET_DATE_TIME))) {
+        if(buildInfo.getTime().isBefore(ZonedDateTime.parse((String)existingRecord.get("startTime"), ISO_OFFSET_DATE_TIME))) {
             throw new InvalidDataException("Finish date should be after start date");
         }
     }

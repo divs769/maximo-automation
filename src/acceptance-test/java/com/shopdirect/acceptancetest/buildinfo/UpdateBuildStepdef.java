@@ -86,7 +86,7 @@ public class UpdateBuildStepdef extends BaseBuildStepDef {
     public void theBuildInfoRecordIsUpdatedInTheDatabase() throws Throwable {
         Map result = testBuildInfoDao.getRow(request.getId());
         assertRecordsSame(result);
-        assertThat(result.get("finishTime"), equalTo(request.getTime()));
+        assertThat(result.get("finishTime").toString(), equalTo(request.getTime()));
     }
 
     @And("^the record is not updated in the database$")

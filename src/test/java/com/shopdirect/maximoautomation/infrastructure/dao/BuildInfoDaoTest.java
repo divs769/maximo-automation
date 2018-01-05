@@ -9,7 +9,7 @@ import org.junit.runner.RunWith;
 import org.springframework.boot.test.mock.mockito.MockBean;
 import org.springframework.test.context.junit4.SpringRunner;
 
-import java.util.Arrays;
+import java.time.ZonedDateTime;
 import java.util.Collections;
 import java.util.HashMap;
 
@@ -39,7 +39,7 @@ public class BuildInfoDaoTest {
         when(rethinkDBRunner.create(any(), any())).thenReturn(resultMap);
 
         // When
-        String actualId = instance.save(new BuildInfo(null,"id", "url", "time"));
+        String actualId = instance.save(BuildInfo.builder().setId(null).setBuildId("id").setUrl("url").setTime(ZonedDateTime.now()).createBuildInfo());
 
         // Then
         verify(rethinkDBRunner).create(any(), any());
@@ -52,7 +52,7 @@ public class BuildInfoDaoTest {
         when(rethinkDBRunner.update(any(), any(), any())).thenReturn(resultMap);
 
         // When
-        instance.update(new BuildInfo(null,"id", "url", "time"));
+        instance.update(BuildInfo.builder().setId(null).setBuildId("id").setUrl("url").setTime(ZonedDateTime.now()).createBuildInfo());
 
         // Then
         verify(rethinkDBRunner).update(any(), any(), any());
