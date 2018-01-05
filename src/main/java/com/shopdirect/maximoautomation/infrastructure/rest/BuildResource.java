@@ -59,12 +59,12 @@ public class BuildResource {
 
     @RequestMapping(method = PUT, consumes = APPLICATION_JSON_UTF8_VALUE)
     public ResponseEntity<Void> buildFinished(@RequestBody BuildFinishedRequest request) throws Exception {
-            BuildInfo buildInfo = request.createBuildInfo();
-            checkInvalidTime(buildInfo.getTime());
-            updateValidations(buildInfo);
-            buildInfoDao.update(buildInfo);
-            return ResponseEntity.ok().build();
-        }
+        BuildInfo buildInfo = request.createBuildInfo();
+        checkInvalidTime(buildInfo.getTime());
+        updateValidations(buildInfo);
+        buildInfoDao.update(buildInfo);
+        return ResponseEntity.ok().build();
+    }
 
     private void checkInvalidTime(ZonedDateTime time) throws InvalidDataException {
         if(time == null) {
