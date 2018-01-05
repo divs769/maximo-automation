@@ -64,6 +64,7 @@ public class BuildResourceTest {
         when(buildInfoDao.getRecord("1")).thenReturn(mockResult);
         // Given
         BuildInfo payload = createFinishedBuildInfo();
+        when(buildInfoDao.getRecord(any())).thenReturn(objectMapper.convertValue(payload, HashMap.class));
 
         // When
         mockMvc.perform(put(URI_PATH)
