@@ -39,7 +39,7 @@ public class BuildInfoDaoTest {
         when(rethinkDBRunner.create(any(), any())).thenReturn(resultMap);
 
         // When
-        String actualId = instance.save(BuildInfo.builder().setId(null).setBuildId("id").setUrl("url").setTime(ZonedDateTime.now()).createBuildInfo());
+        String actualId = instance.save(BuildInfo.builder().setId(null).setBuildId("id").setUrl("url").setStartTime(ZonedDateTime.now()).createBuildInfo());
 
         // Then
         verify(rethinkDBRunner).create(any(), any());
@@ -52,7 +52,7 @@ public class BuildInfoDaoTest {
         when(rethinkDBRunner.update(any(), any(), any())).thenReturn(resultMap);
 
         // When
-        instance.update(BuildInfo.builder().setId(null).setBuildId("id").setUrl("url").setTime(ZonedDateTime.now()).createBuildInfo());
+        instance.update(BuildInfo.builder().setId(null).setBuildId("id").setUrl("url").setStartTime(ZonedDateTime.now()).createBuildInfo());
 
         // Then
         verify(rethinkDBRunner).update(any(), any(), any());

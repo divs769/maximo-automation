@@ -22,7 +22,7 @@ public class BuildStartedRequest {
     }
 
     public BuildInfo createBuildInfo() {
-        return BuildInfo.builder().setBuildId(buildId).setUrl(url).setTime(ZonedDateTime.parse(time, ISO_OFFSET_DATE_TIME)).createBuildInfo();
+        return BuildInfo.builder().setBuildId(buildId).setUrl(url).setStartTime(ZonedDateTime.parse(time, ISO_OFFSET_DATE_TIME)).createBuildInfo();
     }
 
     public String getBuildId() {

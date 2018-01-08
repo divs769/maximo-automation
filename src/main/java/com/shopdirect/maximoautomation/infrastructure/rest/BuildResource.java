@@ -15,13 +15,10 @@ import org.springframework.web.bind.annotation.RestController;
 
 import static org.springframework.http.MediaType.APPLICATION_JSON_UTF8_VALUE;
 import java.time.ZonedDateTime;
-import java.util.Map;
-import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
 import static org.springframework.web.bind.annotation.RequestMethod.POST;
 import static org.springframework.web.bind.annotation.RequestMethod.PUT;
-import static java.time.format.DateTimeFormatter.ISO_OFFSET_DATE_TIME;
 
 @RestController
 @RequestMapping(value = "/buildinfo")
@@ -40,18 +37,18 @@ public class BuildResource {
     @RequestMapping(method = POST, consumes = APPLICATION_JSON_UTF8_VALUE)
     public ResponseEntity<String> buildStarted(@RequestBody BuildStartedRequest request) throws Exception {
         BuildInfo buildInfo = request.createBuildInfo();
-        validateInfo(buildInfo);
+        validateBuildStarted(buildInfo);
         return ResponseEntity.ok(buildInfoDao.save(buildInfo));
     }
 
-    private void validateInfo(BuildInfo buildInfo) throws Exception {
+    private void validateBuildStarted(BuildInfo buildInfo) throws Exception {
         if(buildInfo.getBuildId() == null) {
             throw new InvalidDataException("Missing build ID");
         }
         if(buildInfo.getUrl() == null) {
             throw new InvalidDataException("Missing URL");
         }
-        checkInvalidTime(buildInfo.getTime());
+        checkInvalidTime(buildInfo.getStartTime());
         if(!PATTERN.matcher(buildInfo.getUrl()).matches()) {
             throw new InvalidDataException("Invalid URL");
         }
@@ -60,7 +57,7 @@ public class BuildResource {
     @RequestMapping(method = PUT, consumes = APPLICATION_JSON_UTF8_VALUE)
     public ResponseEntity<Void> buildFinished(@RequestBody BuildFinishedRequest request) throws Exception {
         BuildInfo buildInfo = request.createBuildInfo();
-        checkInvalidTime(buildInfo.getTime());
+        checkInvalidTime(buildInfo.getFinishTime());
         updateValidations(buildInfo);
         buildInfoDao.update(buildInfo);
         return ResponseEntity.ok().build();
@@ -76,11 +73,11 @@ public class BuildResource {
     }
 
     private void updateValidations(BuildInfo buildInfo) throws InvalidDataException {
-        Map<String, Object> existingRecord = buildInfoDao.getRecord(buildInfo.getId());
+        BuildInfo existingRecord = buildInfoDao.getRecord(buildInfo.getId());
         if(existingRecord == null) {
             throw new InvalidDataException("Record doesn't exist in the database");
         }
-        if(buildInfo.getTime().isBefore(ZonedDateTime.parse((String)existingRecord.get("startTime"), ISO_OFFSET_DATE_TIME))) {
+        if(buildInfo.getFinishTime().isBefore(existingRecord.getStartTime())) {
             throw new InvalidDataException("Finish date should be after start date");
         }
     }
