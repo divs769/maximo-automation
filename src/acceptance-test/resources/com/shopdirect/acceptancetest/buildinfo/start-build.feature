@@ -5,10 +5,10 @@ Feature: Start build
     And the database is clean
 
   Scenario: The Post operation sends complete data
-    Given a valid payload, containing the build info
+    Given a valid payload containing the build info
     When the post endpoint is called
     Then the response is success
-    And the response body contains a valid id
+    And the response body contains a valid ID
     And the build info record is created in the database
 
   Scenario: The Post operation sends data with the build ID missing
@@ -31,22 +31,15 @@ Feature: Start build
     When the post endpoint is called
     Then the response is failure
 
-  Scenario: The Post operation sends data a URL with the jobs domain missing
-    Given a payload with with an invalid URL "http://jenkins:8080/test/123"
+  Scenario Outline: The Post payload contains invalid URL
+    Given a payload with an invalid URL "<url>"
     When the post endpoint is called
     Then the response is failure
-
-  Scenario: The Post operation sends data a URL with an invalid build ID
-    Given a payload with with an invalid URL "http://jenkins:8080/jobs/test/1ab"
-    When the post endpoint is called
-    Then the response is failure
-
-  Scenario: The Post operation sends data a URL with no build ID
-    Given a payload with with an invalid URL "http://jenkins:8080/jobs/test/"
-    When the post endpoint is called
-    Then the response is failure
-
-  Scenario: The Post operation sends data a URL with no domain
-    Given a payload with with an invalid URL "jobs/test/123"
-    When the post endpoint is called
-    Then the response is failure
+    Examples:
+      | url                                     |
+      | http://jenkins:8080/test/123            |
+      | http://jenkins:8080/jobs/test/123       |
+      | http://jenkins:8080/job/test/1ab        |
+      | http://jenkins:8080/job/test/           |
+      | http://1234.123.19.22:8080/job/test/123 |
+      | jobs/test/123                           |

@@ -170,6 +170,7 @@ assert file(configFile).exists()
 }
 
 task acceptanceTest(type: Test) {
+	systemProperties = System.properties
 	testClassesDir = sourceSets.acceptanceTest.output.classesDir
 	classpath = sourceSets.acceptanceTest.runtimeClasspath
 	outputs.upToDateWhen { false }

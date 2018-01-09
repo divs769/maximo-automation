@@ -11,7 +11,7 @@ import org.springframework.web.client.RestTemplate;
 public abstract class BaseBuildStepDef extends CucumberStepsDefinition {
 
     protected static final String BUILD_ID = "123";
-    protected static final String URL = "http://jenkins:8080/jobs/test/123";
+    protected static final String URL = "http://jenkins:8080/job/test/123/";
     protected static final String ID = "1";
 
     protected RestTemplate restTemplate;

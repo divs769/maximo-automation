@@ -24,7 +24,7 @@ public class StartBuildStepDef extends BaseBuildStepDef {
         super(restTemplate, latestResponse, testBuildInfoDao);
     }
 
-    @Given("^a valid payload, containing the build info$")
+    @Given("^a valid payload containing the build info$")
     public void aValidPayload() throws Throwable {
         request = new BuildRequest(BUILD_ID, URL, ISO_OFFSET_DATE_TIME.format(ZonedDateTime.now()));
     }
@@ -49,7 +49,7 @@ public class StartBuildStepDef extends BaseBuildStepDef {
         request = new BuildRequest(BUILD_ID, URL, ISO_OFFSET_DATE_TIME.format(ZonedDateTime.now().plusSeconds(1)));
     }
 
-    @Given("^a payload with with an invalid URL \"([^\"]*)\"$")
+    @Given("^a payload with an invalid URL \"([^\"]*)\"$")
     public void aPayloadWithWithAnInvalidURL(String url) throws Throwable {
         request = new BuildRequest(BUILD_ID, url, ISO_OFFSET_DATE_TIME.format(ZonedDateTime.now()));
     }
@@ -59,7 +59,7 @@ public class StartBuildStepDef extends BaseBuildStepDef {
         latestResponse.setResponse(restTemplate.postForEntity("http://localhost:8080/buildinfo", request, String.class));
     }
 
-    @And("^the response body contains a valid id$")
+    @And("^the response body contains a valid ID$")
     public void theResponseBodyContainsAValidId() throws Throwable {
         assertThat(latestResponse.getResponse().getBody(), notNullValue());
         assertThat(latestResponse.getResponse().getBody().toString(), not(isEmptyOrNullString()));
