@@ -12,10 +12,10 @@ pipeline {
                 script {
                     maximoAutoUrl = 'http://10.188.228.19:8080/buildinfo'
                     buildStartTime = new Date(currentBuild.startTimeInMillis);
-                    startDate = buildStartTime.format("MM/dd/yyyy'T'HH:mm:ss.SSS'Z'", TimeZone.getTimeZone('UTC'))
+                    startDate = buildStartTime.format("yyyy-MM-dd'T'HH:mm:ss.SSS'Z'", TimeZone.getTimeZone('UTC'))
                     buildInfoBody = """{"buildId":"${currentBuild.id}","url":"${env.BUILD_URL}","time":"${startDate}"}"""
                     echo "${buildInfoBody}"
-                    response = httpRequest contentType: 'APPLICATION_JSON', httpMode: 'POST', url: 'http://10.188.228.19:8080/buildinfo', requestBody: buildInfoBody
+                    response = httpRequest contentType: 'APPLICATION_JSON', httpMode: 'POST', url: maximoAutoUrl, requestBody: buildInfoBody
                     echo "Response status from maximo-automation: ${response}"
                     echo "BuildInfo ID returned: ${response.content}"
                     buildInfoId = response.content;
@@ -25,6 +25,7 @@ pipeline {
         stage('Test') {
             steps {
                 echo 'Testing..'
+                sleep 5
             }
         }
         stage('Deploy') {
@@ -39,8 +40,12 @@ pipeline {
             echo 'Pipeline Passed'
 
             echo 'Closing Maximo change request'
-            httpRequest httpMode: 'PUT', url: maximoAutoUrl+'/'+buildInfoId
-
+            script {
+                buildFinishTime = new Date(currentBuild.startTimeInMillis + currentBuild.duration);
+                finishDate = buildFinishTime.format("yyyy-MM-dd'T'HH:mm:ss.SSS'Z'", TimeZone.getTimeZone('UTC'))
+                finishBuildBody = """{"id":"${buildInfoId}","time":"${finishDate}"}"""
+                httpRequest contentType: 'APPLICATION_JSON', httpMode: 'PUT', url: maximoAutoUrl, requestBody: finishBuildBody
+            }
         }
         failure {
             echo 'Pipeline Failed'
