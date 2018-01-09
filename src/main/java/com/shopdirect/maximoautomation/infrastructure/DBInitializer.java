@@ -1,6 +1,5 @@
 package com.shopdirect.maximoautomation.infrastructure;
 
-import com.rethinkdb.RethinkDB;
 import com.rethinkdb.net.Connection;
 import org.springframework.beans.factory.InitializingBean;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -8,12 +7,13 @@ import org.springframework.stereotype.Component;
 
 import java.util.List;
 
+import static com.rethinkdb.RethinkDB.r;
+
 @Component
 public class DBInitializer implements InitializingBean {
 
     public static final String MAXIMO_DB = "maximoauto";
     public static final String BUILDS_TB = "builds";
-    private static final RethinkDB r = RethinkDB.r;
 
     private RethinkDBConnectionFactory connectionFactory;
 

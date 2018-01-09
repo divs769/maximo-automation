@@ -2,11 +2,17 @@ package com.shopdirect.model;
 
 public class BuildRequest {
 
+    private String id;
     private String buildId;
     private String url;
     private String time;
 
     public BuildRequest() {
+    }
+
+    public BuildRequest(String id, String time) {
+        this.id = id;
+        this.time = time;
     }
 
     public BuildRequest(String buildId, String url, String time) {
@@ -25,5 +31,9 @@ public class BuildRequest {
 
     public String getTime() {
         return time;
+    }
+
+    public String getId() {
+        return id;
     }
 }

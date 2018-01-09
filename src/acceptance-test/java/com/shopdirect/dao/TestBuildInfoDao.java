@@ -46,6 +46,10 @@ public class TestBuildInfoDao {
         return r.db(DBInitializer.MAXIMO_DB).table(DBInitializer.BUILDS_TB).get(id).run(connection);
     }
 
+    public void insertRow(Map buildData) {
+        r.db(DBInitializer.MAXIMO_DB).table(DBInitializer.BUILDS_TB).insert(buildData).run(connection);
+    }
+
     public void closeConnection() {
         connection.close();
     }
