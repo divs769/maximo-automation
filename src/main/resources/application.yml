@@ -2,9 +2,6 @@ file:
     namesPath: names.txt
     versionPath: service-config
 
-logging:
-  file: build/app.log
-  level: info
 
 springfox:
    documentation:
@@ -24,5 +21,11 @@ spring:
     jackson:
         serialization:
             INDENT_OUTPUT: true
+logging:
+  file: build/app.log
+  level:
+    ROOT: INFO
+    org.springframework.web.filter.CommonsRequestLoggingFilter: DEBUG
+
 info:
     config: Local

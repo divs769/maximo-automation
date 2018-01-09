@@ -2,13 +2,24 @@
 
 pipeline {
     agent none
+
     stages {
         stage('Build') {
             steps {
-                echo 'Version ' + env.BUILD_ID
+                echo 'Version ' + env.BUILD_ID + ' URL: ' + env.BUILD_URL
                 echo 'Building..'
                 echo 'Requesting maximo-automation to create change request'
-                createChange()
+                script {
+                    maximoAutoUrl = 'http://10.188.228.19:8080/buildinfo'
+                    buildStartTime = new Date(currentBuild.startTimeInMillis);
+                    startDate = buildStartTime.format("MM/dd/yyyy'T'HH:mm:ss.SSS'Z'", TimeZone.getTimeZone('UTC'))
+                    buildInfoBody = """{"buildId":"${currentBuild.id}","url":"${env.BUILD_URL}","time":"${startDate}"}"""
+                    echo "${buildInfoBody}"
+                    response = httpRequest contentType: 'APPLICATION_JSON', httpMode: 'POST', url: 'http://10.188.228.19:8080/buildinfo', requestBody: buildInfoBody
+                    echo "Response status from maximo-automation: ${response}"
+                    echo "BuildInfo ID returned: ${response.content}"
+                    buildInfoId = response.content;
+                }
             }
         }
         stage('Test') {
@@ -28,24 +39,16 @@ pipeline {
             echo 'Pipeline Passed'
 
             echo 'Closing Maximo change request'
-            httpRequest httpMode: 'PUT', url: url+'/'+buildId
+            httpRequest httpMode: 'PUT', url: maximoAutoUrl+'/'+buildInfoId
 
         }
         failure {
             echo 'Pipeline Failed'
 
             echo 'Closing Maximo change request'
-            httpRequest httpMode: 'PUT', url: url+'/'+buildId
+            httpRequest httpMode: 'PUT', url: maximoAutoUrl+'/'+buildInfoId
 
         }
     }
-
-}
-
-def createChange() {
-    httpRequest contentType: 'application/json', httpMode: 'POST', url: 'http://192.168.0.23:8080/buildinfo', body: """{"buildId":"1","url":"https://localhost:8080/jobs/project/1","time":"2012-04-23T18:25:43.511Z"}"""
-}
-
-def closeChange() {
 
 }
