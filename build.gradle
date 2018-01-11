@@ -93,6 +93,10 @@ sourceSets {
 }
 
 configurations {
+    jaxb
+}
+
+configurations {
 	acceptanceTestCompile.extendsFrom testCompile
 	acceptanceTestRuntime.extendsFrom testRuntime
 }
@@ -110,6 +114,44 @@ gatling {
 		graphiteUrl = "http://my.graphite.server.com"
 		metricPrefix = 'my-namespace'
 	}
+}
+
+// tag::wsdl[]
+task genJaxb {
+    ext.sourcesDir = "${buildDir}/generated-sources/jaxb"
+    ext.classesDir = "${buildDir}/classes/jaxb"
+    ext.schema = "C:/Downloads/maximo/esls1uat.eu.smi.ibm.com_meaweb_wsdl_MXISWOCHANGE.wsdl"
+
+    outputs.dir classesDir
+
+    doLast() {
+        project.ant {
+            taskdef name: "xjc", classname: "com.sun.tools.xjc.XJCTask",
+                    classpath: configurations.jaxb.asPath
+            mkdir(dir: sourcesDir)
+            mkdir(dir: classesDir)
+
+            xjc(destdir: sourcesDir, schema: schema,
+                    package: "com.shopdirect.maximoautomation.infrastructure.maximo.ws") {
+                arg(value: "-wsdl")
+                produces(dir: sourcesDir, includes: "**/*.java")
+            }
+
+            javac(destdir: classesDir, source: 1.8, target: 1.8, debug: true,
+                    debugLevel: "lines,vars,source",
+                    classpath: configurations.jaxb.asPath) {
+                src(path: sourcesDir)
+                include(name: "**/*.java")
+                include(name: "*.java")
+            }
+
+            copy(todir: classesDir) {
+                fileset(dir: sourcesDir, erroronmissingdir: false) {
+                    exclude(name: "**/*.java")
+                }
+            }
+        }
+    }
 }
 
 dependencies {
@@ -130,6 +172,10 @@ dependencies {
 	compile "com.rethinkdb:rethinkdb-driver:2.3.3"
 	compile "com.fasterxml.jackson.core:jackson-annotations:2.9.3"
 	compile "com.fasterxml.jackson.datatype:jackson-datatype-jsr310:2.9.3"
+    compile("org.springframework.ws:spring-ws-core")
+    compile(files(genJaxb.classesDir).builtBy(genJaxb))
+
+    jaxb "com.sun.xml.bind:jaxb-xjc:2.1.7"
 }
 
 task version {
@@ -220,3 +266,4 @@ task s3UploadClientJar(type: com.github.skhatri.s3aws.plugin.S3UploadTask) {
 	file = 'build/libs/' + serviceName + '-' + serviceVersion + '-client.jar'
 	link = 'latest/' + serviceName + '-client.jar'
 }
+

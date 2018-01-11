@@ -2,6 +2,7 @@ package com.shopdirect.maximoautomation.infrastructure.rest;
 
 import com.shopdirect.maximoautomation.infrastructure.dao.BuildInfoDao;
 import com.shopdirect.maximoautomation.infrastructure.exception.InvalidDataException;
+import com.shopdirect.maximoautomation.infrastructure.maximo.client.MaximoClient;
 import com.shopdirect.maximoautomation.infrastructure.resource.BuildFinishedRequest;
 import com.shopdirect.maximoautomation.infrastructure.resource.BuildInfo;
 import com.shopdirect.maximoautomation.infrastructure.resource.BuildStartedRequest;
@@ -28,6 +29,8 @@ public class BuildResource {
     private static final Pattern PATTERN = Pattern.compile("(https?://)?[\\w.]+(:\\d+)?/job/[\\w\\-]+/\\d+/$");
 
     private final BuildInfoDao buildInfoDao;
+    @Autowired
+    private MaximoClient maximoClient;
 
     @Autowired
     public BuildResource(BuildInfoDao buildInfoDao) {
@@ -38,7 +41,9 @@ public class BuildResource {
     public ResponseEntity<String> buildStarted(@RequestBody BuildStartedRequest request) throws Exception {
         BuildInfo buildInfo = request.createBuildInfo();
         validateBuildStarted(buildInfo);
-        return ResponseEntity.ok(buildInfoDao.save(buildInfo));
+        String id = buildInfoDao.save(buildInfo);
+        maximoClient.createChange(buildInfo);
+        return ResponseEntity.ok(id);
     }
 
     private void validateBuildStarted(BuildInfo buildInfo) throws Exception {
