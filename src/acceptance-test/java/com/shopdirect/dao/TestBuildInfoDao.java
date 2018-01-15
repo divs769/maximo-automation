@@ -3,15 +3,16 @@ package com.shopdirect.dao;
 import com.rethinkdb.net.Connection;
 import com.shopdirect.maximoautomation.infrastructure.DBInitializer;
 import com.shopdirect.maximoautomation.infrastructure.RethinkDBConnectionFactory;
+import com.shopdirect.maximoautomation.infrastructure.resource.BuildInfo;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.stereotype.Repository;
+import org.springframework.stereotype.Component;
 
 import java.util.List;
 import java.util.Map;
 
 import static com.rethinkdb.RethinkDB.r;
 
-@Repository
+@Component
 public class TestBuildInfoDao {
 
     private RethinkDBConnectionFactory connectionFactory;
@@ -47,6 +48,10 @@ public class TestBuildInfoDao {
     }
 
     public void insertRow(Map buildData) {
+        r.db(DBInitializer.MAXIMO_DB).table(DBInitializer.BUILDS_TB).insert(buildData).run(connection);
+    }
+
+    public void insertRow(BuildInfo buildData) {
         r.db(DBInitializer.MAXIMO_DB).table(DBInitializer.BUILDS_TB).insert(buildData).run(connection);
     }
 

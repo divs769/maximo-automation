@@ -9,14 +9,15 @@ import cucumber.api.java.en.When;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.client.RestTemplate;
 
-import java.time.ZonedDateTime;
+import java.time.OffsetDateTime;
 import java.util.Map;
 
 import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.Matchers.*;
-import static java.time.format.DateTimeFormatter.ISO_OFFSET_DATE_TIME;
 
 public class StartBuildStepDef extends BaseBuildStepDef {
+
+    private BuildRequest request;
 
     @Autowired
     public StartBuildStepDef(RestTemplate restTemplate, LatestResponse latestResponse,
@@ -26,17 +27,17 @@ public class StartBuildStepDef extends BaseBuildStepDef {
 
     @Given("^a valid payload containing the build info$")
     public void aValidPayload() throws Throwable {
-        request = new BuildRequest(BUILD_ID, URL, ISO_OFFSET_DATE_TIME.format(ZonedDateTime.now()));
+        request = new BuildRequest(BUILD_ID, URL, OffsetDateTime.now().toString());
     }
 
     @Given("^a payload missing the build ID$")
     public void aPayloadMissingTheBuildID() throws Throwable {
-        request = new BuildRequest(null, URL, ISO_OFFSET_DATE_TIME.format(ZonedDateTime.now()));
+        request = new BuildRequest(null, URL, OffsetDateTime.now().toString());
     }
 
     @Given("^a payload missing the build URL$")
     public void aPayloadMissingTheBuildURL() throws Throwable {
-        request = new BuildRequest(BUILD_ID, null, ISO_OFFSET_DATE_TIME.format(ZonedDateTime.now()));
+        request = new BuildRequest(BUILD_ID, null, OffsetDateTime.now().toString());
     }
 
     @Given("^a payload missing the time$")
@@ -46,17 +47,17 @@ public class StartBuildStepDef extends BaseBuildStepDef {
 
     @Given("^a payload with with an invalid date or time$")
     public void aPayloadWithWithAnInvalidDateOrTime() throws Throwable {
-        request = new BuildRequest(BUILD_ID, URL, ISO_OFFSET_DATE_TIME.format(ZonedDateTime.now().plusSeconds(1)));
+        request = new BuildRequest(BUILD_ID, URL, OffsetDateTime.now().plusSeconds(1).toString());
     }
 
     @Given("^a payload with an invalid URL \"([^\"]*)\"$")
     public void aPayloadWithWithAnInvalidURL(String url) throws Throwable {
-        request = new BuildRequest(BUILD_ID, url, ISO_OFFSET_DATE_TIME.format(ZonedDateTime.now()));
+        request = new BuildRequest(BUILD_ID, url, OffsetDateTime.now().toString());
     }
 
     @When("^the post endpoint is called$")
     public void thePostEndpointIsCalled() throws Throwable {
-        latestResponse.setResponse(restTemplate.postForEntity("http://localhost:8080/buildinfo", request, String.class));
+        latestResponse.setResponse(restTemplate.postForEntity(ENDPOINT, request, String.class));
     }
 
     @And("^the response body contains a valid ID$")
@@ -70,8 +71,8 @@ public class StartBuildStepDef extends BaseBuildStepDef {
         String dbResponse = (String) latestResponse.getResponse().getBody();
         Map result = testBuildInfoDao.getRow(dbResponse);
         assertThat(result, notNullValue());
-        assertThat(result.get("buildId"), equalTo(BUILD_ID));
-        assertThat(result.get("url"), equalTo(URL));
+        assertThat(result.get("buildId"), equalTo(request.getBuildId()));
+        assertThat(result.get("url"), equalTo(request.getUrl()));
         assertThat(result.get("startTime").toString(), equalTo(request.getTime()));
         assertThat(result.get("finishTime"), nullValue());
     }

@@ -1,4 +1,4 @@
-package com.shopdirect.model;
+package com.shopdirect.acceptancetest.configuration;
 
 import org.springframework.http.HttpStatus;
 import org.springframework.web.client.DefaultResponseErrorHandler;

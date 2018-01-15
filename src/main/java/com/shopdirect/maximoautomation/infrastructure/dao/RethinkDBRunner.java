@@ -1,10 +1,13 @@
 package com.shopdirect.maximoautomation.infrastructure.dao;
 
 import com.rethinkdb.net.Connection;
+import com.rethinkdb.net.Cursor;
+import com.shopdirect.maximoautomation.infrastructure.DBInitializer;
 import com.shopdirect.maximoautomation.infrastructure.RethinkDBConnectionFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
+import java.util.List;
 import java.util.Map;
 
 import static com.rethinkdb.RethinkDB.r;
@@ -37,6 +40,20 @@ public class RethinkDBRunner {
     public Map<String, Object> get(String table, String id) {
         try(Connection connection = connectionFactory.connectToMaximoDb()) {
             return r.table(table).get(id).run(connection);
+        }
+    }
+
+    public List<Map<String, Object>> getAll(String table, Long startIndex, Long limit) {
+        try (Connection connection = connectionFactory.connectToMaximoDb()) {
+            Cursor cursor = r.table(table).orderBy().optArg("index", r.desc("startTime"))
+                    .slice(startIndex).limit(limit).run(connection);
+            return cursor.toList();
+        }
+    }
+
+    public Long countRecords() {
+        try(Connection connection = connectionFactory.connectToMaximoDb()) {
+            return r.table(DBInitializer.BUILDS_TB).count().run(connection);
         }
     }
 }

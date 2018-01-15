@@ -1,33 +1,31 @@
 package com.shopdirect.maximoautomation.infrastructure.dao;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
-import com.fasterxml.jackson.datatype.jsr310.JavaTimeModule;
-import com.shopdirect.maximoautomation.infrastructure.DBInitializer;
 import com.shopdirect.maximoautomation.infrastructure.resource.BuildInfo;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.stereotype.Repository;
+import org.springframework.stereotype.Component;
 
-import java.text.SimpleDateFormat;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 
 import static com.shopdirect.maximoautomation.infrastructure.DBInitializer.BUILDS_TB;
 
-@Repository
+@Component
 public class BuildInfoDao {
 
     private final RethinkDBRunner rethinkDBRunner;
-    private final ObjectMapper objectMapper = new ObjectMapper().registerModule(new JavaTimeModule())
-            .setDateFormat(new SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ss.SSSZ"));
+    private final ObjectMapper objectMapper;
 
     @Autowired
-    public BuildInfoDao(RethinkDBRunner rethinkDBRunner) {
+    public BuildInfoDao(RethinkDBRunner rethinkDBRunner, ObjectMapper objectMapper) {
         this.rethinkDBRunner = rethinkDBRunner;
+        this.objectMapper = objectMapper;
     }
 
     public String save(BuildInfo buildInfo) throws Exception {
         Map map = objectMapper.convertValue(buildInfo, Map.class);
         map.remove("id");
+        /*TODO: objectmapper removes trailing 0s in the milliseconds, startTime is replaced to preserve them.*/
+        map.put("startTime", buildInfo.getStartTime());
         Map<String,Object> result = rethinkDBRunner.create(BUILDS_TB, map);
         return getGeneratedKey(result);
     }
@@ -45,7 +43,23 @@ public class BuildInfoDao {
     }
 
     private Map<String, Object> getRecordAsMap(String id) {
-        return rethinkDBRunner.get(DBInitializer.BUILDS_TB, id);
+        return rethinkDBRunner.get(BUILDS_TB, id);
+    }
+
+    public List<BuildInfo> getAllRecords(Optional<Long> startIndex, Optional<Long> limit) {
+        Long numRecords = rethinkDBRunner.countRecords();
+        Long startIndexInt = startIndex.orElse(0L);
+        Long limitInt = limit.orElse(numRecords);
+        List<Map<String, Object>> result = rethinkDBRunner.getAll(BUILDS_TB, startIndexInt, limitInt);
+        return convertRecords(result);
+    }
+
+    private List<BuildInfo> convertRecords(List<Map<String, Object>> records) {
+        List<BuildInfo> convertedRecords = new ArrayList<>();
+        for(Map<String, Object> record : records) {
+            convertedRecords.add(objectMapper.convertValue(record, BuildInfo.class));
+        }
+        return convertedRecords;
     }
 
     private static String getGeneratedKey(Map<String, Object> result) {

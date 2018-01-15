@@ -3,7 +3,7 @@ package com.shopdirect.maximoautomation.infrastructure.resource;
 import com.fasterxml.jackson.annotation.JsonCreator;
 import com.fasterxml.jackson.annotation.JsonProperty;
 
-import java.time.ZonedDateTime;
+import java.time.OffsetDateTime;
 
 import static java.time.format.DateTimeFormatter.ISO_OFFSET_DATE_TIME;
 
@@ -15,14 +15,18 @@ public class BuildStartedRequest {
 
     @JsonCreator
     public BuildStartedRequest(@JsonProperty("buildId") String buildId,
-                               @JsonProperty("url") String url, @JsonProperty("time") String time) {
+                               @JsonProperty("url") String url,
+                               @JsonProperty("time") String time) {
         this.buildId = buildId;
         this.url = url;
         this.time = time;
     }
 
     public BuildInfo createBuildInfo() {
-        return BuildInfo.builder().setBuildId(buildId).setUrl(url).setStartTime(ZonedDateTime.parse(time, ISO_OFFSET_DATE_TIME)).createBuildInfo();
+        return BuildInfo.builder().setBuildId(buildId)
+                .setUrl(url)
+                .setStartTime(OffsetDateTime.parse(time, ISO_OFFSET_DATE_TIME))
+                .createBuildInfo();
     }
 
     public String getBuildId() {
