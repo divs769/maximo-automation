@@ -3,12 +3,13 @@ package com.shopdirect.acceptancetest.buildinfo;
 import com.shopdirect.acceptancetest.CucumberStepsDefinition;
 import com.shopdirect.acceptancetest.LatestResponse;
 import com.shopdirect.dao.TestBuildInfoDao;
-import com.shopdirect.model.BuildRequest;
-import com.shopdirect.model.TestResponseErrorHandler;
+import com.shopdirect.acceptancetest.configuration.TestResponseErrorHandler;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.client.RestTemplate;
 
 public abstract class BaseBuildStepDef extends CucumberStepsDefinition {
+
+    protected static final String ENDPOINT = "http://localhost:8080/buildinfo";
 
     protected static final String BUILD_ID = "123";
     protected static final String URL = "http://jenkins:8080/job/test/123/";
@@ -17,7 +18,6 @@ public abstract class BaseBuildStepDef extends CucumberStepsDefinition {
     protected RestTemplate restTemplate;
     protected LatestResponse latestResponse;
     protected TestBuildInfoDao testBuildInfoDao;
-    protected BuildRequest request;
 
     @Autowired
     public BaseBuildStepDef(RestTemplate restTemplate, LatestResponse latestResponse,

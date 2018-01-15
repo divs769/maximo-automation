@@ -7,9 +7,6 @@ public class BuildRequest {
     private String url;
     private String time;
 
-    public BuildRequest() {
-    }
-
     public BuildRequest(String id, String time) {
         this.id = id;
         this.time = time;
