@@ -5,6 +5,9 @@ import cucumber.api.junit.Cucumber;
 import org.junit.runner.RunWith;
 
 @RunWith(Cucumber.class)
-@CucumberOptions(features = "src/acceptance-test/resources", plugin = {"pretty", "html:build/cucumber"})
+@CucumberOptions(
+        features = "src/acceptance-test/resources",
+        plugin = {"pretty", "html:build/cucumber"},
+        junit = {"--filename-compatible-names"})
 public class AcceptanceTestRunner {
 }

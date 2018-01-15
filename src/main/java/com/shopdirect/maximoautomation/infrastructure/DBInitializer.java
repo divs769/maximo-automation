@@ -31,6 +31,7 @@ public class DBInitializer implements InitializingBean {
         List<String> tables = r.db(MAXIMO_DB).tableList().run(connection);
         if (!tables.contains(BUILDS_TB)) {
             r.db(MAXIMO_DB).tableCreate(BUILDS_TB).run(connection);
+            r.db(MAXIMO_DB).table(BUILDS_TB).indexCreate("startTime").run(connection);
         }
         connection.close();
     }

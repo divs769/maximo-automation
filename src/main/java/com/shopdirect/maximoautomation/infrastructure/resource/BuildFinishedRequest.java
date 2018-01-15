@@ -3,7 +3,7 @@ package com.shopdirect.maximoautomation.infrastructure.resource;
 import com.fasterxml.jackson.annotation.JsonCreator;
 import com.fasterxml.jackson.annotation.JsonProperty;
 
-import java.time.ZonedDateTime;
+import java.time.OffsetDateTime;
 
 import static java.time.format.DateTimeFormatter.ISO_OFFSET_DATE_TIME;
 
@@ -19,7 +19,7 @@ public class BuildFinishedRequest {
     }
 
     public BuildInfo createBuildInfo() {
-        return BuildInfo.builder().setId(id).setFinishTime(ZonedDateTime.parse(time, ISO_OFFSET_DATE_TIME)).createBuildInfo();
+        return BuildInfo.builder().setId(id).setFinishTime(OffsetDateTime.parse(time, ISO_OFFSET_DATE_TIME)).createBuildInfo();
     }
 
     public String getId() {

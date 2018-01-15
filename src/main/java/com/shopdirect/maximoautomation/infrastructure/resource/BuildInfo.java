@@ -3,20 +3,22 @@ package com.shopdirect.maximoautomation.infrastructure.resource;
 import com.fasterxml.jackson.annotation.JsonCreator;
 import com.fasterxml.jackson.annotation.JsonProperty;
 
-import java.time.ZonedDateTime;
+import java.time.OffsetDateTime;
 
 public class BuildInfo {
 
     private String id;
     private String buildId;
     private String url;
-    private ZonedDateTime startTime;
-    private ZonedDateTime finishTime;
+    private OffsetDateTime startTime;
+    private OffsetDateTime finishTime;
 
     @JsonCreator
-    public BuildInfo(@JsonProperty("id") String id, @JsonProperty("buildId") String buildId,
-                     @JsonProperty("url") String url, @JsonProperty("startTime") ZonedDateTime startTime,
-                     @JsonProperty("finishTime") ZonedDateTime finishTime) {
+    public BuildInfo(@JsonProperty("id") String id,
+                     @JsonProperty("buildId") String buildId,
+                     @JsonProperty("url") String url,
+                     @JsonProperty("startTime") OffsetDateTime startTime,
+                     @JsonProperty("finishTime") OffsetDateTime finishTime) {
         this.id = id;
         this.buildId = buildId;
         this.url = url;
@@ -28,26 +30,6 @@ public class BuildInfo {
         return id;
     }
 
-    public void setId(String id) {
-        this.id = id;
-    }
-
-    public void setBuildId(String buildId) {
-        this.buildId = buildId;
-    }
-
-    public void setUrl(String url) {
-        this.url = url;
-    }
-
-    public void setStartTime(ZonedDateTime startTime) {
-        this.startTime = startTime;
-    }
-
-    public void setFinishTime(ZonedDateTime finishTime) {
-        this.finishTime = finishTime;
-    }
-
     public String getBuildId() {
         return buildId;
     }
@@ -56,11 +38,11 @@ public class BuildInfo {
         return url;
     }
 
-    public ZonedDateTime getStartTime() {
+    public OffsetDateTime getStartTime() {
         return startTime;
     }
 
-    public ZonedDateTime getFinishTime() {
+    public OffsetDateTime getFinishTime() {
         return finishTime;
     }
 
@@ -72,8 +54,8 @@ public class BuildInfo {
         private String id;
         private String buildId;
         private String url;
-        private ZonedDateTime startTime;
-        private ZonedDateTime finishTime;
+        private OffsetDateTime startTime;
+        private OffsetDateTime finishTime;
 
         public BuildInfoBuilder setId(String id) {
             this.id = id;
@@ -90,12 +72,12 @@ public class BuildInfo {
             return this;
         }
 
-        public BuildInfoBuilder setStartTime(ZonedDateTime startTime) {
+        public BuildInfoBuilder setStartTime(OffsetDateTime startTime) {
             this.startTime = startTime;
             return this;
         }
 
-        public BuildInfoBuilder setFinishTime(ZonedDateTime finishTime) {
+        public BuildInfoBuilder setFinishTime(OffsetDateTime finishTime) {
             this.finishTime = finishTime;
             return this;
         }

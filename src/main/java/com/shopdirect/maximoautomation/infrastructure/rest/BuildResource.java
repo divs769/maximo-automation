@@ -11,12 +11,16 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
-import static org.springframework.http.MediaType.APPLICATION_JSON_UTF8_VALUE;
-import java.time.ZonedDateTime;
+import java.time.OffsetDateTime;
+import java.util.List;
+import java.util.Optional;
 import java.util.regex.Pattern;
 
+import static org.springframework.http.MediaType.APPLICATION_JSON_UTF8_VALUE;
+import static org.springframework.web.bind.annotation.RequestMethod.GET;
 import static org.springframework.web.bind.annotation.RequestMethod.POST;
 import static org.springframework.web.bind.annotation.RequestMethod.PUT;
 
@@ -25,7 +29,7 @@ import static org.springframework.web.bind.annotation.RequestMethod.PUT;
 public class BuildResource {
 
     private static final Logger LOGGER = LoggerFactory.getLogger(BuildResource.class);
-    private static final Pattern PATTERN = Pattern.compile("(https?://)?[\\w.]+(:\\d+)?/job/[\\w\\-]+/\\d+/$");
+    private static final Pattern PATTERN = Pattern.compile("(https?://)?[\\w.]+(:\\d+)?/job/[\\w-]+/\\d+/$");
 
     private final BuildInfoDao buildInfoDao;
 
@@ -63,11 +67,11 @@ public class BuildResource {
         return ResponseEntity.ok().build();
     }
 
-    private void checkInvalidTime(ZonedDateTime time) throws InvalidDataException {
+    private void checkInvalidTime(OffsetDateTime time) throws InvalidDataException {
         if(time == null) {
             throw new InvalidDataException("Missing time");
         }
-        if(time.isAfter(ZonedDateTime.now())) {
+        if(time.isAfter(OffsetDateTime.now())) {
             throw new InvalidDataException("Invalid date");
         }
     }
@@ -82,14 +86,12 @@ public class BuildResource {
         }
     }
 
-//    @RequestMapping(method = GET, produces = "application/json; charset=UTF-8")
-//    public ResponseEntity<HashMap> getAllBuilds() {
-//        Connection connection = connectionFactory.connectToMaximoDb();
-//        Cursor result = r.table(DBInitializer.BUILDS_TB).run(connection);
-//        connection.close();
-//        return null;//ResponseEntity.ok(result);
-//    }
-//
+    @RequestMapping(method = GET, produces = APPLICATION_JSON_UTF8_VALUE)
+    public ResponseEntity<List<BuildInfo>> getAllBuilds(@RequestParam(value = "startIndex") Optional<Long> startIndex,
+                                                        @RequestParam(value = "limit") Optional<Long> limit) {
+        return ResponseEntity.ok(buildInfoDao.getAllRecords(startIndex, limit));
+    }
+
 //    @RequestMapping(value="/{buildId}", method = GET, produces = "application/json; charset=UTF-8")
 //    public ResponseEntity<HashMap> getBuildInfo(@PathVariable("buildId") String buildId) {
 //        Connection connection = connectionFactory.connectToMaximoDb();
