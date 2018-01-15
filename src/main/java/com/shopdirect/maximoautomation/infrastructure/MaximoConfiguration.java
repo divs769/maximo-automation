@@ -1,5 +1,6 @@
 package com.shopdirect.maximoautomation.infrastructure;
 
+import com.shopdirect.maximoautomation.infrastructure.maximo.client.impl.JAXBMaximoClient;
 import com.shopdirect.maximoautomation.infrastructure.maximo.client.MaximoClient;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
@@ -26,7 +27,7 @@ public class MaximoConfiguration {
                 .setDefault(
                         new SimpleAuthenticator("gyowanny.pessattoqueiroz@shopdirect.com", "Viviana0906")
                 );
-        MaximoClient client = new MaximoClient();
+        JAXBMaximoClient client = new JAXBMaximoClient();
         client.setDefaultUri("https://esls1uat.eu.smi.ibm.com/meaweb/services/MXISWOCHANGE");
         client.setMarshaller(marshaller);
         client.setUnmarshaller(marshaller);

@@ -8,8 +8,11 @@
 
 package com.shopdirect.maximoautomation.infrastructure.maximo.ws;
 
+import com.google.common.base.MoreObjects;
+
 import javax.xml.bind.annotation.*;
 import javax.xml.datatype.XMLGregorianCalendar;
+import java.util.Objects;
 
 
 /**
