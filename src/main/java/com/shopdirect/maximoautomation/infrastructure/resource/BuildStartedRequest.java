@@ -25,7 +25,7 @@ public class BuildStartedRequest {
     public BuildInfo createBuildInfo() {
         return BuildInfo.builder().setBuildId(buildId)
                 .setUrl(url)
-                .setStartTime(OffsetDateTime.parse(time, ISO_OFFSET_DATE_TIME))
+                .setStartTime(time == null ? null : OffsetDateTime.parse(time, ISO_OFFSET_DATE_TIME))
                 .createBuildInfo();
     }
 
