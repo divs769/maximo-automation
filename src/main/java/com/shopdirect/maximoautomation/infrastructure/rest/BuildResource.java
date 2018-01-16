@@ -9,6 +9,7 @@ import com.shopdirect.maximoautomation.infrastructure.resource.BuildStartedReque
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
@@ -21,9 +22,7 @@ import java.util.Optional;
 import java.util.regex.Pattern;
 
 import static org.springframework.http.MediaType.APPLICATION_JSON_UTF8_VALUE;
-import static org.springframework.web.bind.annotation.RequestMethod.GET;
-import static org.springframework.web.bind.annotation.RequestMethod.POST;
-import static org.springframework.web.bind.annotation.RequestMethod.PUT;
+import static org.springframework.web.bind.annotation.RequestMethod.*;
 
 @RestController
 @RequestMapping(value = "/buildinfo")
@@ -46,7 +45,10 @@ public class BuildResource {
         BuildInfo buildInfo = request.createBuildInfo();
         validateBuildStarted(buildInfo);
         String id = buildInfoDao.save(buildInfo);
-        maximoClient.createChange(buildInfo);
+        String maximoChangeId = maximoClient.createChange(buildInfo);
+        if (maximoChangeId == null) {
+            return ResponseEntity.status(HttpStatus.FAILED_DEPENDENCY).build();
+        }
         return ResponseEntity.ok(id);
     }
 

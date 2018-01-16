@@ -16,7 +16,7 @@ public class JAXBMaximoClient extends WebServiceGatewaySupport implements Maximo
     }
 
     @Override
-    public void createChange(BuildInfo buildInfo) {
+    public String createChange(BuildInfo buildInfo) {
         CreateMXISWOCHANGEType change = createMXISWOCHANGEType(buildInfo);
 
         LOGGER.info("Creating change in maximo");
@@ -26,9 +26,10 @@ public class JAXBMaximoClient extends WebServiceGatewaySupport implements Maximo
             CreateMXISWOCHANGEResponseType response = (CreateMXISWOCHANGEResponseType) getWebServiceTemplate()
                     .marshalSendAndReceive(objectFactory.createCreateMXISWOCHANGE(change));
             LOGGER.info("Response from maximo was {}", response);
+            return response.getWOCHANGEMboKeySet().getWOCHANGE().get(0).getWONUM().getValue();
         } catch (Exception e) {
             LOGGER.error("Error calling Maximo", e);
-            throw new RuntimeException("Couldn't create the change in Maximo");
+            return null;
         }
 
     }
@@ -38,7 +39,7 @@ public class JAXBMaximoClient extends WebServiceGatewaySupport implements Maximo
 
     }
 
-    private static CreateMXISWOCHANGEType createMXISWOCHANGEType(BuildInfo buildInfo) {
+    private CreateMXISWOCHANGEType createMXISWOCHANGEType(BuildInfo buildInfo) {
         CreateMXISWOCHANGEType change = objectFactory.createCreateMXISWOCHANGEType();
         MXISWOCHANGESetType changeSet = objectFactory.createMXISWOCHANGESetType();
 
@@ -58,13 +59,13 @@ public class JAXBMaximoClient extends WebServiceGatewaySupport implements Maximo
         return change;
     }
 
-    private static MXStringType createMXStringType(String value) {
+    private MXStringType createMXStringType(String value) {
         MXStringType mxStringType = objectFactory.createMXStringType();
         mxStringType.setValue(value);
         return mxStringType;
     }
 
-    private static MXLongType createMXLongType(long value) {
+    private MXLongType createMXLongType(long value) {
         MXLongType mxLongType = objectFactory.createMXLongType();
         mxLongType.setValue(value);
         return mxLongType;
