@@ -5,7 +5,9 @@ import com.shopdirect.maximoautomation.infrastructure.dao.BuildInfoDao;
 import com.shopdirect.maximoautomation.infrastructure.resource.BuildFinishedRequest;
 import com.shopdirect.maximoautomation.infrastructure.resource.BuildInfo;
 import com.shopdirect.maximoautomation.infrastructure.resource.BuildStartedRequest;
+import com.shopdirect.maximoautomation.infrastructure.service.ValidationService;
 import gherkin.deps.com.google.gson.Gson;
+import org.assertj.core.util.Lists;
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
@@ -26,6 +28,7 @@ import static java.time.format.DateTimeFormatter.ISO_OFFSET_DATE_TIME;
 import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.Matchers.equalTo;
 import static org.mockito.Matchers.any;
+import static org.mockito.Matchers.isA;
 import static org.mockito.Mockito.never;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
@@ -49,6 +52,9 @@ public class BuildResourceTest {
     @MockBean
     private BuildInfoDao buildInfoDao;
 
+    @MockBean
+    private ValidationService validationService;
+
     private ObjectMapper objectMapper;
 
     @Before
@@ -59,7 +65,8 @@ public class BuildResourceTest {
     @Test
     public void buildStartedShouldInsertBuildInfoObjectInTheDatabaseAndReturnSuccess() throws Exception {
         // Given
-        when(buildInfoDao.save(any(BuildInfo.class))).thenReturn("1");
+        when(validationService.validateBuildStarted(isA(BuildInfo.class))).thenReturn(Lists.emptyList());
+        when(buildInfoDao.save(isA(BuildInfo.class))).thenReturn("1");
         BuildStartedRequest payload = createStartedBuildInfo();
 
         // When
@@ -77,7 +84,8 @@ public class BuildResourceTest {
     @Test
     public void buildStartedShouldReturnFailureWithInvalidPayload() throws Exception {
         // Given
-        BuildStartedRequest payload = createInvalidStartedBuildInfo();
+        when(validationService.validateBuildStarted(isA(BuildInfo.class))).thenReturn(Lists.newArrayList("An error"));
+        BuildStartedRequest payload = createStartedBuildInfo();
 
         // When
         mockMvc.perform(post(URI_PATH)
@@ -93,8 +101,8 @@ public class BuildResourceTest {
     @Test
     public void buildFinishedShouldUpdateBuildInfoObjectInTheDatabaseAndReturnSuccess() throws Exception {
         // Given
-        BuildInfo mockResult = new BuildInfo(null, null, null, OffsetDateTime.parse("2012-04-23T18:25:43.511Z", ISO_OFFSET_DATE_TIME), null);
-        when(buildInfoDao.getRecord("1")).thenReturn(mockResult);
+        when(validationService.checkInvalidTime(isA(OffsetDateTime.class))).thenReturn(Lists.emptyList());
+        when(validationService.updateValidations(isA(BuildInfo.class))).thenReturn(Lists.emptyList());
         BuildFinishedRequest payload = createFinishedBuildInfo();
 
         // When
@@ -108,24 +116,11 @@ public class BuildResourceTest {
     }
 
     @Test
-    public void buildFinishedShouldReturnFailureWhenBuildDoesNotExist() throws Exception {
-        // Given
-        BuildFinishedRequest payload = createFinishedBuildInfo();
-
-        // When
-        mockMvc.perform(put(URI_PATH)
-                .contentType(APPLICATION_JSON)
-                .content(objectMapper.writeValueAsString(payload)))
-                .andExpect(status().is4xxClientError());
-
-        // Then
-        verify(buildInfoDao, never()).update(any());
-    }
-
-    @Test
     public void buildFinishedShouldReturnFailureWithInvalidPayload() throws Exception {
         // Given
-        BuildFinishedRequest payload = createInvalidFinishedBuildInfo();
+        when(validationService.checkInvalidTime(isA(OffsetDateTime.class))).thenReturn(Lists.newArrayList());
+        when(validationService.updateValidations(isA(BuildInfo.class))).thenReturn(Lists.newArrayList("An error"));
+        BuildFinishedRequest payload = createFinishedBuildInfo();
 
         // When
         mockMvc.perform(put(URI_PATH)
@@ -195,17 +190,10 @@ public class BuildResourceTest {
         return new BuildStartedRequest("build1","http://jenkins/job/project/123/",  "2012-04-23T18:25:43.511Z");
     }
 
-    private static BuildStartedRequest createInvalidStartedBuildInfo() {
-        return new BuildStartedRequest(null,null,  null);
-    }
-
     private static BuildFinishedRequest createFinishedBuildInfo() {
         return new BuildFinishedRequest("1", "2012-04-23T18:25:44.511Z");
     }
 
-    private static BuildFinishedRequest createInvalidFinishedBuildInfo() {
-        return new BuildFinishedRequest(null, null);
-    }
 
     private static List<BuildInfo> createListOfBuilds() {
         List<BuildInfo> builds = new ArrayList<>();
