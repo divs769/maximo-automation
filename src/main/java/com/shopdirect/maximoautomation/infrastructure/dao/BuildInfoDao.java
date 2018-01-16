@@ -5,9 +5,12 @@ import com.shopdirect.maximoautomation.infrastructure.resource.BuildInfo;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
-import java.util.*;
+import java.util.ArrayList;
+import java.util.List;
+import java.util.Map;
+import java.util.Optional;
 
-import static com.shopdirect.maximoautomation.infrastructure.DBInitializer.BUILDS_TB;
+import static com.shopdirect.maximoautomation.infrastructure.config.DBInitializer.BUILDS_TB;
 
 @Component
 public class BuildInfoDao {

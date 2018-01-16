@@ -2,16 +2,21 @@ package com.shopdirect.maximoautomation;
 
 import com.fasterxml.jackson.annotation.JsonAutoDetect;
 import com.fasterxml.jackson.annotation.PropertyAccessor;
-import com.fasterxml.jackson.databind.*;
+import com.fasterxml.jackson.databind.DeserializationFeature;
+import com.fasterxml.jackson.databind.ObjectMapper;
+import com.fasterxml.jackson.databind.SerializationFeature;
 import com.fasterxml.jackson.databind.node.JsonNodeFactory;
 import com.fasterxml.jackson.databind.util.ISO8601DateFormat;
+import com.shopdirect.maximoautomation.infrastructure.config.MaximoConfiguration;
 import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
 import org.springframework.context.annotation.Bean;
+import org.springframework.context.annotation.Import;
 import org.springframework.http.converter.json.Jackson2ObjectMapperBuilder;
 import org.springframework.web.filter.CommonsRequestLoggingFilter;
 
-@SpringBootApplication(scanBasePackages = { "com.shopdirect" })
+@SpringBootApplication(scanBasePackages = { "com.shopdirect", "com.shopdirect.maximoautomation" })
+@Import(MaximoConfiguration.class)
 public class ServiceApplication {
 
 	@Bean

@@ -1,4 +1,4 @@
-package com.shopdirect.maximoautomation.infrastructure;
+package com.shopdirect.maximoautomation.infrastructure.config;
 
 import com.rethinkdb.RethinkDB;
 import com.rethinkdb.net.Connection;
@@ -7,9 +7,7 @@ import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Component;
 
-import javax.validation.Valid;
-
-import static com.shopdirect.maximoautomation.infrastructure.DBInitializer.MAXIMO_DB;
+import static com.shopdirect.maximoautomation.infrastructure.config.DBInitializer.MAXIMO_DB;
 
 @Component
 public class RethinkDBConnectionFactory {

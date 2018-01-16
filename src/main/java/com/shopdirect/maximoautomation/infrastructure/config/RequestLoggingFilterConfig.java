@@ -1,4 +1,4 @@
-package com.shopdirect.maximoautomation.infrastructure;
+package com.shopdirect.maximoautomation.infrastructure.config;
 
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;

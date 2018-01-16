@@ -9,7 +9,6 @@ import com.shopdirect.maximoautomation.infrastructure.resource.BuildStartedReque
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
@@ -32,12 +31,12 @@ public class BuildResource {
     private static final Pattern PATTERN = Pattern.compile("(https?://)?[\\w.]+(:\\d+)?/job/[\\w-]+/\\d+/$");
 
     private final BuildInfoDao buildInfoDao;
-    @Autowired
-    private MaximoClient maximoClient;
+    private final MaximoClient maximoClient;
 
     @Autowired
-    public BuildResource(BuildInfoDao buildInfoDao) {
+    public BuildResource(BuildInfoDao buildInfoDao, MaximoClient maximoClient) {
         this.buildInfoDao = buildInfoDao;
+        this.maximoClient = maximoClient;
     }
 
     @RequestMapping(method = POST, consumes = APPLICATION_JSON_UTF8_VALUE)
@@ -45,10 +44,10 @@ public class BuildResource {
         BuildInfo buildInfo = request.createBuildInfo();
         validateBuildStarted(buildInfo);
         String id = buildInfoDao.save(buildInfo);
-        String maximoChangeId = maximoClient.createChange(buildInfo);
-        if (maximoChangeId == null) {
-            return ResponseEntity.status(HttpStatus.FAILED_DEPENDENCY).build();
-        }
+//        String maximoChangeId = maximoClient.createChange(buildInfo);
+//        if (maximoChangeId == null) {
+//            return ResponseEntity.status(HttpStatus.FAILED_DEPENDENCY).build();
+//        }
         return ResponseEntity.ok(id);
     }
 

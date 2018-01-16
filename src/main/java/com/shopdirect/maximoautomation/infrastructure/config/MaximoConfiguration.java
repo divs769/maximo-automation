@@ -1,7 +1,7 @@
-package com.shopdirect.maximoautomation.infrastructure;
+package com.shopdirect.maximoautomation.infrastructure.config;
 
-import com.shopdirect.maximoautomation.infrastructure.maximo.client.impl.JAXBMaximoClient;
 import com.shopdirect.maximoautomation.infrastructure.maximo.client.MaximoClient;
+import com.shopdirect.maximoautomation.infrastructure.maximo.client.impl.JAXBMaximoClient;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.oxm.jaxb.Jaxb2Marshaller;
@@ -22,7 +22,7 @@ public class MaximoConfiguration {
     }
 
     @Bean
-    public MaximoClient maximoClientClient(Jaxb2Marshaller marshaller) {
+    public MaximoClient maximoClient(Jaxb2Marshaller marshaller) {
         Authenticator
                 .setDefault(
                         new SimpleAuthenticator("gyowanny.pessattoqueiroz@shopdirect.com", "Viviana0906")

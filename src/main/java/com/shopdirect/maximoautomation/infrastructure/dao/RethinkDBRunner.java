@@ -2,8 +2,8 @@ package com.shopdirect.maximoautomation.infrastructure.dao;
 
 import com.rethinkdb.net.Connection;
 import com.rethinkdb.net.Cursor;
-import com.shopdirect.maximoautomation.infrastructure.DBInitializer;
-import com.shopdirect.maximoautomation.infrastructure.RethinkDBConnectionFactory;
+import com.shopdirect.maximoautomation.infrastructure.config.DBInitializer;
+import com.shopdirect.maximoautomation.infrastructure.config.RethinkDBConnectionFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 

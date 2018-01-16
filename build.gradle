@@ -1,6 +1,7 @@
 import java.io.*
 import groovyx.net.http.HTTPBuilder
 import groovyx.net.http.EncoderRegistry
+import org.codehaus.groovy.runtime.IOGroovyMethods
 import static groovyx.net.http.Method.*
 import static groovyx.net.http.ContentType.*
 
@@ -275,8 +276,19 @@ task s3UploadClientJar(type: com.github.skhatri.s3aws.plugin.S3UploadTask) {
 	link = 'latest/' + serviceName + '-client.jar'
 }
 
-task maximoAutomation {
+ext {
+    def maximoUrl = System.properties.MAXIMO_URL
+    httpHandler = new groovyx.net.http.HTTPBuilder(maximoUrl)
+    httpHandler.handler.failure = { resp ->
+        throw new GradleException("Unexpected failure calling Maximo Automation: ${resp.statusLine}")
+    }
+    maximoBuildInfoId = null
+}
+
+task maximoAutomationCreateChange {
     doLast {
+        logger.info("Calling Maximo Automation Service To Create Maximo Change")
+
         def details = versionDetails()
         println details.lastTag
         println details.commitDistance
@@ -286,23 +298,43 @@ task maximoAutomation {
         println details.isCleanTag
         println details.description
 
-        def maximoUrl = System.properties.MAXIMO_URL
-
-        def http = new groovyx.net.http.HTTPBuilder(maximoUrl)
-        http.request(POST, JSON) {
+        httpHandler.request(POST, JSON) {
             uri.path = '/buildinfo'
             body = [buildId: '52',
                     url    : 'http://192.168.99.100:8081/job/maximo-automation/52/',
                     time   : '2018-01-09T15:07:36.963Z']
 
-            response.success = { resp, json ->
-                println "POST response status: ${resp.statusLine}"
-                //assert resp.statusLine.statusCode == 201
+            response.success = { resp ->
+                ext.maximoBuildInfoId = IOGroovyMethods.getText(resp.entity.content)
+                println "POST response data: ${ext.maximoBuildInfoId}"
             }
 
             response.'424' = { resp ->
-                println 'ERROR CREATING MAXIMO CHANGE!'
+                throw new GradleException('ERROR CREATING MAXIMO CHANGE!')
             }
+        }
+    }
+}
+
+task maximoAutomationCloseChange {
+    doLast {
+        logger.info("Calling Maximo Automation Service To Close Maximo Change")
+        closeMaximoChange(httpHandler, maximoBuildInfoId)
+    }
+}
+
+def closeMaximoChange(httpHandler, maximoBuildId) {
+    httpHandler.request(PUT, JSON) {
+        uri.path = '/buildinfo'
+        body = [id: maximoBuildId,
+                time   : '2018-01-09T18:07:36.963Z']
+
+        response.success = { resp ->
+            println "PUT response status: ${resp.statusLine}"
+        }
+
+        response.'424' = { resp ->
+            throw new GradleException('ERROR CLOSING MAXIMO CHANGE!')
         }
     }
 }

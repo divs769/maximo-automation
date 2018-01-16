@@ -1,4 +1,4 @@
-package com.shopdirect.maximoautomation.infrastructure;
+package com.shopdirect.maximoautomation.infrastructure.config;
 
 import com.rethinkdb.net.Connection;
 import org.springframework.beans.factory.InitializingBean;
