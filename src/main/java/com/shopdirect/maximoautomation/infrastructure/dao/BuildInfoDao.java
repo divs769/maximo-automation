@@ -1,6 +1,7 @@
 package com.shopdirect.maximoautomation.infrastructure.dao;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
+import com.rethinkdb.net.Cursor;
 import com.shopdirect.maximoautomation.infrastructure.resource.BuildInfo;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
@@ -24,7 +25,7 @@ public class BuildInfoDao {
         this.objectMapper = objectMapper;
     }
 
-    public String save(BuildInfo buildInfo) throws Exception {
+    public String save(BuildInfo buildInfo) {
         Map map = objectMapper.convertValue(buildInfo, Map.class);
         map.remove("id");
         /*TODO: objectmapper removes trailing 0s in the milliseconds, startTime is replaced to preserve them.*/
@@ -33,7 +34,7 @@ public class BuildInfoDao {
         return getGeneratedKey(result);
     }
 
-    public void update(BuildInfo buildInfo) throws Exception {
+    public void update(BuildInfo buildInfo) {
         String id = buildInfo.getId();
         Map<String, Object> record = getRecordAsMap(id);
         record.remove("id");
@@ -49,12 +50,19 @@ public class BuildInfoDao {
         return rethinkDBRunner.get(BUILDS_TB, id);
     }
 
+    public BuildInfo getRecordFromBuildId(String buildId) {
+        Cursor cursor = rethinkDBRunner.getFromBuildId(BUILDS_TB, buildId);
+        if(cursor.hasNext()) {
+            return objectMapper.convertValue(cursor.next(), BuildInfo.class);
+        }
+        return null;
+    }
+
     public List<BuildInfo> getAllRecords(Optional<Long> startIndex, Optional<Long> limit) {
         Long numRecords = rethinkDBRunner.countRecords();
         Long startIndexInt = startIndex.orElse(0L);
         Long limitInt = limit.orElse(numRecords);
-        List<Map<String, Object>> result = rethinkDBRunner.getAll(BUILDS_TB, startIndexInt, limitInt);
-        return convertRecords(result);
+        return convertRecords(rethinkDBRunner.getAll(BUILDS_TB, startIndexInt, limitInt));
     }
 
     private List<BuildInfo> convertRecords(List<Map<String, Object>> records) {

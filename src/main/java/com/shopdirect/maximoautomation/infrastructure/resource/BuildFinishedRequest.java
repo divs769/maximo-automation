@@ -19,7 +19,10 @@ public class BuildFinishedRequest {
     }
 
     public BuildInfo createBuildInfo() {
-        return BuildInfo.builder().setId(id).setFinishTime(OffsetDateTime.parse(time, ISO_OFFSET_DATE_TIME)).createBuildInfo();
+        return BuildInfo.builder()
+                .setId(id)
+                .setFinishTime(time == null ? null : OffsetDateTime.parse(time, ISO_OFFSET_DATE_TIME))
+                .createBuildInfo();
     }
 
     public String getId() {

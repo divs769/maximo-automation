@@ -1,25 +1,20 @@
 package com.shopdirect.maximoautomation.infrastructure.rest;
 
 import com.shopdirect.maximoautomation.infrastructure.dao.BuildInfoDao;
-import com.shopdirect.maximoautomation.infrastructure.exception.InvalidDataException;
-import com.shopdirect.maximoautomation.infrastructure.maximo.client.MaximoClient;
 import com.shopdirect.maximoautomation.infrastructure.resource.BuildFinishedRequest;
 import com.shopdirect.maximoautomation.infrastructure.resource.BuildInfo;
 import com.shopdirect.maximoautomation.infrastructure.resource.BuildStartedRequest;
+import com.shopdirect.maximoautomation.infrastructure.service.ValidationService;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
-import org.springframework.web.bind.annotation.RequestBody;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RequestParam;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.*;
 
-import java.time.OffsetDateTime;
 import java.util.List;
 import java.util.Optional;
-import java.util.regex.Pattern;
 
+import static org.springframework.http.HttpStatus.BAD_REQUEST;
 import static org.springframework.http.MediaType.APPLICATION_JSON_UTF8_VALUE;
 import static org.springframework.web.bind.annotation.RequestMethod.*;
 
@@ -28,67 +23,37 @@ import static org.springframework.web.bind.annotation.RequestMethod.*;
 public class BuildResource {
 
     private static final Logger LOGGER = LoggerFactory.getLogger(BuildResource.class);
-    private static final Pattern PATTERN = Pattern.compile("(https?://)?[\\w.]+(:\\d+)?/job/[\\w-]+/\\d+/$");
 
     private final BuildInfoDao buildInfoDao;
-    private final MaximoClient maximoClient;
+    private final ValidationService validationService;
 
     @Autowired
-    public BuildResource(BuildInfoDao buildInfoDao, MaximoClient maximoClient) {
+    public BuildResource(BuildInfoDao buildInfoDao, ValidationService validationService) {
         this.buildInfoDao = buildInfoDao;
-        this.maximoClient = maximoClient;
+        this.validationService = validationService;
     }
 
-    @RequestMapping(method = POST, consumes = APPLICATION_JSON_UTF8_VALUE)
-    public ResponseEntity<String> buildStarted(@RequestBody BuildStartedRequest request) throws Exception {
+    @RequestMapping(method = POST, consumes = APPLICATION_JSON_UTF8_VALUE, produces = APPLICATION_JSON_UTF8_VALUE)
+    public ResponseEntity<String> buildStarted(@RequestBody BuildStartedRequest request) {
         BuildInfo buildInfo = request.createBuildInfo();
-        validateBuildStarted(buildInfo);
-        String id = buildInfoDao.save(buildInfo);
-//        String maximoChangeId = maximoClient.createChange(buildInfo);
-//        if (maximoChangeId == null) {
-//            return ResponseEntity.status(HttpStatus.FAILED_DEPENDENCY).build();
-//        }
-        return ResponseEntity.ok(id);
-    }
-
-    private void validateBuildStarted(BuildInfo buildInfo) throws Exception {
-        if(buildInfo.getBuildId() == null) {
-            throw new InvalidDataException("Missing build ID");
-        }
-        if(buildInfo.getUrl() == null) {
-            throw new InvalidDataException("Missing URL");
-        }
-        checkInvalidTime(buildInfo.getStartTime());
-        if(!PATTERN.matcher(buildInfo.getUrl()).matches()) {
-            throw new InvalidDataException("Invalid URL");
+        List<String> errors = validationService.validateBuildStarted(buildInfo);
+        if(errors.isEmpty()) {
+            return ResponseEntity.ok(buildInfoDao.save(buildInfo));
+        } else {
+            return ResponseEntity.status(BAD_REQUEST).body(ValidationService.generateErrorString(errors));
         }
     }
 
     @RequestMapping(method = PUT, consumes = APPLICATION_JSON_UTF8_VALUE)
-    public ResponseEntity<Void> buildFinished(@RequestBody BuildFinishedRequest request) throws Exception {
+    public ResponseEntity<String> buildFinished(@RequestBody BuildFinishedRequest request) {
         BuildInfo buildInfo = request.createBuildInfo();
-        checkInvalidTime(buildInfo.getFinishTime());
-        updateValidations(buildInfo);
-        buildInfoDao.update(buildInfo);
-        return ResponseEntity.ok().build();
-    }
-
-    private void checkInvalidTime(OffsetDateTime time) throws InvalidDataException {
-        if(time == null) {
-            throw new InvalidDataException("Missing time");
-        }
-        if(time.isAfter(OffsetDateTime.now())) {
-            throw new InvalidDataException("Invalid date");
-        }
-    }
-
-    private void updateValidations(BuildInfo buildInfo) throws InvalidDataException {
-        BuildInfo existingRecord = buildInfoDao.getRecord(buildInfo.getId());
-        if(existingRecord == null) {
-            throw new InvalidDataException("Record doesn't exist in the database");
-        }
-        if(buildInfo.getFinishTime().isBefore(existingRecord.getStartTime())) {
-            throw new InvalidDataException("Finish date should be after start date");
+        List<String> errors = validationService.checkInvalidTime(buildInfo.getFinishTime());
+        errors.addAll(validationService.updateValidations(buildInfo));
+        if(errors.isEmpty()) {
+            buildInfoDao.update(buildInfo);
+            return ResponseEntity.ok().build();
+        } else {
+            return ResponseEntity.status(BAD_REQUEST).body(ValidationService.generateErrorString(errors));
         }
     }
 
@@ -98,11 +63,14 @@ public class BuildResource {
         return ResponseEntity.ok(buildInfoDao.getAllRecords(startIndex, limit));
     }
 
-//    @RequestMapping(value="/{buildId}", method = GET, produces = "application/json; charset=UTF-8")
-//    public ResponseEntity<HashMap> getBuildInfo(@PathVariable("buildId") String buildId) {
-//        Connection connection = connectionFactory.connectToMaximoDb();
-//        HashMap result = r.table(DBInitializer.BUILDS_TB).get(buildId).run(connection);
-//        connection.close();
-//        return ResponseEntity.ok(result);
-//    }
+    @RequestMapping(value="/{buildId}", method = GET, produces = APPLICATION_JSON_UTF8_VALUE)
+    public ResponseEntity<BuildInfo> getBuildInfo(@PathVariable(name = "buildId") String buildId) {
+        BuildInfo buildInfo = buildInfoDao.getRecordFromBuildId(buildId);
+        if(buildInfo == null) {
+            return ResponseEntity.notFound().build();
+        } else {
+            return ResponseEntity.ok(buildInfo);
+        }
+    }
+
 }

@@ -1,7 +1,7 @@
 package com.shopdirect.maximoautomation.infrastructure.dao;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
-import com.shopdirect.maximoautomation.infrastructure.config.RethinkDBConnectionFactory;
+import com.rethinkdb.net.Cursor;
 import com.shopdirect.maximoautomation.infrastructure.resource.BuildInfo;
 import org.assertj.core.api.Assertions;
 import org.junit.Before;
@@ -13,19 +13,18 @@ import org.springframework.test.context.junit4.SpringRunner;
 import java.time.OffsetDateTime;
 import java.util.*;
 
+import static com.shopdirect.maximoautomation.infrastructure.config.DBInitializer.BUILDS_TB;
 import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.Matchers.equalTo;
-import static org.mockito.Matchers.*;
-import static org.mockito.Mockito.verify;
-import static org.mockito.Mockito.when;
+import static org.mockito.Matchers.any;
+import static org.mockito.Matchers.anyLong;
+import static org.mockito.Matchers.anyString;
+import static org.mockito.Mockito.*;
 
 @RunWith(SpringRunner.class)
 public class BuildInfoDaoTest {
 
     private BuildInfoDao instance;
-
-    @MockBean
-    private RethinkDBConnectionFactory rethinkDBConnectionFactory;
 
     @MockBean
     private RethinkDBRunner rethinkDBRunner;
@@ -79,8 +78,15 @@ public class BuildInfoDaoTest {
     }
 
     @Test
-    public void shouldGetRecord() throws Exception {
+    public void shouldGetRecordFromBuildId() throws Exception {
+        Cursor cursor = mock(Cursor.class);
+        when(cursor.hasNext()).thenReturn(true);
+        when(cursor.next()).thenReturn(createBuild(1));
+        when(rethinkDBRunner.getFromBuildId(BUILDS_TB, "build1")).thenReturn(cursor);
 
+        BuildInfo result = instance.getRecordFromBuildId("build1");
+
+        assertThat(result.getId(), equalTo("1"));
     }
 
     private static HashMap<String,Object> createResultMap() {
@@ -94,14 +100,17 @@ public class BuildInfoDaoTest {
         return resultMap;
     }
 
-    private List<Map<String, Object>> createBuildList() {
+    private static List<Map<String, Object>> createBuildList() {
         List<Map<String, Object>> builds = new ArrayList<>();
-        Map<String, Object> buildInfo;
         for(int i = 0; i < 5; i++) {
-            buildInfo =  new HashMap<>();
-            buildInfo.put("id", String.valueOf(i));
-            builds.add(buildInfo);
+            builds.add(createBuild(i));
         }
         return builds;
+    }
+
+    private static Map<String, Object> createBuild(int id) {
+        Map<String, Object> buildInfo = new HashMap<>();
+        buildInfo.put("id", String.valueOf(id));
+        return buildInfo;
     }
 }

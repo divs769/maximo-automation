@@ -10,12 +10,11 @@ import org.springframework.web.client.RestTemplate;
 import org.springframework.web.util.UriComponentsBuilder;
 
 import java.net.URI;
-import java.time.OffsetDateTime;
 import java.util.ArrayList;
 import java.util.List;
 
 import static org.hamcrest.MatcherAssert.assertThat;
-import static org.hamcrest.Matchers.*;
+import static org.hamcrest.Matchers.equalTo;
 
 public class GetAllBuildStepDef extends BaseBuildStepDef {
 
@@ -35,12 +34,6 @@ public class GetAllBuildStepDef extends BaseBuildStepDef {
             testBuildInfoDao.insertRow(build);
         }
         assertThat(testBuildInfoDao.countRows(), equalTo(10L));
-    }
-
-    private BuildInfo createBuild(Integer count) {
-        return BuildInfo.builder().setId(count.toString()).setBuildId(BUILD_ID).setUrl(URL)
-                .setStartTime(OffsetDateTime.now().plusMinutes(count)).setFinishTime(OffsetDateTime.now().plusMinutes(count+1))
-                .createBuildInfo();
     }
 
     @And("^a payload with no parameters$")
@@ -78,7 +71,7 @@ public class GetAllBuildStepDef extends BaseBuildStepDef {
         request = UriComponentsBuilder.fromUriString(ENDPOINT).queryParam("startIndex", 6).queryParam("limit", 10).build().toUri();
     }
 
-    @When("^the get endpoint is called$")
+    @When("^the get all endpoint is called$")
     public void theGetEndpointIsCalled() throws Throwable {
         latestResponse.setResponse(restTemplate.getForEntity(request, BuildInfo[].class));
     }

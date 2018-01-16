@@ -43,6 +43,12 @@ public class RethinkDBRunner {
         }
     }
 
+    public Cursor getFromBuildId(String table, String buildId) {
+        try(Connection connection = connectionFactory.connectToMaximoDb()) {
+            return r.table(table).filter(row -> row.g("buildId").eq(buildId)).run(connection);
+        }
+    }
+
     public List<Map<String, Object>> getAll(String table, Long startIndex, Long limit) {
         try (Connection connection = connectionFactory.connectToMaximoDb()) {
             Cursor cursor = r.table(table).orderBy().optArg("index", r.desc("startTime"))
