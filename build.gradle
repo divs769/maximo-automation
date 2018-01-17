@@ -29,6 +29,12 @@ plugins {
 ext {
 	SCALA_VERSION = "2.11.7"
 	GATLING_VERSION = "2.2.3"
+	httpHandler = new groovyx.net.http.HTTPBuilder(System.properties.MAXIMO_URL)
+	httpHandler.handler.failure = { resp ->
+		throw new GradleException("Unexpected failure calling Maximo Automation: ${resp.statusLine}")
+	}
+	maximoBuildInfoId = null
+
 }
 
 apply plugin: "org.sonarqube"
@@ -259,8 +265,15 @@ task applicationCodeCoverageReport(type:JacocoReport){
     sourceSets sourceSets.main
 }
 
-task clientJar(type: Jar) {
+build.doLast {
+	closeMaximoChange()
+}
 
+acceptanceTest.doLast {
+	ext.maximoBuildInfoId = createMaximoChange()
+}
+
+task clientJar(type: Jar) {
 	from(sourceSets.main.output) {
 		include "**/rest/model/**"
 	}
@@ -276,57 +289,42 @@ task s3UploadClientJar(type: com.github.skhatri.s3aws.plugin.S3UploadTask) {
 	link = 'latest/' + serviceName + '-client.jar'
 }
 
-ext {
-    def maximoUrl = System.properties.MAXIMO_URL
-    httpHandler = new groovyx.net.http.HTTPBuilder(maximoUrl)
-    httpHandler.handler.failure = { resp ->
-        throw new GradleException("Unexpected failure calling Maximo Automation: ${resp.statusLine}")
-    }
-    maximoBuildInfoId = null
+
+def createMaximoChange() {
+	logger.info("Calling Maximo Automation Service To Create Maximo Change")
+
+	def details = versionDetails()
+	println details.lastTag
+	println details.commitDistance
+	println details.gitHash
+	println details.gitHashFull // full 40-character Git commit hash
+	println details.branchName // is null if the repository in detached HEAD mode
+	println details.isCleanTag
+	println details.description
+
+	ext.httpHandler.request(POST, JSON) {
+		uri.path = '/buildinfo'
+		body = [buildId: '52',
+				url    : 'http://192.168.99.100:8081/job/maximo-automation/52/',
+				time   : '2018-01-09T15:07:36.963Z']
+
+		response.success = { resp ->
+			maximoBuildInfoId = IOGroovyMethods.getText(resp.entity.content)
+			println "POST response data: ${maximoBuildInfoId}"
+			return maximoBuildInfoId
+		}
+
+		response.'424' = { resp ->
+			throw new GradleException('ERROR CREATING MAXIMO CHANGE!')
+		}
+	}
 }
 
-task maximoAutomationCreateChange {
-    doLast {
-        logger.info("Calling Maximo Automation Service To Create Maximo Change")
-
-        def details = versionDetails()
-        println details.lastTag
-        println details.commitDistance
-        println details.gitHash
-        println details.gitHashFull // full 40-character Git commit hash
-        println details.branchName // is null if the repository in detached HEAD mode
-        println details.isCleanTag
-        println details.description
-
-        httpHandler.request(POST, JSON) {
-            uri.path = '/buildinfo'
-            body = [buildId: '52',
-                    url    : 'http://192.168.99.100:8081/job/maximo-automation/52/',
-                    time   : '2018-01-09T15:07:36.963Z']
-
-            response.success = { resp ->
-                ext.maximoBuildInfoId = IOGroovyMethods.getText(resp.entity.content)
-                println "POST response data: ${ext.maximoBuildInfoId}"
-            }
-
-            response.'424' = { resp ->
-                throw new GradleException('ERROR CREATING MAXIMO CHANGE!')
-            }
-        }
-    }
-}
-
-task maximoAutomationCloseChange {
-    doLast {
-        logger.info("Calling Maximo Automation Service To Close Maximo Change")
-        closeMaximoChange(httpHandler, maximoBuildInfoId)
-    }
-}
-
-def closeMaximoChange(httpHandler, maximoBuildId) {
-    httpHandler.request(PUT, JSON) {
+def closeMaximoChange() {
+	logger.info("Calling Maximo Automation Service To Close Maximo Change")
+    ext.httpHandler.request(PUT, JSON) {
         uri.path = '/buildinfo'
-        body = [id: maximoBuildId,
+        body = [id: ext.maximoBuildInfoId,
                 time   : '2018-01-09T18:07:36.963Z']
 
         response.success = { resp ->
