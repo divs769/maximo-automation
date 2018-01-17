@@ -21,6 +21,6 @@ public class SwaggerConfiguration {
     }
 
     private Predicate<RequestHandler> selectors() {
-        return RequestHandlerSelectors.basePackage("com.shopdirect.microservicetemplate");
+        return RequestHandlerSelectors.basePackage("com.shopdirect");
     }
 }
