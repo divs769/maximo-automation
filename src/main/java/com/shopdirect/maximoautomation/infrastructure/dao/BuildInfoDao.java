@@ -36,6 +36,7 @@ public class BuildInfoDao {
         Map<String, Object> record = getRecordAsMap(id);
         record.remove("id");
         record.put("finishTime", buildInfo.getFinishTime());
+        record.put("status", buildInfo.getStatus().getCode());
         rethinkDBRunner.update(BUILDS_TB, id, record);
     }
 

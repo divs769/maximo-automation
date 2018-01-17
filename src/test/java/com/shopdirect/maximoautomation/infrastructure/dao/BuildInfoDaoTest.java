@@ -7,6 +7,7 @@ import org.assertj.core.api.Assertions;
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
+import org.mockito.ArgumentCaptor;
 import org.springframework.boot.test.mock.mockito.MockBean;
 import org.springframework.test.context.junit4.SpringRunner;
 
@@ -14,12 +15,11 @@ import java.time.OffsetDateTime;
 import java.util.*;
 import java.util.List;
 
+import static com.shopdirect.maximoautomation.infrastructure.resource.BuildStatus.SUCCESS;
 import static com.shopdirect.maximoautomation.infrastructure.DBInitializer.BUILDS_TB;
 import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.Matchers.equalTo;
-import static org.mockito.Matchers.any;
-import static org.mockito.Matchers.anyLong;
-import static org.mockito.Matchers.anyString;
+import static org.mockito.Matchers.*;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
@@ -42,27 +42,30 @@ public class BuildInfoDaoTest {
         // Given
         HashMap<String, Object> resultMap = createResultMap();
         resultMap.put("generated_keys", Collections.singletonList("123"));
-        when(rethinkDBRunner.create(any(), any())).thenReturn(resultMap);
+        when(rethinkDBRunner.create(anyString(), any())).thenReturn(resultMap);
 
         // When
-        String actualId = instance.save(BuildInfo.builder().setId(null).setBuildId("id").setUrl("url").setStartTime(OffsetDateTime.now()).createBuildInfo());
+        String actualId = instance.save(BuildInfo.builder().createBuildInfo());
 
         // Then
-        verify(rethinkDBRunner).create(any(), any());
+        verify(rethinkDBRunner).create(anyString(), any());
         Assertions.assertThat(actualId).isEqualTo("123");
     }
 
     @Test
     public void shouldUpdateAnExistingBuildInfoObject() throws Exception {
         // Given
-        HashMap<String, Object> resultMap = createResultMap();
-        when(rethinkDBRunner.update(any(), any(), any())).thenReturn(resultMap);
+        ArgumentCaptor<Map> captor = ArgumentCaptor.forClass(Map.class);
+        OffsetDateTime time = OffsetDateTime.now();
+        when(rethinkDBRunner.get(anyString(), eq("1"))).thenReturn(new HashMap<>());
 
         // When
-        instance.update(BuildInfo.builder().setId(null).setBuildId("id").setUrl("url").setStartTime(OffsetDateTime.now()).createBuildInfo());
+        instance.update(BuildInfo.builder().setId("1").setFinishTime(time).setStatus(SUCCESS).createBuildInfo());
 
         // Then
-        verify(rethinkDBRunner).update(any(), any(), any());
+        verify(rethinkDBRunner).update(any(), any(), captor.capture());
+        assertThat(captor.getValue().get("finishTime"), equalTo(time));
+        assertThat(captor.getValue().get("status"), equalTo(SUCCESS.getCode()));
     }
 
     @Test

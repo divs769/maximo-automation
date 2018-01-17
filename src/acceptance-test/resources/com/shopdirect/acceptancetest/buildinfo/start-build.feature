@@ -43,3 +43,13 @@ Feature: Start build
       | http://jenkins:8080/job/test/           |
       | http://1234.123.19.22:8080/job/test/123 |
       | jobs/test/123                           |
+
+  Scenario: The post operation sends data with tag missing
+    Given a payload missing the tag
+    When the post endpoint is called
+    Then the response is failure
+
+  Scenario: The post operation sends data with description missing
+    Given a payload missing the description
+    When the post endpoint is called
+    Then the response is failure

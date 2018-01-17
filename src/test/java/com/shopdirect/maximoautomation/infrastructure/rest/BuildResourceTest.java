@@ -24,7 +24,7 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
 
-import static java.time.format.DateTimeFormatter.ISO_OFFSET_DATE_TIME;
+import static com.shopdirect.maximoautomation.infrastructure.resource.BuildStatus.SUCCESS;
 import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.Matchers.equalTo;
 import static org.mockito.Matchers.any;
@@ -187,11 +187,13 @@ public class BuildResourceTest {
 
 
     private static BuildStartedRequest createStartedBuildInfo() {
-        return new BuildStartedRequest("build1","http://jenkins/job/project/123/",  "2012-04-23T18:25:43.511Z");
+        return new BuildStartedRequest("build1","http://jenkins/job/project/123/",
+                "2012-04-23T18:25:43.511Z", "665169b62d95c73d0de89337fa7ea6622c1a08c2",
+                "1.2", "branch", "A description");
     }
 
     private static BuildFinishedRequest createFinishedBuildInfo() {
-        return new BuildFinishedRequest("1", "2012-04-23T18:25:44.511Z");
+        return new BuildFinishedRequest("1", "2012-04-23T18:25:44.511Z", SUCCESS);
     }
 
 

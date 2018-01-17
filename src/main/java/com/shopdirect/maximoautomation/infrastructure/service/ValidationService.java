@@ -23,7 +23,7 @@ public class ValidationService {
     }
 
     public List<String> validateBuildStarted(BuildInfo buildInfo) {
-        List<String> errors = new ArrayList<>();
+        List<String> errors = new ArrayList<>(checkInvalidTime(buildInfo.getStartTime()));
         if(buildInfo.getBuildId() == null) {
             errors.add("Missing build ID.");
         }
@@ -32,7 +32,30 @@ public class ValidationService {
         } else if(!PATTERN.matcher(buildInfo.getUrl()).matches()) {
             errors.add("Invalid URL.");
         }
-        errors.addAll(checkInvalidTime(buildInfo.getStartTime()));
+        if(buildInfo.getVcTag() == null) {
+            errors.add("Missing tag.");
+        }
+        if(buildInfo.getVcDescription() == null) {
+            errors.add("Missing description.");
+        }
+        return errors;
+    }
+
+    public List<String> updateValidations(BuildInfo buildInfo) {
+        List<String> errors = new ArrayList<>(checkInvalidTime(buildInfo.getFinishTime()));
+        if(buildInfo.getId() == null) {
+            errors.add("Build ID is missing.");
+            return errors;
+        }
+        if(buildInfo.getStatus() == null) {
+            errors.add("Status is missing.");
+        }
+        BuildInfo existingRecord = buildInfoDao.getRecord(buildInfo.getId());
+        if(existingRecord == null) {
+            errors.add("Record doesn't exist in the database.");
+        } else if(buildInfo.getFinishTime() != null && buildInfo.getFinishTime().isBefore(existingRecord.getStartTime())) {
+            errors.add("Finish date should be after start date.");
+        }
         return errors;
     }
 
@@ -42,21 +65,6 @@ public class ValidationService {
             errors.add("Missing time.");
         } else if(time.isAfter(OffsetDateTime.now())) {
             errors.add("Invalid time.");
-        }
-        return errors;
-    }
-
-    public List<String> updateValidations(BuildInfo buildInfo) {
-        List<String> errors = new ArrayList<>();
-        if(buildInfo.getId() == null) {
-            errors.add("Build ID is missing.");
-            return errors;
-        }
-        BuildInfo existingRecord = buildInfoDao.getRecord(buildInfo.getId());
-        if(existingRecord == null) {
-            errors.add("Record doesn't exist in the database");
-        } else if(buildInfo.getFinishTime() != null && buildInfo.getFinishTime().isBefore(existingRecord.getStartTime())) {
-            errors.add("Finish date should be after start date");
         }
         return errors;
     }

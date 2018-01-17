@@ -11,17 +11,22 @@ public class BuildFinishedRequest {
 
     private final String id;
     private final String time;
+    private final BuildStatus status;
 
     @JsonCreator
-    public BuildFinishedRequest(@JsonProperty("id") String id, @JsonProperty("time") String time) {
+    public BuildFinishedRequest(@JsonProperty("id") String id,
+                                @JsonProperty("time") String time,
+                                @JsonProperty("status") BuildStatus status) {
         this.id = id;
         this.time = time;
+        this.status = status;
     }
 
     public BuildInfo createBuildInfo() {
         return BuildInfo.builder()
                 .setId(id)
                 .setFinishTime(time == null ? null : OffsetDateTime.parse(time, ISO_OFFSET_DATE_TIME))
+                .setStatus(status)
                 .createBuildInfo();
     }
 
@@ -31,5 +36,9 @@ public class BuildFinishedRequest {
 
     public String getTime() {
         return time;
+    }
+
+    public BuildStatus getStatus() {
+        return status;
     }
 }

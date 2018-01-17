@@ -17,6 +17,11 @@ public abstract class BaseBuildStepDef extends CucumberStepsDefinition {
     protected static final String BUILD_ID = "build";
     protected static final String URL = "http://jenkins:8080/job/test/123/";
     protected static final String ID = "1";
+    protected static final String HASH = "665169b62d95c73d0de89337fa7ea6622c1a08c2";
+    protected static final String TAG = "1.1";
+    protected static final String BRANCH = "test";
+    protected static final String DESC = "description";
+    protected static final String STATUS = "SUCCESS";
 
     protected RestTemplate restTemplate;
     protected LatestResponse latestResponse;
