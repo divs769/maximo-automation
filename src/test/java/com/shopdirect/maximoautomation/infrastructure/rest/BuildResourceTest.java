@@ -25,6 +25,7 @@ import java.util.List;
 import java.util.Optional;
 
 import static com.shopdirect.maximoautomation.infrastructure.resource.BuildStatus.SUCCESS;
+import static java.time.format.DateTimeFormatter.ISO_OFFSET_DATE_TIME;
 import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.Matchers.equalTo;
 import static org.mockito.Matchers.any;
