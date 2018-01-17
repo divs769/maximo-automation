@@ -6,16 +6,27 @@ public class BuildRequest {
     private String buildId;
     private String url;
     private String time;
+    private String vcHash;
+    private String vcTag;
+    private String vcBranch;
+    private String vcDescription;
+    private String status;
 
-    public BuildRequest(String id, String time) {
+    public BuildRequest(String id, String time, String status) {
         this.id = id;
         this.time = time;
+        this.status = status;
     }
 
-    public BuildRequest(String buildId, String url, String time) {
+    public BuildRequest(String buildId, String url, String time,
+                        String vcHash, String vcTag, String vcBranch, String vcDescription) {
         this.buildId = buildId;
         this.url = url;
         this.time = time;
+        this.vcHash = vcHash;
+        this.vcTag = vcTag;
+        this.vcBranch = vcBranch;
+        this.vcDescription = vcDescription;
     }
 
     public String getBuildId() {
@@ -32,5 +43,25 @@ public class BuildRequest {
 
     public String getId() {
         return id;
+    }
+
+    public String getVcHash() {
+        return vcHash;
+    }
+
+    public String getVcTag() {
+        return vcTag;
+    }
+
+    public String getVcBranch() {
+        return vcBranch;
+    }
+
+    public String getVcDescription() {
+        return vcDescription;
+    }
+
+    public String getStatus() {
+        return status;
     }
 }

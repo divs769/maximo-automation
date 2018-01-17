@@ -27,32 +27,42 @@ public class StartBuildStepDef extends BaseBuildStepDef {
 
     @Given("^a valid payload containing the build info$")
     public void aValidPayload() throws Throwable {
-        request = new BuildRequest(BUILD_ID, URL, OffsetDateTime.now().toString());
+        request = new BuildRequest(BUILD_ID, URL, OffsetDateTime.now().toString(), HASH, TAG, BRANCH, DESC);
     }
 
     @Given("^a payload missing the build ID$")
     public void aPayloadMissingTheBuildID() throws Throwable {
-        request = new BuildRequest(null, URL, OffsetDateTime.now().toString());
+        request = new BuildRequest(null, URL, OffsetDateTime.now().toString(), HASH, TAG, BRANCH, DESC);
     }
 
     @Given("^a payload missing the build URL$")
     public void aPayloadMissingTheBuildURL() throws Throwable {
-        request = new BuildRequest(BUILD_ID, null, OffsetDateTime.now().toString());
+        request = new BuildRequest(BUILD_ID, null, OffsetDateTime.now().toString(), HASH, TAG, BRANCH, DESC);
     }
 
     @Given("^a payload missing the time$")
     public void aPayloadMissingTheTime() throws Throwable {
-        request = new BuildRequest(BUILD_ID, URL, null);
+        request = new BuildRequest(BUILD_ID, URL, null, HASH, TAG, BRANCH, DESC);
     }
 
     @Given("^a payload with with an invalid date or time$")
     public void aPayloadWithWithAnInvalidDateOrTime() throws Throwable {
-        request = new BuildRequest(BUILD_ID, URL, OffsetDateTime.now().plusSeconds(1).toString());
+        request = new BuildRequest(BUILD_ID, URL, OffsetDateTime.now().plusSeconds(1).toString(), HASH, TAG, BRANCH, DESC);
     }
 
     @Given("^a payload with an invalid URL \"([^\"]*)\"$")
     public void aPayloadWithWithAnInvalidURL(String url) throws Throwable {
-        request = new BuildRequest(BUILD_ID, url, OffsetDateTime.now().toString());
+        request = new BuildRequest(BUILD_ID, url, OffsetDateTime.now().toString(), HASH, TAG, BRANCH, DESC);
+    }
+
+    @Given("^a payload missing the tag$")
+    public void aPayloadMissingTheTag() throws Throwable {
+        request = new BuildRequest(BUILD_ID, URL, OffsetDateTime.now().toString(), HASH, null, BRANCH, DESC);
+    }
+
+    @Given("^a payload missing the description$")
+    public void aPayloadMissingTheDescription() throws Throwable {
+        request = new BuildRequest(BUILD_ID, URL, OffsetDateTime.now().toString(), HASH, TAG, BRANCH, null);
     }
 
     @When("^the post endpoint is called$")
@@ -75,5 +85,9 @@ public class StartBuildStepDef extends BaseBuildStepDef {
         assertThat(result.get("url"), equalTo(request.getUrl()));
         assertThat(result.get("startTime").toString(), equalTo(request.getTime()));
         assertThat(result.get("finishTime"), nullValue());
+        assertThat(result.get("vcHash"), equalTo(request.getVcHash()));
+        assertThat(result.get("vcTag"), equalTo(request.getVcTag()));
+        assertThat(result.get("vcBranch"), equalTo(request.getVcBranch()));
+        assertThat(result.get("vcDescription"), equalTo(request.getVcDescription()));
     }
 }
