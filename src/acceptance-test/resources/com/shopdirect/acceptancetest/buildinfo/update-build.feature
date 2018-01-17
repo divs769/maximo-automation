@@ -40,3 +40,9 @@ Feature: Finish build
     And a record in the database doesn't exist with the ID contained in the payload
     When the put endpoint is called
     Then the response is failure
+
+  Scenario: The put request is sent with the build state missing
+    Given a payload with the state missing
+    When the put endpoint is called
+    Then the response is failure
+    And the record is not updated in the database

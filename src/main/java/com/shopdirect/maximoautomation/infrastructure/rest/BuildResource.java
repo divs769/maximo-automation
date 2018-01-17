@@ -48,8 +48,7 @@ public class BuildResource {
     @RequestMapping(method = PUT, consumes = APPLICATION_JSON_UTF8_VALUE)
     public ResponseEntity<String> buildFinished(@RequestBody BuildFinishedRequest request) {
         BuildInfo buildInfo = request.createBuildInfo();
-        List<String> errors = validationService.checkInvalidTime(buildInfo.getFinishTime());
-        errors.addAll(validationService.updateValidations(buildInfo));
+        List<String> errors = validationService.updateValidations(buildInfo);
         if(errors.isEmpty()) {
             buildInfoDao.update(buildInfo);
             return ResponseEntity.ok().build();
@@ -73,5 +72,4 @@ public class BuildResource {
             return ResponseEntity.ok(buildInfo);
         }
     }
-
 }
