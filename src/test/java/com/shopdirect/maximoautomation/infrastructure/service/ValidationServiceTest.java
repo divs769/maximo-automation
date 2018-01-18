@@ -1,7 +1,7 @@
 package com.shopdirect.maximoautomation.infrastructure.service;
 
 import com.shopdirect.maximoautomation.infrastructure.dao.BuildInfoDao;
-import com.shopdirect.maximoautomation.infrastructure.resource.BuildInfo;
+import com.shopdirect.maximoautomation.infrastructure.model.BuildInfo;
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
@@ -11,7 +11,7 @@ import org.springframework.test.context.junit4.SpringRunner;
 import java.time.OffsetDateTime;
 import java.util.List;
 
-import static com.shopdirect.maximoautomation.infrastructure.resource.BuildStatus.SUCCESS;
+import static com.shopdirect.maximoautomation.infrastructure.model.BuildStatus.SUCCESS;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.Matchers.any;
 import static org.mockito.Mockito.mock;

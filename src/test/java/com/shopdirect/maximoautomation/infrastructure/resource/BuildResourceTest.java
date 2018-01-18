@@ -1,10 +1,10 @@
-package com.shopdirect.maximoautomation.infrastructure.rest;
+package com.shopdirect.maximoautomation.infrastructure.resource;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.shopdirect.maximoautomation.infrastructure.dao.BuildInfoDao;
-import com.shopdirect.maximoautomation.infrastructure.resource.BuildFinishedRequest;
-import com.shopdirect.maximoautomation.infrastructure.resource.BuildInfo;
-import com.shopdirect.maximoautomation.infrastructure.resource.BuildStartedRequest;
+import com.shopdirect.maximoautomation.infrastructure.model.BuildInfo;
+import com.shopdirect.maximoautomation.infrastructure.model.dto.BuildFinishedRequest;
+import com.shopdirect.maximoautomation.infrastructure.model.dto.BuildStartedRequest;
 import com.shopdirect.maximoautomation.infrastructure.service.ValidationService;
 import gherkin.deps.com.google.gson.Gson;
 import org.assertj.core.util.Lists;
@@ -24,8 +24,7 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
 
-import static com.shopdirect.maximoautomation.infrastructure.resource.BuildStatus.SUCCESS;
-import static java.time.format.DateTimeFormatter.ISO_OFFSET_DATE_TIME;
+import static com.shopdirect.maximoautomation.infrastructure.model.BuildStatus.SUCCESS;
 import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.Matchers.equalTo;
 import static org.mockito.Matchers.any;

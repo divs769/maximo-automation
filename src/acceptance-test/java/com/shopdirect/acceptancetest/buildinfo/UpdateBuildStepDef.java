@@ -2,7 +2,7 @@ package com.shopdirect.acceptancetest.buildinfo;
 
 import com.shopdirect.acceptancetest.LatestResponse;
 import com.shopdirect.dao.TestBuildInfoDao;
-import com.shopdirect.maximoautomation.infrastructure.resource.BuildInfo;
+import com.shopdirect.maximoautomation.infrastructure.model.BuildInfo;
 import com.shopdirect.model.BuildRequest;
 import cucumber.api.java.en.And;
 import cucumber.api.java.en.Given;
@@ -14,7 +14,7 @@ import org.springframework.web.client.RestTemplate;
 import java.time.OffsetDateTime;
 import java.util.Map;
 
-import static com.shopdirect.maximoautomation.infrastructure.resource.BuildStatus.SUCCESS;
+import static com.shopdirect.maximoautomation.infrastructure.model.BuildStatus.SUCCESS;
 import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.Matchers.*;
 import static org.springframework.http.HttpMethod.PUT;

@@ -1,4 +1,4 @@
-package com.shopdirect.maximoautomation.infrastructure.resource;
+package com.shopdirect.maximoautomation.infrastructure.model;
 
 public enum BuildStatus {
 

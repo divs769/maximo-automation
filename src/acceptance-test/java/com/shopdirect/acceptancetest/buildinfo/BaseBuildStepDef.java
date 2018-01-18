@@ -2,11 +2,9 @@ package com.shopdirect.acceptancetest.buildinfo;
 
 import com.shopdirect.acceptancetest.CucumberStepsDefinition;
 import com.shopdirect.acceptancetest.LatestResponse;
-import com.shopdirect.dao.TestBuildInfoDao;
 import com.shopdirect.acceptancetest.configuration.TestResponseErrorHandler;
-import com.shopdirect.maximoautomation.infrastructure.resource.BuildInfo;
 import com.shopdirect.dao.TestBuildInfoDao;
-import com.shopdirect.maximoautomation.infrastructure.resource.BuildInfo;
+import com.shopdirect.maximoautomation.infrastructure.model.BuildInfo;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.client.RestTemplate;
 

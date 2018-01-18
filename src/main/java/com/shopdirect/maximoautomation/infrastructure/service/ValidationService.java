@@ -1,7 +1,7 @@
 package com.shopdirect.maximoautomation.infrastructure.service;
 
 import com.shopdirect.maximoautomation.infrastructure.dao.BuildInfoDao;
-import com.shopdirect.maximoautomation.infrastructure.resource.BuildInfo;
+import com.shopdirect.maximoautomation.infrastructure.model.BuildInfo;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 

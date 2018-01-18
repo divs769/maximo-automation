@@ -2,7 +2,7 @@ package com.shopdirect.maximoautomation.infrastructure.maximo.client.impl;
 
 import com.shopdirect.maximoautomation.infrastructure.maximo.client.MaximoClient;
 import com.shopdirect.maximoautomation.infrastructure.maximo.ws.*;
-import com.shopdirect.maximoautomation.infrastructure.resource.BuildInfo;
+import com.shopdirect.maximoautomation.infrastructure.model.BuildInfo;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.ws.client.core.support.WebServiceGatewaySupport;

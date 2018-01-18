@@ -1,7 +1,8 @@
-package com.shopdirect.maximoautomation.infrastructure.resource;
+package com.shopdirect.maximoautomation.infrastructure.model.dto;
 
 import com.fasterxml.jackson.annotation.JsonCreator;
 import com.fasterxml.jackson.annotation.JsonProperty;
+import com.shopdirect.maximoautomation.infrastructure.model.BuildInfo;
 
 import java.time.OffsetDateTime;
 

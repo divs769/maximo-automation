@@ -1,6 +1,6 @@
 package com.shopdirect.maximoautomation.infrastructure.maximo.client;
 
-import com.shopdirect.maximoautomation.infrastructure.resource.BuildInfo;
+import com.shopdirect.maximoautomation.infrastructure.model.BuildInfo;
 
 public interface MaximoClient {
     String createChange(BuildInfo buildInfo);

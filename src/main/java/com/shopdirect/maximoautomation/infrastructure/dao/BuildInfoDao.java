@@ -2,7 +2,7 @@ package com.shopdirect.maximoautomation.infrastructure.dao;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.rethinkdb.net.Cursor;
-import com.shopdirect.maximoautomation.infrastructure.resource.BuildInfo;
+import com.shopdirect.maximoautomation.infrastructure.model.BuildInfo;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 

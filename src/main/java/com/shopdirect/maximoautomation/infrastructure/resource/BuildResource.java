@@ -1,9 +1,9 @@
-package com.shopdirect.maximoautomation.infrastructure.rest;
+package com.shopdirect.maximoautomation.infrastructure.resource;
 
 import com.shopdirect.maximoautomation.infrastructure.dao.BuildInfoDao;
-import com.shopdirect.maximoautomation.infrastructure.resource.BuildFinishedRequest;
-import com.shopdirect.maximoautomation.infrastructure.resource.BuildInfo;
-import com.shopdirect.maximoautomation.infrastructure.resource.BuildStartedRequest;
+import com.shopdirect.maximoautomation.infrastructure.model.BuildInfo;
+import com.shopdirect.maximoautomation.infrastructure.model.dto.BuildFinishedRequest;
+import com.shopdirect.maximoautomation.infrastructure.model.dto.BuildStartedRequest;
 import com.shopdirect.maximoautomation.infrastructure.service.ValidationService;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -17,30 +17,30 @@ import java.util.Optional;
 import static org.springframework.http.HttpStatus.BAD_REQUEST;
 import static org.springframework.http.MediaType.APPLICATION_JSON_UTF8_VALUE;
 import static org.springframework.web.bind.annotation.RequestMethod.*;
-import static org.springframework.http.HttpStatus.BAD_REQUEST;
 
 @RestController
 @RequestMapping(value = "/buildinfo")
 public class BuildResource {
-
     private static final Logger LOGGER = LoggerFactory.getLogger(BuildResource.class);
-
     private final BuildInfoDao buildInfoDao;
     private final ValidationService validationService;
 
     @Autowired
-    public BuildResource(BuildInfoDao buildInfoDao, ValidationService validationService) {
+    public BuildResource(BuildInfoDao buildInfoDao,
+                         ValidationService validationService) {
         this.buildInfoDao = buildInfoDao;
         this.validationService = validationService;
     }
 
-    @RequestMapping(method = POST, consumes = APPLICATION_JSON_UTF8_VALUE, produces = APPLICATION_JSON_UTF8_VALUE)
+    @RequestMapping(method = POST, consumes = APPLICATION_JSON_UTF8_VALUE)
     public ResponseEntity<String> buildStarted(@RequestBody BuildStartedRequest request) {
         BuildInfo buildInfo = request.createBuildInfo();
         List<String> errors = validationService.validateBuildStarted(buildInfo);
         if(errors.isEmpty()) {
             return ResponseEntity.ok(buildInfoDao.save(buildInfo));
+            //maximo call
         } else {
+            LOGGER.error("Validation error: {}", ValidationService.generateErrorString(errors));
             return ResponseEntity.status(BAD_REQUEST).body(ValidationService.generateErrorString(errors));
         }
     }

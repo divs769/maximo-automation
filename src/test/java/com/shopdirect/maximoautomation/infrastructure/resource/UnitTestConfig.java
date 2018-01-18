@@ -1,4 +1,4 @@
-package com.shopdirect.maximoautomation.infrastructure.rest;
+package com.shopdirect.maximoautomation.infrastructure.resource;
 
 import com.shopdirect.maximoautomation.infrastructure.config.RethinkDBConnectionFactory;
 import org.springframework.context.annotation.Bean;

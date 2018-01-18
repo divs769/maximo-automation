@@ -2,7 +2,7 @@ package com.shopdirect.acceptancetest.buildinfo;
 
 import com.shopdirect.acceptancetest.LatestResponse;
 import com.shopdirect.dao.TestBuildInfoDao;
-import com.shopdirect.maximoautomation.infrastructure.resource.BuildInfo;
+import com.shopdirect.maximoautomation.infrastructure.model.BuildInfo;
 import cucumber.api.java.en.And;
 import cucumber.api.java.en.Given;
 import cucumber.api.java.en.When;
