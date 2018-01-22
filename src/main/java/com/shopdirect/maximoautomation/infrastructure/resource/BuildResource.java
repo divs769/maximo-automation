@@ -1,6 +1,7 @@
 package com.shopdirect.maximoautomation.infrastructure.resource;
 
 import com.shopdirect.maximoautomation.infrastructure.dao.BuildInfoDao;
+import com.shopdirect.maximoautomation.infrastructure.maximo.client.MaximoClient;
 import com.shopdirect.maximoautomation.infrastructure.model.BuildInfo;
 import com.shopdirect.maximoautomation.infrastructure.model.dto.BuildFinishedRequest;
 import com.shopdirect.maximoautomation.infrastructure.model.dto.BuildStartedRequest;
@@ -22,6 +23,8 @@ import static org.springframework.web.bind.annotation.RequestMethod.*;
 @RequestMapping(value = "/buildinfo")
 public class BuildResource {
     private static final Logger LOGGER = LoggerFactory.getLogger(BuildResource.class);
+    @Autowired
+    private MaximoClient maximoClient;
     private final BuildInfoDao buildInfoDao;
     private final ValidationService validationService;
 
@@ -37,8 +40,9 @@ public class BuildResource {
         BuildInfo buildInfo = request.createBuildInfo();
         List<String> errors = validationService.validateBuildStarted(buildInfo);
         if(errors.isEmpty()) {
-            return ResponseEntity.ok(buildInfoDao.save(buildInfo));
-            //maximo call
+            String buildInfoId = buildInfoDao.save(buildInfo);
+            maximoClient.createChange(buildInfo);
+            return ResponseEntity.ok(buildInfoId);
         } else {
             LOGGER.error("Validation error: {}", ValidationService.generateErrorString(errors));
             return ResponseEntity.status(BAD_REQUEST).body(ValidationService.generateErrorString(errors));

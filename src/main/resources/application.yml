@@ -30,3 +30,9 @@ logging:
 
 info:
     config: Local
+
+ibm:
+  maximo:
+    url: https://esls1uat.eu.smi.ibm.com/meaweb/services/MXISWOCHANGE
+    user: gyowanny.pessattoqueiroz@shopdirect.com
+    password: Viviana0906
