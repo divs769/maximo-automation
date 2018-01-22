@@ -131,44 +131,6 @@ gatling {
 	}
 }
 
-// tag::wsdl[]
-task genJaxb {
-    ext.sourcesDir = "${buildDir}/generated-sources/jaxb"
-    ext.classesDir = "${buildDir}/classes/jaxb"
-    ext.schema = "src/main/resources/maximo/esls1uat.eu.smi.ibm.com_meaweb_wsdl_MXISWOCHANGE.wsdl"
-
-    outputs.dir classesDir
-
-    doLast() {
-        project.ant {
-            taskdef name: "xjc", classname: "com.sun.tools.xjc.XJCTask",
-                    classpath: configurations.jaxb.asPath
-            mkdir(dir: sourcesDir)
-            mkdir(dir: classesDir)
-
-            xjc(destdir: sourcesDir, schema: schema,
-                    package: "com.shopdirect.maximoautomation.infrastructure.maximo.ws") {
-                arg(value: "-wsdl")
-                produces(dir: sourcesDir, includes: "**/*.java")
-            }
-
-            javac(destdir: classesDir, source: 1.8, target: 1.8, debug: true,
-                    debugLevel: "lines,vars,source",
-                    classpath: configurations.jaxb.asPath) {
-                src(path: sourcesDir)
-                include(name: "**/*.java")
-                include(name: "*.java")
-            }
-
-            copy(todir: classesDir) {
-                fileset(dir: sourcesDir, erroronmissingdir: false) {
-                    exclude(name: "**/*.java")
-                }
-            }
-        }
-    }
-}
-
 dependencies {
 	compile('org.springframework.boot:spring-boot-starter-actuator')
 	compile('org.springframework.boot:spring-boot-starter-web')
@@ -187,10 +149,7 @@ dependencies {
 	compile "com.rethinkdb:rethinkdb-driver:2.3.3"
 	compile "com.fasterxml.jackson.core:jackson-annotations:2.9.3"
 	compile "com.fasterxml.jackson.datatype:jackson-datatype-jsr310:2.9.3"
-    compile("org.springframework.ws:spring-ws-core")
-    compile(files(genJaxb.classesDir).builtBy(genJaxb))
 
-    jaxb "com.sun.xml.bind:jaxb-xjc:2.1.7"
 }
 
 task version {
@@ -273,6 +232,10 @@ acceptanceTest.doLast {
 	ext.maximoBuildInfoId = createMaximoChange()
 }
 
+task releaseNotes {
+	generateReleaseNotes()
+}
+
 task clientJar(type: Jar) {
 	from(sourceSets.main.output) {
 		include "**/rest/model/**"
@@ -289,6 +252,8 @@ task s3UploadClientJar(type: com.github.skhatri.s3aws.plugin.S3UploadTask) {
 	link = 'latest/' + serviceName + '-client.jar'
 }
 
+import java.util.Random
+import static java.time.format.DateTimeFormatter.ISO_OFFSET_DATE_TIME
 
 def createMaximoChange() {
 	logger.info("Calling Maximo Automation Service To Create Maximo Change")
@@ -302,11 +267,20 @@ def createMaximoChange() {
 	println details.isCleanTag
 	println details.description
 
+	def buildStartedPayload = [
+			buildId: '123',
+			url    : 'http://192.168.99.100:8081/job/maximo-automation/100/',
+			time   : '2018-01-08T15:07:36.963Z',
+			vcHash : details.gitHash,
+			vcTag  : details.lastTag,
+			vcBranch: details.branchName,
+			vcDescription: details.description
+	]
+	println '########## \n\nbuildStartedPayload ' + buildStartedPayload
+
 	ext.httpHandler.request(POST, JSON) {
 		uri.path = '/buildinfo'
-		body = [buildId: '52',
-				url    : 'http://192.168.99.100:8081/job/maximo-automation/52/',
-				time   : '2018-01-09T15:07:36.963Z']
+		body = buildStartedPayload
 
 		response.success = { resp ->
 			maximoBuildInfoId = IOGroovyMethods.getText(resp.entity.content)
@@ -335,4 +309,26 @@ def closeMaximoChange() {
             throw new GradleException('ERROR CLOSING MAXIMO CHANGE!')
         }
     }
+}
+
+def generateReleaseNotes() {
+	println "Generating release notes (releaseNotes.txt)"
+	def releaseNotes = new File('releaseNotes.txt')
+	releaseNotes.delete()
+	def lastTag = ""
+	def tags = []
+	def procTags = "git describe --abbrev=0 --tags".execute()
+	procTags.in.eachLine { line -> tags += line }
+	tags += "head"
+
+	tags.each { tag ->
+		if (lastTag?.trim()) {
+			releaseNotes << "[[ Changes from $lastTag to $tag ]]\n"
+			def cmdLine = "git log $lastTag..$tag --pretty=format:\"%cd - %s\" --date=short"
+			def procCommit = cmdLine.execute()
+			procCommit.in.eachLine { line -> releaseNotes << line + "\n" }
+			releaseNotes << "\n\n\n"
+		}
+		lastTag = tag
+	}
 }
