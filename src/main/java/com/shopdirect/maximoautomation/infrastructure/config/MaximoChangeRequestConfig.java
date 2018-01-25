@@ -30,6 +30,15 @@ public class MaximoChangeRequestConfig {
     @Value("${siteId}")
     private String siteId;
 
+    @Value("${description}")
+    private String description;
+
+    @Value("${ownerGroup}")
+    private String ownerGroup;
+
+    @Value("${reasonForChange}")
+    private String reasonForChange;
+
     public MaximoChangeRequestConfig() {
     }
 
@@ -61,6 +70,18 @@ public class MaximoChangeRequestConfig {
         return siteId;
     }
 
+    public String getDescription() {
+        return description;
+    }
+
+    public String getOwnerGroup() {
+        return ownerGroup;
+    }
+
+    public String getReasonForChange() {
+        return reasonForChange;
+    }
+
     @Override
     public String toString() {
         final StringBuffer sb = new StringBuffer("MaximoChangeRequestConfig{");
@@ -71,6 +92,7 @@ public class MaximoChangeRequestConfig {
         sb.append(", ciNum='").append(ciNum).append('\'');
         sb.append(", changeType='").append(changeType).append('\'');
         sb.append(", siteId='").append(siteId).append('\'');
+        sb.append(", description='").append(description).append('\'');
         sb.append('}');
         return sb.toString();
     }

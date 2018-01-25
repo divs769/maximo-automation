@@ -2,7 +2,11 @@ change:
   probabilityFailure: 3
   impact: 3
   urgency: 3
-  classificationID: 81505100
-  ciNum: SDG-00
+  classificationID: CHANGE
+  ciNum: SAP
   changeType: Normal
   siteId: ITD-ESLS
+  #description: Deploying project %s to production.\n\nTag: %s\nHash: %s\nDescription: %s\n
+  description: Deploying Microservices
+  ownerGroup: I-SM-IE-SSM-CHG-CHGMGMT
+  reasonForChange: New version released
