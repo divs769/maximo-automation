@@ -1,11 +1,19 @@
 
+import com.shopdirect.maximoautomation.ServiceApplication
 import io.gatling.core.Predef._
 import io.gatling.http.Predef._
-import scalaj.http._
+import org.springframework.boot.SpringApplication
+import org.springframework.context.ConfigurableApplicationContext
 
+import scalaj.http._
 import scala.concurrent.duration._
 
 class MyGatlingTest extends Simulation {
+
+  val app: ConfigurableApplicationContext = SpringApplication.run(classOf[ServiceApplication])
+  Runtime.getRuntime.addShutdownHook(new Thread() {
+    override def run(): Unit = app.stop()
+  })
 
   val baseUrl = "http://localhost:8080"
 
