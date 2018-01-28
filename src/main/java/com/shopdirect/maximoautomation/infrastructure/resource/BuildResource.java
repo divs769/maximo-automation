@@ -41,7 +41,7 @@ public class BuildResource {
         List<String> errors = validationService.validateBuildStarted(buildInfo);
         if(errors.isEmpty()) {
             String buildInfoId = buildInfoDao.save(buildInfo);
-//            maximoClient.createChange(buildInfo);
+            maximoClient.createChange(buildInfo);
             return ResponseEntity.ok(buildInfoId);
         } else {
             LOGGER.error("Validation error: {}", ValidationService.generateErrorString(errors));
