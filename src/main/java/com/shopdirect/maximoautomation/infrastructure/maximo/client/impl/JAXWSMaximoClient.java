@@ -26,7 +26,7 @@ public class JAXWSMaximoClient implements MaximoClient {
     private final ObjectFactory objectFactory = new ObjectFactory();
     private final MaximoChangeRequestConfig maximoChangeRequestConfig;
     private final ObjectMapper objectMapper = new ObjectMapper();
-    private final MXISWOCHANGE client;
+    private final MXISWOCHANGEPortType client;
 
     public JAXWSMaximoClient(
             String maximoUrl,
@@ -36,19 +36,19 @@ public class JAXWSMaximoClient implements MaximoClient {
         this.client = createAndConfigureClient(maximoUrl);
     }
 
-    private MXISWOCHANGE createAndConfigureClient(String maximoUrl) {
-        MXISWOCHANGE client = new MXISWOCHANGE();
-        MXISWOCHANGEPortType port = client.getMXISWOCHANGESOAP11Port();
+    private MXISWOCHANGEPortType createAndConfigureClient(String maximoUrl) {
+        LOGGER.info("Initializing Maximo client. URL: {}", maximoUrl);
+        MXISWOCHANGEPortType port = new MXISWOCHANGE().getMXISWOCHANGESOAP11Port();
         ((BindingProvider) port).getRequestContext()
                 .put(BindingProvider.ENDPOINT_ADDRESS_PROPERTY, maximoUrl);
-        return client;
+        return port;
     }
 
     @Override
     public String createChange(BuildInfo buildInfo) {
         LOGGER.info("Calling IBM Maximo to create a change request");
 
-        CreateMXISWOCHANGEResponseType response = client.getMXISWOCHANGESOAP11Port()
+        CreateMXISWOCHANGEResponseType response = client
                 .createMXISWOCHANGE(createMXISWOCHANGEType(buildInfo));
 
         try {

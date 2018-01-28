@@ -10,4 +10,5 @@ import org.junit.runner.RunWith;
         plugin = {"pretty", "html:build/cucumber"},
         junit = {"--filename-compatible-names"})
 public class AcceptanceTestRunner {
+
 }
