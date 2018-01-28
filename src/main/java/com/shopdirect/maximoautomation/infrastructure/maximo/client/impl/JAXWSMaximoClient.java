@@ -1,6 +1,5 @@
 package com.shopdirect.maximoautomation.infrastructure.maximo.client.impl;
 
-import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.ibm.maximo.*;
 import com.ibm.maximo.wsdl.mxiswochange.MXISWOCHANGE;
@@ -8,11 +7,12 @@ import com.ibm.maximo.wsdl.mxiswochange.MXISWOCHANGEPortType;
 import com.shopdirect.maximoautomation.infrastructure.config.MaximoChangeRequestConfig;
 import com.shopdirect.maximoautomation.infrastructure.maximo.client.MaximoClient;
 import com.shopdirect.maximoautomation.infrastructure.model.BuildInfo;
-import com.sun.org.apache.xerces.internal.jaxp.datatype.XMLGregorianCalendarImpl;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import javax.xml.bind.JAXBElement;
+import javax.xml.datatype.DatatypeConfigurationException;
+import javax.xml.datatype.DatatypeFactory;
 import javax.xml.datatype.XMLGregorianCalendar;
 import javax.xml.ws.BindingProvider;
 import java.time.ZoneId;
@@ -48,16 +48,17 @@ public class JAXWSMaximoClient implements MaximoClient {
     public String createChange(BuildInfo buildInfo) {
         LOGGER.info("Calling IBM Maximo to create a change request");
 
-        CreateMXISWOCHANGEResponseType response = client
-                .createMXISWOCHANGE(createMXISWOCHANGEType(buildInfo));
-
         try {
-            LOGGER.info("Response: \n{}\n", objectMapper.writeValueAsString(response));
-        } catch (JsonProcessingException e) {
-            LOGGER.error("Error parsing response from IBM Maximo", e);
+            CreateMXISWOCHANGEResponseType response = client
+                    .createMXISWOCHANGE(createMXISWOCHANGEType(buildInfo));
+            return response.getWOCHANGEMboKeySet().getWOCHANGE().get(0).getWONUM().getValue();
+        } catch (DatatypeConfigurationException e) {
+            LOGGER.error("Data type error before calling maximo", e);
+            throw new RuntimeException("Can't call IBM Maximo due to data error", e);
+        } catch (Exception e) {
+            LOGGER.error("Error calling IBM maximo", e);
+            throw new RuntimeException("Error calling IBM Maximo", e);
         }
-
-        return response.getWOCHANGEMboKeySet().getWOCHANGE().get(0).getWONUM().getValue();
     }
 
     @Override
@@ -65,7 +66,7 @@ public class JAXWSMaximoClient implements MaximoClient {
 
     }
 
-    private CreateMXISWOCHANGEType createMXISWOCHANGEType(BuildInfo buildInfo) {
+    private CreateMXISWOCHANGEType createMXISWOCHANGEType(BuildInfo buildInfo) throws DatatypeConfigurationException {
         MXISWOCHANGEWOCHANGEType wochange = objectFactory.createMXISWOCHANGEWOCHANGEType();
         wochange.setDESCRIPTION(createMXStringType(buildInfo.getUrl()));
         wochange.setPMCHGPROBABILITYFAILURE(
@@ -133,20 +134,21 @@ public class JAXWSMaximoClient implements MaximoClient {
         return mxLongType;
     }
 
-    private MXDateTimeType createMXDateTimeType(Date date) {
+    private MXDateTimeType createMXDateTimeType(Date date) throws DatatypeConfigurationException {
         MXDateTimeType mxDateType = objectFactory.createMXDateTimeType();
-        XMLGregorianCalendar calendar = new XMLGregorianCalendarImpl(
-                GregorianCalendar.from(ZonedDateTime.from(date.toInstant().atZone(ZoneId.systemDefault())))
-        );
+        XMLGregorianCalendar calendar = DatatypeFactory.newInstance()
+                .newXMLGregorianCalendar(
+                        GregorianCalendar.from(ZonedDateTime.from(date.toInstant().atZone(ZoneId.systemDefault())))
+                );
         mxDateType.setValue(calendar);
         return mxDateType;
     }
 
-    private JAXBElement<MXDateTimeType> createSCHEDSTARTAsJAXBElement(Date date) {
+    private JAXBElement<MXDateTimeType> createSCHEDSTARTAsJAXBElement(Date date) throws DatatypeConfigurationException {
         return objectFactory.createMXISWOCHANGEWOACTIVITYTypeSCHEDSTART(createMXDateTimeType(date));
     }
 
-    private JAXBElement<MXDateTimeType> createSCHEDFINISHAsJAXBElement(Date date) {
+    private JAXBElement<MXDateTimeType> createSCHEDFINISHAsJAXBElement(Date date) throws DatatypeConfigurationException {
         return objectFactory.createMXISWOCHANGEWOACTIVITYTypeSCHEDFINISH(createMXDateTimeType(date));
     }
 

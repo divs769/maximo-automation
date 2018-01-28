@@ -227,13 +227,13 @@ task applicationCodeCoverageReport(type:JacocoReport){
     sourceSets sourceSets.main
 }
 
-build.doLast {
-	closeMaximoChange()
-}
-
-acceptanceTest.doLast {
+//build.doLast {
+//	closeMaximoChange()
+//}
+//
+//acceptanceTest.doLast {
 //	ext.maximoBuildInfoId = createMaximoChange()
-}
+//}
 
 task releaseNotes {
 	generateReleaseNotes()
