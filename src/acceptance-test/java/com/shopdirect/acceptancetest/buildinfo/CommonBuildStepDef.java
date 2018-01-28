@@ -66,7 +66,7 @@ public class CommonBuildStepDef extends BaseBuildStepDef {
         responseBody
                 .append("<soapenv:Envelope xmlns:soapenv=\"http://schemas.xmlsoap.org/soap/envelope/\">")
                 .append("<soapenv:Body>")
-                .append("<CreateMXISWOCHANGEResponseType creationDateTime=\"2018-01-24T14:35:57+00:00\" transLanguage=\"EN\" baseLanguage=\"EN\">" )
+                .append("<CreateMXISWOCHANGEResponseType creationDateTime=\"2018-01-24T14:35:57+00:00\" transLanguage=\"EN\" baseLanguage=\"EN\" xmlns=\"http://www.ibm.com/maximo\" xmlns:xsi=\"http://www.w3.org/2001/XMLSchema-instance\">" )
                 .append("<WOCHANGEMboKeySet>")
                 .append("<WOCHANGE>")
                 .append("<SITEID>ITD-ESLS</SITEID>")
