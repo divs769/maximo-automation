@@ -140,6 +140,8 @@ dependencies {
 	testCompile('info.cukes:cucumber-java:1.2.5') //to use cucumber
 	testCompile('info.cukes:cucumber-junit:1.2.5') //to run in junit via the ide
 	testCompile('info.cukes:cucumber-spring:1.2.5') //to use dependency injection
+	testCompile "org.springframework.cloud:spring-cloud-contract-wiremock"
+//	testCompile "org.springframework.cloud:spring-cloud-starter-contract-stub-runner"
 	acceptanceTestCompile('org.springframework:spring-tx:4.3.6.RELEASE') //to run acceptance tests from feature file in IDE
 	compile "org.scala-lang:scala-library:${SCALA_VERSION}"
 	loadTestCompile "io.gatling:gatling-http:${GATLING_VERSION}"
@@ -150,6 +152,12 @@ dependencies {
 	compile "com.fasterxml.jackson.core:jackson-annotations:2.9.3"
 	compile "com.fasterxml.jackson.datatype:jackson-datatype-jsr310:2.9.3"
 
+}
+
+dependencyManagement {
+	imports {
+		mavenBom 'org.springframework.cloud:spring-cloud-contract-dependencies:1.2.1.RELEASE'
+	}
 }
 
 task version {
