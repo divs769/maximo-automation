@@ -13,4 +13,13 @@ public enum BuildStatus {
     public String getCode() {
         return code;
     }
+
+    public static BuildStatus getFromCode(String code) {
+        for (BuildStatus buildStatus: values()) {
+            if (buildStatus.code.equals(code)) {
+                return buildStatus;
+            }
+        }
+        return null;
+    }
 }

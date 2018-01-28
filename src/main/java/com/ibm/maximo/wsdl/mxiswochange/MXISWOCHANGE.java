@@ -26,7 +26,7 @@ public class MXISWOCHANGE
         URL url = null;
         WebServiceException e = null;
         try {
-            url = new URL("file:/C:/Downloads/maximo/esls1uat.eu.smi.ibm.com_meaweb_wsdl_MXISWOCHANGE.wsdl");
+            url = new URL("classpath:maximo/esls1uat.eu.smi.ibm.com_meaweb_wsdl_MXISWOCHANGE.wsdl");
         } catch (MalformedURLException ex) {
             e = new WebServiceException(ex);
         }

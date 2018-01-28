@@ -2,6 +2,8 @@ package com.shopdirect.maximoautomation.infrastructure.model;
 
 import com.fasterxml.jackson.annotation.JsonCreator;
 import com.fasterxml.jackson.annotation.JsonProperty;
+import com.fasterxml.jackson.databind.annotation.JsonDeserialize;
+import com.shopdirect.maximoautomation.infrastructure.config.BuildStatusDeserializer;
 
 import java.time.OffsetDateTime;
 
@@ -28,7 +30,7 @@ public class BuildInfo {
                      @JsonProperty("vcTag") String vcTag,
                      @JsonProperty("vcBranch") String vcBranch,
                      @JsonProperty("vcDescription") String vcDescription,
-                     @JsonProperty("status") BuildStatus status) {
+                     @JsonProperty("status") @JsonDeserialize(using = BuildStatusDeserializer.class) BuildStatus status) {
         this.id = id;
         this.buildId = buildId;
         this.url = url;
