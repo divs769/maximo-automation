@@ -2,6 +2,7 @@ package com.shopdirect.maximoautomation.infrastructure.resource;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.shopdirect.maximoautomation.infrastructure.dao.BuildInfoDao;
+import com.shopdirect.maximoautomation.infrastructure.maximo.client.MaximoClient;
 import com.shopdirect.maximoautomation.infrastructure.model.BuildInfo;
 import com.shopdirect.maximoautomation.infrastructure.model.dto.BuildFinishedRequest;
 import com.shopdirect.maximoautomation.infrastructure.model.dto.BuildStartedRequest;
@@ -50,6 +51,9 @@ public class BuildResourceTest {
 
     @MockBean
     private ValidationService validationService;
+
+    @MockBean
+    private MaximoClient client;
 
     private ObjectMapper objectMapper;
 

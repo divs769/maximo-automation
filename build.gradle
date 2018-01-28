@@ -27,8 +27,8 @@ plugins {
 }
 
 ext {
-	SCALA_VERSION = "2.11.7"
-	GATLING_VERSION = "2.2.3"
+	SCALA_VERSION = "2.12.4"
+	GATLING_VERSION = "2.3.0"
 	httpHandler = new groovyx.net.http.HTTPBuilder(System.properties.MAXIMO_URL)
 	httpHandler.handler.failure = { resp ->
 		throw new GradleException("Unexpected failure calling Maximo Automation: ${resp.statusLine}")
@@ -108,10 +108,6 @@ sourceSets {
 }
 
 configurations {
-    jaxb
-}
-
-configurations {
 	acceptanceTestCompile.extendsFrom testCompile
 	acceptanceTestRuntime.extendsFrom testRuntime
 }
@@ -145,11 +141,10 @@ dependencies {
 	loadTestCompile "io.gatling:gatling-http:${GATLING_VERSION}"
 	loadTestCompile "io.gatling:gatling-core:${GATLING_VERSION}"
 	loadTestCompile "io.gatling.highcharts:gatling-charts-highcharts:${GATLING_VERSION}"
-	testCompile "io.gatling:gatling-app:${GATLING_VERSION}"
+	loadTestCompile "org.scalaj:scalaj-http_2.12:2.3.0"
 	compile "com.rethinkdb:rethinkdb-driver:2.3.3"
 	compile "com.fasterxml.jackson.core:jackson-annotations:2.9.3"
 	compile "com.fasterxml.jackson.datatype:jackson-datatype-jsr310:2.9.3"
-
 }
 
 task version {
@@ -229,7 +224,7 @@ build.doLast {
 }
 
 acceptanceTest.doLast {
-	ext.maximoBuildInfoId = createMaximoChange()
+//	ext.maximoBuildInfoId = createMaximoChange()
 }
 
 task releaseNotes {
