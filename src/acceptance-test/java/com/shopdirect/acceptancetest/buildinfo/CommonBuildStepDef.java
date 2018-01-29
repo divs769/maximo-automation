@@ -1,5 +1,6 @@
 package com.shopdirect.acceptancetest.buildinfo;
 
+import com.github.tomakehurst.wiremock.client.MappingBuilder;
 import com.github.tomakehurst.wiremock.client.ResponseDefinitionBuilder;
 import com.shopdirect.acceptancetest.LatestResponse;
 import com.shopdirect.dao.TestBuildInfoDao;
@@ -62,8 +63,13 @@ public class CommonBuildStepDef extends BaseBuildStepDef {
 
     @Given("^Maximo is up and running")
     public void givenMaximoIsUpAndRunning() throws Throwable {
-        StringBuffer responseBody = new StringBuffer();
-        responseBody
+        primeMaximoMockServerForCreateChange();
+        primeMaximoMockServerForUpdateChange();
+    }
+
+    private void primeMaximoMockServerForCreateChange() {
+        StringBuffer responseBodyForCreate = new StringBuffer();
+        responseBodyForCreate
                 .append("<soapenv:Envelope xmlns:soapenv=\"http://schemas.xmlsoap.org/soap/envelope/\">")
                 .append("<soapenv:Body>")
                 .append("<CreateMXISWOCHANGEResponseType creationDateTime=\"2018-01-24T14:35:57+00:00\" transLanguage=\"EN\" baseLanguage=\"EN\" xmlns=\"http://www.ibm.com/maximo\" xmlns:xsi=\"http://www.w3.org/2001/XMLSchema-instance\">" )
@@ -79,19 +85,46 @@ public class CommonBuildStepDef extends BaseBuildStepDef {
 
         ResponseDefinitionBuilder responseBuilder = aResponse()
                 .withHeader("Content-Type", "text/xml; charset=UTF-8")
-                .withBody(responseBody.toString());
+                .withBody(responseBodyForCreate.toString());
 
+        primeMaximoMockServer(post(urlEqualTo("/soap")), responseBuilder);
+    }
+
+    private void primeMaximoMockServerForUpdateChange() {
+        StringBuffer responseBodyForUpdate = new StringBuffer();
+        responseBodyForUpdate
+                .append("<soapenv:Envelope xmlns:soapenv=\"http://schemas.xmlsoap.org/soap/envelope/\">")
+                .append("<soapenv:Body>")
+                .append("<UpdateMXISWOCHANGEResponseType messageID=\"4123413\" creationDateTime=\"2018-01-24T14:35:57+00:00\" transLanguage=\"EN\" baseLanguage=\"EN\" xmlns=\"http://www.ibm.com/maximo\" xmlns:xsi=\"http://www.w3.org/2001/XMLSchema-instance\">" )
+                .append("</UpdateMXISWOCHANGEResponseType>")
+                .append("</soapenv:Body>")
+                .append("</soapenv:Envelope>");
+
+        ResponseDefinitionBuilder responseBuilder = aResponse()
+                .withHeader("Content-Type", "text/xml; charset=UTF-8")
+                .withBody(responseBodyForUpdate.toString());
+
+        primeMaximoMockServer(put(urlEqualTo("/soap")), responseBuilder);
+    }
+
+    private void primeMaximoMockServer(
+            MappingBuilder mappingBuilder,
+            ResponseDefinitionBuilder responseDefinitionBuilder) {
         stubFor(
-                post(urlEqualTo("/soap"))
-                        .withHeader("SOAPAction", matching(".*"))
-                        .withHeader("Accept", matching(".*"))
-                        .withHeader("User-Agent", matching(".*"))
-                        .withHeader("Connection", matching(".*"))
-                        .withHeader("Host", matching(".*"))
-                        .withHeader("Content-Length", matching(".*"))
-                        .withHeader("Content-Type", matching(".*"))
+                withDefaultHeaders(mappingBuilder)
                         .withRequestBody(matching(".*"))
-                        .willReturn(responseBuilder)
+                        .willReturn(responseDefinitionBuilder)
         );
+    }
+
+    private MappingBuilder withDefaultHeaders(MappingBuilder mappingBuilder) {
+        return mappingBuilder
+                .withHeader("SOAPAction", matching(".*"))
+                .withHeader("Accept", matching(".*"))
+                .withHeader("User-Agent", matching(".*"))
+                .withHeader("Connection", matching(".*"))
+                .withHeader("Host", matching(".*"))
+                .withHeader("Content-Length", matching(".*"))
+                .withHeader("Content-Type", matching(".*"));
     }
 }

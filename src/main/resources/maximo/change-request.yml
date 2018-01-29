@@ -6,7 +6,7 @@ change:
   ciNum: SAP
   changeType: Normal
   siteId: ITD-ESLS
-  #description: Deploying project %s to production.\n\nTag: %s\nHash: %s\nDescription: %s\n
   description: Deploying Microservices
+  implDescription: Deploying project %s to production.\n\nTag: %s\nHash: %s\nDescription: %s\n
   ownerGroup: I-SM-IE-SSM-CHG-CHGMGMT
-  reasonForChange: New version released
+  reasonForChange: Release of new version

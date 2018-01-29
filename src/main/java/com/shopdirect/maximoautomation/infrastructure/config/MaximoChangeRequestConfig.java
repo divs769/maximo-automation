@@ -30,6 +30,9 @@ public class MaximoChangeRequestConfig {
     @Value("${siteId}")
     private String siteId;
 
+    @Value("${implDescription}")
+    private String implDescription;
+
     @Value("${description}")
     private String description;
 
@@ -70,6 +73,10 @@ public class MaximoChangeRequestConfig {
         return siteId;
     }
 
+    public String getImplDescription() {
+        return implDescription;
+    }
+
     public String getDescription() {
         return description;
     }
@@ -92,7 +99,10 @@ public class MaximoChangeRequestConfig {
         sb.append(", ciNum='").append(ciNum).append('\'');
         sb.append(", changeType='").append(changeType).append('\'');
         sb.append(", siteId='").append(siteId).append('\'');
+        sb.append(", implDescription='").append(implDescription).append('\'');
         sb.append(", description='").append(description).append('\'');
+        sb.append(", ownerGroup='").append(ownerGroup).append('\'');
+        sb.append(", reasonForChange='").append(reasonForChange).append('\'');
         sb.append('}');
         return sb.toString();
     }
