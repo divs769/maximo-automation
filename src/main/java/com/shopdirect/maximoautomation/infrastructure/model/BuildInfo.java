@@ -3,7 +3,7 @@ package com.shopdirect.maximoautomation.infrastructure.model;
 import com.fasterxml.jackson.annotation.JsonCreator;
 import com.fasterxml.jackson.annotation.JsonProperty;
 import com.fasterxml.jackson.databind.annotation.JsonDeserialize;
-import com.shopdirect.maximoautomation.infrastructure.config.BuildStatusDeserializer;
+import com.shopdirect.maximoautomation.infrastructure.deserializer.BuildStatusDeserializer;
 
 import java.time.OffsetDateTime;
 

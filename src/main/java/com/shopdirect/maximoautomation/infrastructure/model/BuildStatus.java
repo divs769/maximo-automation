@@ -1,8 +1,11 @@
 package com.shopdirect.maximoautomation.infrastructure.model;
 
+import java.util.stream.Stream;
+
 public enum BuildStatus {
 
-    SUCCESS("S"), FAIL("F");
+    SUCCESS("S"),
+    FAIL("F");
 
     private final String code;
 
@@ -14,12 +17,10 @@ public enum BuildStatus {
         return code;
     }
 
-    public static BuildStatus getFromCode(String code) {
-        for (BuildStatus buildStatus: values()) {
-            if (buildStatus.code.equals(code)) {
-                return buildStatus;
-            }
-        }
-        return null;
+    public static BuildStatus fromCode(final String code) {
+        return Stream.of(values())
+                .filter(buildStatus -> buildStatus.code.equals(code))
+                .findFirst()
+                .orElse(null);
     }
 }

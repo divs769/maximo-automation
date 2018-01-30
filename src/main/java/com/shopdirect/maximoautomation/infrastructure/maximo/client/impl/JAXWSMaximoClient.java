@@ -1,6 +1,5 @@
 package com.shopdirect.maximoautomation.infrastructure.maximo.client.impl;
 
-import com.fasterxml.jackson.databind.ObjectMapper;
 import com.ibm.maximo.*;
 import com.ibm.maximo.wsdl.mxiswochange.MXISWOCHANGE;
 import com.ibm.maximo.wsdl.mxiswochange.MXISWOCHANGEPortType;
@@ -25,25 +24,13 @@ public class JAXWSMaximoClient implements MaximoClient {
     private static final Logger LOGGER = LoggerFactory.getLogger(JAXWSMaximoClient.class);
     private final ObjectFactory objectFactory = new ObjectFactory();
     private final MaximoChangeRequestConfig maximoChangeRequestConfig;
-    private final ObjectMapper objectMapper = new ObjectMapper();
     private final MXISWOCHANGEPortType client;
 
     public JAXWSMaximoClient(
             String maximoUrl,
-            MaximoChangeRequestConfig maximoChangeRequestConfig
-    ) {
+            MaximoChangeRequestConfig maximoChangeRequestConfig) {
         this.maximoChangeRequestConfig = maximoChangeRequestConfig;
         this.client = createAndConfigureClient(maximoUrl);
-    }
-
-    private MXISWOCHANGEPortType createAndConfigureClient(String maximoUrl) {
-        LOGGER.info("Initializing Maximo client. URL: {}", maximoUrl);
-
-        MXISWOCHANGEPortType port = new MXISWOCHANGE().getMXISWOCHANGESOAP11Port();
-        ((BindingProvider) port).getRequestContext()
-                .put(BindingProvider.ENDPOINT_ADDRESS_PROPERTY, maximoUrl);
-
-        return port;
     }
 
     @Override
@@ -77,6 +64,16 @@ public class JAXWSMaximoClient implements MaximoClient {
             LOGGER.error("Error calling IBM Maximo to close change #" + changeID, e);
             throw new RuntimeException("Error calling IBM Maximo to close change #{}" + changeID, e);
         }
+    }
+
+    private MXISWOCHANGEPortType createAndConfigureClient(String maximoUrl) {
+        LOGGER.info("Initializing Maximo client. URL: {}", maximoUrl);
+
+        MXISWOCHANGEPortType port = new MXISWOCHANGE().getMXISWOCHANGESOAP11Port();
+        ((BindingProvider) port).getRequestContext()
+                .put(BindingProvider.ENDPOINT_ADDRESS_PROPERTY, maximoUrl);
+
+        return port;
     }
 
     private CreateMXISWOCHANGEType createMXISWOCHANGEType(BuildInfo buildInfo) throws DatatypeConfigurationException {
