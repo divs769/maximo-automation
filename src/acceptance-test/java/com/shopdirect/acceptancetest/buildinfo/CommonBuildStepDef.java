@@ -1,6 +1,6 @@
 package com.shopdirect.acceptancetest.buildinfo;
 
-import com.github.tomakehurst.wiremock.client.MappingBuilder;
+import com.github.tomakehurst.wiremock.client.RemoteMappingBuilder;
 import com.github.tomakehurst.wiremock.client.ResponseDefinitionBuilder;
 import com.shopdirect.acceptancetest.LatestResponse;
 import com.shopdirect.dao.TestBuildInfoDao;
@@ -104,11 +104,11 @@ public class CommonBuildStepDef extends BaseBuildStepDef {
                 .withHeader("Content-Type", "text/xml; charset=UTF-8")
                 .withBody(responseBodyForUpdate.toString());
 
-        primeMaximoMockServer(put(urlEqualTo("/soap")), responseBuilder);
+        primeMaximoMockServer(post(urlEqualTo("/soap")), responseBuilder);
     }
 
     private void primeMaximoMockServer(
-            MappingBuilder mappingBuilder,
+            RemoteMappingBuilder mappingBuilder,
             ResponseDefinitionBuilder responseDefinitionBuilder) {
         stubFor(
                 withDefaultHeaders(mappingBuilder)
@@ -117,7 +117,7 @@ public class CommonBuildStepDef extends BaseBuildStepDef {
         );
     }
 
-    private MappingBuilder withDefaultHeaders(MappingBuilder mappingBuilder) {
+    private RemoteMappingBuilder withDefaultHeaders(RemoteMappingBuilder mappingBuilder) {
         return mappingBuilder
                 .withHeader("SOAPAction", matching(".*"))
                 .withHeader("Accept", matching(".*"))

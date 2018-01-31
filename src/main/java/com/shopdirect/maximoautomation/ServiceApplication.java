@@ -10,6 +10,7 @@ import com.fasterxml.jackson.databind.util.ISO8601DateFormat;
 import com.shopdirect.maximoautomation.infrastructure.config.MaximoConfiguration;
 import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
+import org.springframework.cloud.client.circuitbreaker.EnableCircuitBreaker;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Import;
 import org.springframework.http.converter.json.Jackson2ObjectMapperBuilder;
@@ -17,6 +18,7 @@ import org.springframework.web.filter.CommonsRequestLoggingFilter;
 
 @SpringBootApplication(scanBasePackages = { "com.shopdirect", "com.shopdirect.maximoautomation" })
 @Import(MaximoConfiguration.class)
+@EnableCircuitBreaker
 public class ServiceApplication {
 
 	@Bean

@@ -1,6 +1,6 @@
-# Microservice Template #
+# Maximo Automation #
 
-This service will be used to demonstrate how the continuous integration pipeline works for new hires. The service itself will store a list of names in a text file, which can be accessed through a REST API to return a number based on a parameter.
+This service will be used by other service projects to record change requests in IBM Maximo.
 
 ## Building
 
@@ -9,24 +9,12 @@ This service will be used to demonstrate how the continuous integration pipeline
 * JDK 8
 * Gradle 3.3
 
-### To import into STS:
-
-* Go to import
-* Select Gradle (STS)
-* Click browse and select the project root folder
-* Click build model
-* Tick the file that appears
-* Press finish
 
 ### To import into Intellij
 
 * Got to File / Open
 * Find the gradle file
 * Choose open as project
-
-### To run the service in STS:
-
-Right click the application (found the in the src/main folder) and select run as -> Springboot application
 
 ### To run the service in Intellij:
 

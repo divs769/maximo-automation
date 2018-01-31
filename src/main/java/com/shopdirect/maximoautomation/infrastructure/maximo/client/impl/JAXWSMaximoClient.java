@@ -3,6 +3,8 @@ package com.shopdirect.maximoautomation.infrastructure.maximo.client.impl;
 import com.ibm.maximo.*;
 import com.ibm.maximo.wsdl.mxiswochange.MXISWOCHANGE;
 import com.ibm.maximo.wsdl.mxiswochange.MXISWOCHANGEPortType;
+import com.netflix.hystrix.contrib.javanica.annotation.HystrixCommand;
+import com.netflix.hystrix.contrib.javanica.annotation.HystrixProperty;
 import com.shopdirect.maximoautomation.infrastructure.config.MaximoChangeRequestConfig;
 import com.shopdirect.maximoautomation.infrastructure.maximo.client.MaximoClient;
 import com.shopdirect.maximoautomation.infrastructure.model.BuildInfo;
@@ -33,6 +35,12 @@ public class JAXWSMaximoClient implements MaximoClient {
         this.client = createAndConfigureClient(maximoUrl);
     }
 
+    @HystrixCommand(groupKey = "createMaximoChange", fallbackMethod = "fallbackCreateChange",
+            commandProperties = {
+                    @HystrixProperty(name = "circuitBreaker.requestVolumeThreshold", value = "5"),
+                    @HystrixProperty(name = "circuitBreaker.errorThresholdPercentage", value = "80"),
+            }
+    )
     @Override
     public String createChange(BuildInfo buildInfo) {
         LOGGER.info("Calling IBM Maximo to CREATE a change request");
@@ -50,6 +58,12 @@ public class JAXWSMaximoClient implements MaximoClient {
         }
     }
 
+    @HystrixCommand(groupKey = "closeMaximoChange",
+            commandProperties = {
+                    @HystrixProperty(name = "circuitBreaker.requestVolumeThreshold", value = "5"),
+                    @HystrixProperty(name = "circuitBreaker.errorThresholdPercentage", value = "80"),
+            }
+    )
     @Override
     public void closeChange(String changeID) {
         LOGGER.info("Calling IBM Maximo to CLOSE a change request");
@@ -64,6 +78,10 @@ public class JAXWSMaximoClient implements MaximoClient {
             LOGGER.error("Error calling IBM Maximo to close change #" + changeID, e);
             throw new RuntimeException("Error calling IBM Maximo to close change #{}" + changeID, e);
         }
+    }
+
+    public String fallbackCreateChange(BuildInfo buildInfo) {
+        return null;
     }
 
     private MXISWOCHANGEPortType createAndConfigureClient(String maximoUrl) {
