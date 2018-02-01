@@ -90,7 +90,7 @@ public class ValidationServiceTest {
         when(buildInfo.getStartTime()).thenReturn(startDateTime);
         when(buildInfo.getFinishTime()).thenReturn(startDateTime.plusHours(1));
 
-        when(dao.findOne(any(String.class))).thenReturn(buildInfo);
+        when(dao.findOne(any(UUID.class))).thenReturn(buildInfo);
 
         // When
         List<String> errors = instance.updateValidations(buildInfo);
@@ -124,7 +124,7 @@ public class ValidationServiceTest {
         when(buildInfo.getStartTime()).thenReturn(startDateTime);
         when(buildInfo.getFinishTime()).thenReturn(startDateTime.minusHours(1));
 
-        when(dao.findOne(any(String.class))).thenReturn(buildInfo);
+        when(dao.findOne(any(UUID.class))).thenReturn(buildInfo);
 
         // When
         List<String> errors = instance.updateValidations(buildInfo);
