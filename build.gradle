@@ -251,9 +251,9 @@ task applicationCodeCoverageReport(type:JacocoReport){
 //	ext.maximoBuildInfoId = createMaximoChange()
 //}
 
-task releaseNotes {
-	generateReleaseNotes()
-}
+//task releaseNotes {
+//	generateReleaseNotes()
+//}
 
 task clientJar(type: Jar) {
 	from(sourceSets.main.output) {

@@ -12,10 +12,14 @@ import org.assertj.core.util.Lists;
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
+import org.mockito.Mockito;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMockMvc;
 import org.springframework.boot.test.autoconfigure.web.servlet.WebMvcTest;
 import org.springframework.boot.test.mock.mockito.MockBean;
+import org.springframework.data.domain.PageImpl;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Pageable;
 import org.springframework.test.context.junit4.SpringRunner;
 import org.springframework.test.web.servlet.MockMvc;
 import org.springframework.test.web.servlet.MvcResult;
@@ -23,7 +27,6 @@ import org.springframework.test.web.servlet.MvcResult;
 import java.time.OffsetDateTime;
 import java.util.ArrayList;
 import java.util.List;
-import java.util.Optional;
 import java.util.UUID;
 
 import static com.shopdirect.maximoautomation.infrastructure.model.BuildStatus.SUCCESS;
@@ -67,7 +70,10 @@ public class BuildResourceTest {
     public void buildStartedShouldInsertBuildInfoObjectInTheDatabaseAndReturnSuccess() throws Exception {
         // Given
         when(validationService.validateBuildStarted(isA(BuildInfo.class))).thenReturn(Lists.emptyList());
-        when(dao.save(isA(BuildInfo.class))).thenReturn(UUID.fromString("1"));
+        BuildInfo buildInfo = Mockito.mock(BuildInfo.class);
+        UUID id = UUID.randomUUID();
+        when(buildInfo.getId()).thenReturn(id);
+        when(dao.save(isA(BuildInfo.class))).thenReturn(buildInfo);
         BuildStartedRequest payload = createStartedBuildInfo();
 
         // When
@@ -78,8 +84,8 @@ public class BuildResourceTest {
                 .andReturn();
 
         // Then
-        verify(dao).save(any());
-        assertThat(result.getResponse().getContentAsString(), equalTo("1"));
+        verify(dao).save(any(BuildInfo.class));
+        assertThat(result.getResponse().getContentAsString(), equalTo(id.toString()));
     }
 
     @Test
@@ -96,7 +102,7 @@ public class BuildResourceTest {
                 .andReturn();
 
         // Then
-        verify(dao, never()).save(any());
+        verify(dao, never()).save(any(BuildInfo.class));
     }
 
     @Test
@@ -104,6 +110,7 @@ public class BuildResourceTest {
         // Given
         when(validationService.checkInvalidTime(isA(OffsetDateTime.class))).thenReturn(Lists.emptyList());
         when(validationService.updateValidations(isA(BuildInfo.class))).thenReturn(Lists.emptyList());
+        when(dao.findOne(isA(UUID.class))).thenReturn(Mockito.mock(BuildInfo.class));
         BuildFinishedRequest payload = createFinishedBuildInfo();
 
         // When
@@ -113,14 +120,15 @@ public class BuildResourceTest {
                 .andExpect(status().is2xxSuccessful());
 
         // Then
-        verify(dao).save(any());
+        verify(dao).save(any(BuildInfo.class));
     }
 
     @Test
     public void buildFinishedShouldReturnFailureWithInvalidPayload() throws Exception {
         // Given
         when(validationService.checkInvalidTime(isA(OffsetDateTime.class))).thenReturn(Lists.newArrayList());
-        when(validationService.updateValidations(isA(BuildInfo.class))).thenReturn(Lists.newArrayList("An error"));
+        when(validationService.updateValidations(isA(BuildInfo.class)))
+                .thenReturn(Lists.newArrayList("An error"));
         BuildFinishedRequest payload = createFinishedBuildInfo();
 
         // When
@@ -130,13 +138,13 @@ public class BuildResourceTest {
                 .andExpect(status().is4xxClientError());
 
         // Then
-        verify(dao, never()).update(any());
+        verify(dao, never()).save(any(BuildInfo.class));
     }
 
     @Test
     public void getAllBuildsShouldReturnListOfBuildInfoObjectsAndReturnSuccess() throws Exception {
         // Given
-        when(dao.findAll(Optional.of(0), Optional.of(10))).thenReturn(createListOfBuilds());
+        when(dao.findAll(any(PageRequest.class))).thenReturn(new PageImpl<>(createListOfBuilds()));
 
         // When
         MvcResult result = mockMvc.perform(get(URI_PATH)
@@ -146,20 +154,24 @@ public class BuildResourceTest {
                 .andReturn();
 
         // Then
-        verify(dao).findAll(Optional.of(0), Optional.of(10));
+        verify(dao).findAll(any(Pageable.class));
         BuildInfo[] builds = new Gson().fromJson(result.getResponse().getContentAsString(), BuildInfo[].class);
         assertThat(builds.length, equalTo(10));
     }
 
     @Test
     public void getAllBuildsShouldReturnEmptyListOfBuildInfoObjectsAndReturnSuccessWhenNoBuildsExist() throws Exception {
+        // Given
+        when(dao.findAll(any(PageRequest.class))).thenReturn(new PageImpl<>(new ArrayList<>()));
+        when(dao.count()).thenReturn(1L);
+
         // When
         MvcResult result = mockMvc.perform(get(URI_PATH))
                 .andExpect(status().is2xxSuccessful())
                 .andReturn();
 
         // Then
-        verify(dao).findAll(Optional.empty(), Optional.empty());
+        verify(dao).findAll(any(Pageable.class));
         BuildInfo[] builds = new Gson().fromJson(result.getResponse().getContentAsString(), BuildInfo[].class);
         assertThat(builds.length, equalTo(0));
     }
@@ -167,16 +179,19 @@ public class BuildResourceTest {
     @Test
     public void getBuildShouldReturnCorrectBuild() throws Exception {
         // Given
-        when(dao.findAll("build1")).thenReturn(BuildInfo.builder().setId("123").createBuildInfo());
+        String buildId = "build123";
+        BuildInfo expectedBuildInfo = BuildInfo.builder()
+                .setId(UUID.randomUUID().toString()).createBuildInfo();
+        when(dao.findByBuildId(any(String.class))).thenReturn(expectedBuildInfo);
         // When
-        MvcResult result = mockMvc.perform(get(URI_PATH + "/build1"))
+        MvcResult result = mockMvc.perform(get(URI_PATH + "/{buildId}", buildId ))
                 .andExpect(status().is2xxSuccessful())
                 .andReturn();
 
         // Then
-        verify(dao).findAll("build1");
-        BuildInfo build = new Gson().fromJson(result.getResponse().getContentAsString(), BuildInfo.class);
-        assertThat(build.getId(), equalTo("123"));
+        verify(dao).findByBuildId(eq(buildId));
+        BuildInfo actualBuildInfo = new Gson().fromJson(result.getResponse().getContentAsString(), BuildInfo.class);
+        assertThat(expectedBuildInfo, equalTo(actualBuildInfo));
     }
 
     @Test
@@ -194,7 +209,7 @@ public class BuildResourceTest {
     }
 
     private static BuildFinishedRequest createFinishedBuildInfo() {
-        return new BuildFinishedRequest("1", "2012-04-23T18:25:44.511Z", SUCCESS);
+        return new BuildFinishedRequest(UUID.randomUUID().toString(), "2012-04-23T18:25:44.511Z", SUCCESS);
     }
 
 

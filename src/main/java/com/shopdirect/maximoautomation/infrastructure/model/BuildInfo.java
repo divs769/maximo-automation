@@ -8,6 +8,7 @@ import com.shopdirect.maximoautomation.infrastructure.config.BuildStatusDeserial
 import com.shopdirect.maximoautomation.infrastructure.model.converter.OffsetDateTimeConverter;
 
 import java.time.OffsetDateTime;
+import java.util.Objects;
 import java.util.UUID;
 
 import static com.shopdirect.maximoautomation.infrastructure.config.DynamoDBConfig.BUILDS_TB;
@@ -216,5 +217,27 @@ public class BuildInfo {
             return new BuildInfo(id, buildId, url, startTime, finishTime,
                     vcHash, vcTag, vcBranch, vcDescription, status);
         }
+    }
+
+    @Override
+    public boolean equals(Object o) {
+        if (this == o) return true;
+        if (o == null || getClass() != o.getClass()) return false;
+        BuildInfo buildInfo = (BuildInfo) o;
+        return Objects.equals(id, buildInfo.id) &&
+                Objects.equals(buildId, buildInfo.buildId) &&
+                Objects.equals(url, buildInfo.url) &&
+                Objects.equals(startTime, buildInfo.startTime) &&
+                Objects.equals(finishTime, buildInfo.finishTime) &&
+                Objects.equals(vcHash, buildInfo.vcHash) &&
+                Objects.equals(vcTag, buildInfo.vcTag) &&
+                Objects.equals(vcBranch, buildInfo.vcBranch) &&
+                Objects.equals(vcDescription, buildInfo.vcDescription) &&
+                status == buildInfo.status;
+    }
+
+    @Override
+    public int hashCode() {
+        return Objects.hash(id, buildId, url, startTime, finishTime, vcHash, vcTag, vcBranch, vcDescription, status);
     }
 }
