@@ -12,7 +12,7 @@ import java.io.IOException;
 public class BuildStatusDeserializer extends JsonDeserializer{
 
     @Override
-    public BuildStatus deserialize(JsonParser jp, DeserializationContext dc) throws IOException, JsonProcessingException {
+    public BuildStatus deserialize(JsonParser jp, DeserializationContext dc) throws IOException {
         BuildStatus type = BuildStatus.getFromCode(jp.getValueAsString());
         if (type != null) {
             return type;

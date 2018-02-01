@@ -2,7 +2,6 @@ Feature: Get all builds
 
   Background:
     Given the database has been initialised and is running
-    And the database is clean
     And multiple build data records have been inserted
 
   Scenario: The database is empty

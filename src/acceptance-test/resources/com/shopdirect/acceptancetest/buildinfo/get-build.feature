@@ -2,7 +2,6 @@ Feature: Get a build
 
   Background:
     Given the database has been initialised and is running
-    And the database is clean
     And some build data has been inserted
 
   Scenario: The request is valid

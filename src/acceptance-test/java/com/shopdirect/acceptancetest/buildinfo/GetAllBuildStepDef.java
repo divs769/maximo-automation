@@ -1,11 +1,13 @@
 package com.shopdirect.acceptancetest.buildinfo;
 
+import com.amazonaws.services.dynamodbv2.AmazonDynamoDB;
+import com.amazonaws.services.dynamodbv2.document.DynamoDB;
 import com.shopdirect.acceptancetest.LatestResponse;
-import com.shopdirect.dao.TestBuildInfoDao;
 import com.shopdirect.maximoautomation.infrastructure.model.BuildInfo;
 import cucumber.api.java.en.And;
 import cucumber.api.java.en.Given;
 import cucumber.api.java.en.When;
+import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.web.client.RestTemplate;
 import org.springframework.web.util.UriComponentsBuilder;
 
@@ -21,8 +23,8 @@ public class GetAllBuildStepDef extends BaseBuildStepDef {
     private URI request;
     private List<BuildInfo> testData;
 
-    public GetAllBuildStepDef(RestTemplate restTemplate, LatestResponse latestResponse, TestBuildInfoDao testBuildInfoDao) {
-        super(restTemplate, latestResponse, testBuildInfoDao);
+    public GetAllBuildStepDef(RestTemplate restTemplate, LatestResponse latestResponse, @Qualifier("testClient") AmazonDynamoDB db) {
+        super(restTemplate, latestResponse, db);
     }
 
     @And("^multiple build data records have been inserted$")
@@ -31,9 +33,9 @@ public class GetAllBuildStepDef extends BaseBuildStepDef {
         for(Integer count = 0; count < 10; count++) {
             BuildInfo build = createBuild(count);
             testData.add(build);
-            testBuildInfoDao.insertRow(build);
+            addItem(build);
         }
-        assertThat(testBuildInfoDao.countRows(), equalTo(10L));
+        assertThat(countItems(), equalTo(10L));
     }
 
     @And("^a payload with no parameters$")
@@ -87,7 +89,7 @@ public class GetAllBuildStepDef extends BaseBuildStepDef {
         BuildInfo[] response = (BuildInfo[]) latestResponse.getResponse().getBody();
         assertThat(response.length, equalTo(10));
         for(BuildInfo build : response) {
-            checkBuildsEqual(build, testData.get(Integer.valueOf(build.getId())));
+            checkBuildsEqual(build, testData.get(Integer.valueOf(build.getId().toString())));
         }
     }
 
@@ -96,7 +98,7 @@ public class GetAllBuildStepDef extends BaseBuildStepDef {
         BuildInfo[] response = (BuildInfo[]) latestResponse.getResponse().getBody();
         assertThat(response.length, equalTo(2));
         for(BuildInfo build : response) {
-            checkBuildsEqual(build, testData.get(Integer.valueOf(build.getId())));
+            checkBuildsEqual(build, testData.get(Integer.valueOf(build.getId().toString())));
         }
     }
 
@@ -105,7 +107,7 @@ public class GetAllBuildStepDef extends BaseBuildStepDef {
         BuildInfo[] response = (BuildInfo[]) latestResponse.getResponse().getBody();
         assertThat(response.length, equalTo(5));
         for(BuildInfo build : response) {
-            checkBuildsEqual(build, testData.get(Integer.valueOf(build.getId())));
+            checkBuildsEqual(build, testData.get(Integer.valueOf(build.getId().toString())));
         }
     }
 
@@ -114,7 +116,7 @@ public class GetAllBuildStepDef extends BaseBuildStepDef {
         BuildInfo[] response = (BuildInfo[]) latestResponse.getResponse().getBody();
         assertThat(response.length, equalTo(3));
         for(BuildInfo build : response) {
-            checkBuildsEqual(build, testData.get(Integer.valueOf(build.getId())));
+            checkBuildsEqual(build, testData.get(Integer.valueOf(build.getId().toString())));
         }
     }
 
@@ -123,7 +125,7 @@ public class GetAllBuildStepDef extends BaseBuildStepDef {
         BuildInfo[] response = (BuildInfo[]) latestResponse.getResponse().getBody();
         assertThat(response.length, equalTo(4));
         for(BuildInfo build : response) {
-            checkBuildsEqual(build, testData.get(Integer.valueOf(build.getId())));
+            checkBuildsEqual(build, testData.get(Integer.valueOf(build.getId().toString())));
         }
     }
 

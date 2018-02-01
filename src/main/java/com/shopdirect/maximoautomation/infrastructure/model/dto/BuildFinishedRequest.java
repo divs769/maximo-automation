@@ -6,6 +6,7 @@ import com.shopdirect.maximoautomation.infrastructure.model.BuildInfo;
 import com.shopdirect.maximoautomation.infrastructure.model.BuildStatus;
 
 import java.time.OffsetDateTime;
+import java.util.UUID;
 
 import static java.time.format.DateTimeFormatter.ISO_OFFSET_DATE_TIME;
 

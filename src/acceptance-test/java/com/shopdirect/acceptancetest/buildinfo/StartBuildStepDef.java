@@ -1,28 +1,32 @@
 package com.shopdirect.acceptancetest.buildinfo;
 
+import com.amazonaws.services.dynamodbv2.AmazonDynamoDB;
+import com.amazonaws.services.dynamodbv2.document.DynamoDB;
+import com.amazonaws.services.dynamodbv2.document.Item;
+import com.amazonaws.services.dynamodbv2.document.Table;
 import com.shopdirect.acceptancetest.LatestResponse;
-import com.shopdirect.dao.TestBuildInfoDao;
+import com.shopdirect.maximoautomation.infrastructure.model.BuildInfo;
 import com.shopdirect.model.BuildRequest;
 import cucumber.api.java.en.And;
 import cucumber.api.java.en.Given;
 import cucumber.api.java.en.When;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.web.client.RestTemplate;
 
 import java.time.OffsetDateTime;
-import java.util.Map;
 
 import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.Matchers.*;
+import static com.shopdirect.acceptancetest.configuration.TestConfiguration.BUILDS_TB;
 
 public class StartBuildStepDef extends BaseBuildStepDef {
 
     private BuildRequest request;
 
     @Autowired
-    public StartBuildStepDef(RestTemplate restTemplate, LatestResponse latestResponse,
-                             TestBuildInfoDao testBuildInfoDao) {
-        super(restTemplate, latestResponse, testBuildInfoDao);
+    public StartBuildStepDef(RestTemplate restTemplate, LatestResponse latestResponse, @Qualifier("testClient") AmazonDynamoDB db) {
+        super(restTemplate, latestResponse, db);
     }
 
     @Given("^a valid payload containing the build info$")
@@ -79,15 +83,15 @@ public class StartBuildStepDef extends BaseBuildStepDef {
     @And("^the build info record is created in the database$")
     public void theBuildInfoRecordIsCreatedInTheDatabase() throws Throwable {
         String dbResponse = (String) latestResponse.getResponse().getBody();
-        Map result = testBuildInfoDao.getRow(dbResponse);
-        assertThat(result, notNullValue());
-        assertThat(result.get("buildId"), equalTo(request.getBuildId()));
-        assertThat(result.get("url"), equalTo(request.getUrl()));
-        assertThat(result.get("startTime").toString(), equalTo(request.getTime()));
-        assertThat(result.get("finishTime"), nullValue());
-        assertThat(result.get("vcHash"), equalTo(request.getVcHash()));
-        assertThat(result.get("vcTag"), equalTo(request.getVcTag()));
-        assertThat(result.get("vcBranch"), equalTo(request.getVcBranch()));
-        assertThat(result.get("vcDescription"), equalTo(request.getVcDescription()));
+        Item record = getItem(dbResponse);
+        assertThat(record, notNullValue());
+        assertThat(record.get("buildId"), equalTo(request.getBuildId()));
+        assertThat(record.get("url"), equalTo(request.getUrl()));
+        assertThat(record.get("startTime").toString(), equalTo(request.getTime()));
+        assertThat(record.get("finishTime"), nullValue());
+        assertThat(record.get("vcHash"), equalTo(request.getVcHash()));
+        assertThat(record.get("vcTag"), equalTo(request.getVcTag()));
+        assertThat(record.get("vcBranch"), equalTo(request.getVcBranch()));
+        assertThat(record.get("vcDescription"), equalTo(request.getVcDescription()));
     }
 }

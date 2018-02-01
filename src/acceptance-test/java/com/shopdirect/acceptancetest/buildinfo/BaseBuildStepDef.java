@@ -1,14 +1,22 @@
 package com.shopdirect.acceptancetest.buildinfo;
 
+import com.amazonaws.services.dynamodbv2.AmazonDynamoDB;
+import com.amazonaws.services.dynamodbv2.document.DynamoDB;
+import com.amazonaws.services.dynamodbv2.document.Item;
+import com.amazonaws.services.dynamodbv2.document.Table;
 import com.shopdirect.acceptancetest.CucumberStepsDefinition;
 import com.shopdirect.acceptancetest.LatestResponse;
 import com.shopdirect.acceptancetest.configuration.TestResponseErrorHandler;
-import com.shopdirect.dao.TestBuildInfoDao;
 import com.shopdirect.maximoautomation.infrastructure.model.BuildInfo;
+import cucumber.api.java.After;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.web.client.RestTemplate;
 
 import java.time.OffsetDateTime;
+import java.util.UUID;
+
+import static com.shopdirect.acceptancetest.configuration.TestConfiguration.BUILDS_TB;
 
 public abstract class BaseBuildStepDef extends CucumberStepsDefinition {
 
@@ -25,20 +33,46 @@ public abstract class BaseBuildStepDef extends CucumberStepsDefinition {
 
     protected RestTemplate restTemplate;
     protected LatestResponse latestResponse;
-    protected TestBuildInfoDao testBuildInfoDao;
+    protected DynamoDB db;
 
     @Autowired
-    public BaseBuildStepDef(RestTemplate restTemplate, LatestResponse latestResponse,
-                              TestBuildInfoDao testBuildInfoDao) {
+    public BaseBuildStepDef(RestTemplate restTemplate, LatestResponse latestResponse, @Qualifier("testClient") AmazonDynamoDB db) {
         this.restTemplate = restTemplate;
         this.latestResponse = latestResponse;
-        this.testBuildInfoDao = testBuildInfoDao;
+        this.db = new DynamoDB(db);
         this.restTemplate.setErrorHandler(new TestResponseErrorHandler());
     }
 
     protected BuildInfo createBuild(Integer count) {
         return BuildInfo.builder().setId(count.toString()).setBuildId(BUILD_ID + String.valueOf(count)).setUrl(URL)
                 .setStartTime(OffsetDateTime.now().plusMinutes(count)).setFinishTime(OffsetDateTime.now().plusMinutes(count+1))
-                .createBuildInfo();
+                .setVcHash(HASH).setVcTag(TAG).setVcBranch(BRANCH).setVcDescription(DESC).createBuildInfo();
+    }
+
+    protected Item getItem(String id) {
+        Table table = db.getTable(BUILDS_TB);
+        return table.getItem("id", id);
+    }
+
+    protected Item createItem(BuildInfo buildInfo) {
+        return new Item()
+                .withString("id", buildInfo.getId().toString())
+                .withString("buildId", buildInfo.getBuildId())
+                .withString("url", buildInfo.getUrl())
+                .with("startTime", buildInfo.getStartTime().toString())
+                .withString("vcHash", buildInfo.getVcHash())
+                .withString("vcTag", buildInfo.getVcTag())
+                .withString("vcBranch", buildInfo.getVcBranch())
+                .withString("vcDescription", buildInfo.getVcDescription());
+    }
+
+    protected void addItem(BuildInfo buildInfo) {
+        Table table = db.getTable(BUILDS_TB);
+        table.putItem(createItem(buildInfo));
+    }
+
+    protected long countItems() {
+        Table table = db.getTable(BUILDS_TB);
+        return table.describe().getItemCount();
     }
 }

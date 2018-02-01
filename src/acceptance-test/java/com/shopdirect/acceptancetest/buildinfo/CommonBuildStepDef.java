@@ -1,22 +1,26 @@
 package com.shopdirect.acceptancetest.buildinfo;
 
+import com.amazonaws.services.dynamodbv2.AmazonDynamoDB;
+import com.amazonaws.services.dynamodbv2.document.DynamoDB;
+import com.amazonaws.services.dynamodbv2.document.Table;
+import com.amazonaws.services.dynamodbv2.model.*;
 import com.github.tomakehurst.wiremock.client.ResponseDefinitionBuilder;
 import com.shopdirect.acceptancetest.LatestResponse;
-import com.shopdirect.dao.TestBuildInfoDao;
-import com.shopdirect.maximoautomation.infrastructure.config.DBInitializer;
 import cucumber.api.java.After;
 import cucumber.api.java.en.And;
 import cucumber.api.java.en.Given;
 import cucumber.api.java.en.Then;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.web.client.RestTemplate;
 
-import java.util.List;
+import java.util.Arrays;
 
 import static com.github.tomakehurst.wiremock.client.WireMock.*;
 import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.Matchers.is;
+import static com.shopdirect.acceptancetest.configuration.TestConfiguration.BUILDS_TB;
 
 public class CommonBuildStepDef extends BaseBuildStepDef {
 
@@ -24,30 +28,22 @@ public class CommonBuildStepDef extends BaseBuildStepDef {
     private String maximoUrl;
 
     @Autowired
-    public CommonBuildStepDef(RestTemplate restTemplate,
-                              LatestResponse latestResponse,
-                              TestBuildInfoDao testBuildInfoDao) {
-        super(restTemplate, latestResponse, testBuildInfoDao);
-    }
-
-    @After
-    public void closeConnection() {
-        testBuildInfoDao.closeConnection();
+    public CommonBuildStepDef(RestTemplate restTemplate, LatestResponse latestResponse, @Qualifier("testClient") AmazonDynamoDB db) {
+        super(restTemplate, latestResponse, db);
     }
 
     @Given("^the database has been initialised and is running$")
     public void theDatabaseHasBeenInitialised() throws Throwable {
-        testBuildInfoDao.createConnection();
-        List<String> dbList = testBuildInfoDao.getDatabases();
-        assertThat(dbList.contains(DBInitializer.MAXIMO_DB), is(true));
-        List<String> tableList = testBuildInfoDao.getTables();
-        assertThat(tableList.contains(DBInitializer.BUILDS_TB), is(true));
+        TableDescription tableDescription = createTable(db).getDescription();
+        assertThat(tableDescription.getTableStatus(), is(TableStatus.ACTIVE.toString()));
     }
 
     @And("^the database is clean$")
     public void theDatabaseIsClean() throws Throwable {
-        testBuildInfoDao.deleteAllRows();
-        assertThat(testBuildInfoDao.countRows(), is(0L));
+        cleanupTable();
+        TableDescription tableDescription = createTable(db).getDescription();
+        assertThat(tableDescription.getTableStatus(), is(TableStatus.ACTIVE.toString()));
+        assertThat(tableDescription.getItemCount(), is(0L));
     }
 
     @Then("^the response is success$")
@@ -93,5 +89,52 @@ public class CommonBuildStepDef extends BaseBuildStepDef {
                         .withRequestBody(matching(".*"))
                         .willReturn(responseBuilder)
         );
+    }
+
+    private static Table createTable(DynamoDB db) throws Exception {
+        Table table = db.createTable(createTableRequest());
+        table.waitForActive();
+        return table;
+    }
+
+    private static CreateTableRequest createTableRequest() {
+        return new CreateTableRequest()
+                .withTableName(BUILDS_TB)
+                .withKeySchema(
+                        new KeySchemaElement()
+                                .withAttributeName("id")
+                                .withKeyType(KeyType.HASH))
+                .withAttributeDefinitions(Arrays.asList(
+                        new AttributeDefinition()
+                                .withAttributeName("id")
+                                .withAttributeType(ScalarAttributeType.S),
+                        new AttributeDefinition()
+                                .withAttributeName("buildId")
+                                .withAttributeType(ScalarAttributeType.S)))
+                .withProvisionedThroughput(new ProvisionedThroughput()
+                        .withReadCapacityUnits(1L)
+                        .withWriteCapacityUnits(1L))
+                .withGlobalSecondaryIndexes(new GlobalSecondaryIndex()
+                        .withIndexName("buildIdIndex")
+                        .withKeySchema(new KeySchemaElement()
+                                .withAttributeName("buildId")
+                                .withKeyType(KeyType.HASH))
+                        .withProjection(new Projection()
+                                .withProjectionType(ProjectionType.ALL))
+                        .withProvisionedThroughput(new ProvisionedThroughput()
+                                .withReadCapacityUnits(1L)
+                                .withWriteCapacityUnits(1L)));
+    }
+
+    @After
+    public void cleanupTable() throws Exception {
+        db.listTables().iterator().forEachRemaining(table -> {
+            table.delete();
+            try {
+                table.waitForDelete();
+            } catch (InterruptedException e) {
+                e.printStackTrace();
+            }
+        });
     }
 }

@@ -1,11 +1,11 @@
 package com.shopdirect.maximoautomation.infrastructure.resource;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
-import com.shopdirect.maximoautomation.infrastructure.dao.BuildInfoDao;
 import com.shopdirect.maximoautomation.infrastructure.maximo.client.MaximoClient;
 import com.shopdirect.maximoautomation.infrastructure.model.BuildInfo;
 import com.shopdirect.maximoautomation.infrastructure.model.dto.BuildFinishedRequest;
 import com.shopdirect.maximoautomation.infrastructure.model.dto.BuildStartedRequest;
+import com.shopdirect.maximoautomation.infrastructure.repository.DynamoDBRepository;
 import com.shopdirect.maximoautomation.infrastructure.service.ValidationService;
 import gherkin.deps.com.google.gson.Gson;
 import org.assertj.core.util.Lists;
@@ -24,6 +24,7 @@ import java.time.OffsetDateTime;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
+import java.util.UUID;
 
 import static com.shopdirect.maximoautomation.infrastructure.model.BuildStatus.SUCCESS;
 import static org.hamcrest.MatcherAssert.assertThat;
@@ -47,7 +48,7 @@ public class BuildResourceTest {
     private MockMvc mockMvc;
 
     @MockBean
-    private BuildInfoDao buildInfoDao;
+    private DynamoDBRepository dao;
 
     @MockBean
     private ValidationService validationService;
@@ -66,7 +67,7 @@ public class BuildResourceTest {
     public void buildStartedShouldInsertBuildInfoObjectInTheDatabaseAndReturnSuccess() throws Exception {
         // Given
         when(validationService.validateBuildStarted(isA(BuildInfo.class))).thenReturn(Lists.emptyList());
-        when(buildInfoDao.save(isA(BuildInfo.class))).thenReturn("1");
+        when(dao.save(isA(BuildInfo.class))).thenReturn(UUID.fromString("1"));
         BuildStartedRequest payload = createStartedBuildInfo();
 
         // When
@@ -77,7 +78,7 @@ public class BuildResourceTest {
                 .andReturn();
 
         // Then
-        verify(buildInfoDao).save(any());
+        verify(dao).save(any());
         assertThat(result.getResponse().getContentAsString(), equalTo("1"));
     }
 
@@ -95,7 +96,7 @@ public class BuildResourceTest {
                 .andReturn();
 
         // Then
-        verify(buildInfoDao, never()).save(any());
+        verify(dao, never()).save(any());
     }
 
     @Test
@@ -112,7 +113,7 @@ public class BuildResourceTest {
                 .andExpect(status().is2xxSuccessful());
 
         // Then
-        verify(buildInfoDao).update(any());
+        verify(dao).save(any());
     }
 
     @Test
@@ -129,13 +130,13 @@ public class BuildResourceTest {
                 .andExpect(status().is4xxClientError());
 
         // Then
-        verify(buildInfoDao, never()).update(any());
+        verify(dao, never()).update(any());
     }
 
     @Test
     public void getAllBuildsShouldReturnListOfBuildInfoObjectsAndReturnSuccess() throws Exception {
         // Given
-        when(buildInfoDao.getAllRecords(Optional.of(0L), Optional.of(10L))).thenReturn(createListOfBuilds());
+        when(dao.findAll(Optional.of(0), Optional.of(10))).thenReturn(createListOfBuilds());
 
         // When
         MvcResult result = mockMvc.perform(get(URI_PATH)
@@ -145,7 +146,7 @@ public class BuildResourceTest {
                 .andReturn();
 
         // Then
-        verify(buildInfoDao).getAllRecords(Optional.of(0L), Optional.of(10L));
+        verify(dao).findAll(Optional.of(0), Optional.of(10));
         BuildInfo[] builds = new Gson().fromJson(result.getResponse().getContentAsString(), BuildInfo[].class);
         assertThat(builds.length, equalTo(10));
     }
@@ -158,7 +159,7 @@ public class BuildResourceTest {
                 .andReturn();
 
         // Then
-        verify(buildInfoDao).getAllRecords(Optional.empty(), Optional.empty());
+        verify(dao).findAll(Optional.empty(), Optional.empty());
         BuildInfo[] builds = new Gson().fromJson(result.getResponse().getContentAsString(), BuildInfo[].class);
         assertThat(builds.length, equalTo(0));
     }
@@ -166,14 +167,14 @@ public class BuildResourceTest {
     @Test
     public void getBuildShouldReturnCorrectBuild() throws Exception {
         // Given
-        when(buildInfoDao.getRecordFromBuildId("build1")).thenReturn(BuildInfo.builder().setId("123").createBuildInfo());
+        when(dao.findAll("build1")).thenReturn(BuildInfo.builder().setId("123").createBuildInfo());
         // When
         MvcResult result = mockMvc.perform(get(URI_PATH + "/build1"))
                 .andExpect(status().is2xxSuccessful())
                 .andReturn();
 
         // Then
-        verify(buildInfoDao).getRecordFromBuildId("build1");
+        verify(dao).findAll("build1");
         BuildInfo build = new Gson().fromJson(result.getResponse().getContentAsString(), BuildInfo.class);
         assertThat(build.getId(), equalTo("123"));
     }
