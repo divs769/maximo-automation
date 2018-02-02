@@ -14,6 +14,7 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
 import java.time.OffsetDateTime;
+import java.util.Collections;
 import java.util.List;
 import java.util.Optional;
 import java.util.UUID;
@@ -26,14 +27,16 @@ import static org.springframework.web.bind.annotation.RequestMethod.*;
 @RequestMapping(value = "/buildinfo")
 public class BuildResource {
     private static final Logger LOGGER = LoggerFactory.getLogger(BuildResource.class);
-    @Autowired
-    private MaximoClient maximoClient;
+
+    private final MaximoClient maximoClient;
     private final DynamoDBRepository dao;
     private final ValidationService validationService;
 
     @Autowired
-    public BuildResource(DynamoDBRepository dao,
+    public BuildResource(MaximoClient maximoClient,
+                         DynamoDBRepository dao,
                          ValidationService validationService) {
+        this.maximoClient = maximoClient;
         this.dao = dao;
         this.validationService = validationService;
     }
@@ -58,8 +61,8 @@ public class BuildResource {
         BuildInfo buildInfo = request.createBuildInfo();
         List<String> errors = validationService.updateValidations(buildInfo);
         if(errors.isEmpty()) {
-            BuildInfo existingBuild = dao.findOne(UUID.fromString(request.getId()));
-            existingBuild.setId(UUID.fromString(request.getId()));
+            BuildInfo existingBuild = dao.findOne(request.getId());
+            existingBuild.setId(request.getId());
             existingBuild.setFinishTime(OffsetDateTime.parse(request.getTime()));
             existingBuild.setStatus(request.getStatus());
             dao.save(existingBuild);
@@ -70,9 +73,16 @@ public class BuildResource {
     }
 
     @RequestMapping(method = GET, produces = APPLICATION_JSON_UTF8_VALUE)
-    public ResponseEntity<List<BuildInfo>> getAllBuilds(@RequestParam(value = "startIndex") Optional<Integer> startIndex,
-                                                        @RequestParam(value = "limit") Optional<Integer> limit) {
-        return ResponseEntity.ok(dao.findAll(new PageRequest(startIndex.orElse(0), limit.orElse((int)dao.count()))).getContent());
+    public ResponseEntity<List<BuildInfo>> getAllBuilds(@RequestParam(value = "pageIndex") Optional<Integer> pageIndex,
+                                                        @RequestParam(value = "pageSize") Optional<Integer> pageSize) {
+        if(pageIndex.isPresent() && !pageSize.isPresent()) {
+            return ResponseEntity.badRequest().body(Collections.emptyList());
+        }
+        long numOfEntries = dao.count();
+        if(numOfEntries == 0) {
+            return ResponseEntity.ok(Collections.emptyList());
+        }
+        return ResponseEntity.ok(dao.findAll(new PageRequest(pageIndex.orElse(0), pageSize.orElse((int)numOfEntries))).getContent());
     }
 
     @RequestMapping(value="/{buildId}", method = GET, produces = APPLICATION_JSON_UTF8_VALUE)

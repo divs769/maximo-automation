@@ -145,11 +145,11 @@ public class BuildResourceTest {
     public void getAllBuildsShouldReturnListOfBuildInfoObjectsAndReturnSuccess() throws Exception {
         // Given
         when(dao.findAll(any(PageRequest.class))).thenReturn(new PageImpl<>(createListOfBuilds()));
-
+        when(dao.count()).thenReturn(10L);
         // When
         MvcResult result = mockMvc.perform(get(URI_PATH)
-                .param("startIndex", "0")
-                .param("limit", "10"))
+                .param("pageIndex", "0")
+                .param("pageSize", "10"))
                 .andExpect(status().is2xxSuccessful())
                 .andReturn();
 
@@ -181,7 +181,7 @@ public class BuildResourceTest {
         // Given
         String buildId = "build123";
         BuildInfo expectedBuildInfo = BuildInfo.builder()
-                .setId(UUID.randomUUID().toString()).createBuildInfo();
+                .setId(UUID.randomUUID()).createBuildInfo();
         when(dao.findByBuildId(any(String.class))).thenReturn(expectedBuildInfo);
         // When
         MvcResult result = mockMvc.perform(get(URI_PATH + "/{buildId}", buildId ))
@@ -209,7 +209,7 @@ public class BuildResourceTest {
     }
 
     private static BuildFinishedRequest createFinishedBuildInfo() {
-        return new BuildFinishedRequest(UUID.randomUUID().toString(), "2012-04-23T18:25:44.511Z", SUCCESS);
+        return new BuildFinishedRequest(UUID.randomUUID(), "2012-04-23T18:25:44.511Z", SUCCESS);
     }
 
 

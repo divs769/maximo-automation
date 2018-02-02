@@ -17,8 +17,6 @@ import static org.springframework.boot.test.context.SpringBootTest.WebEnvironmen
 @TestPropertySource(properties = {
         "amazon.dynamodb.endpoint=http://localhost:8000/",
         "amazon.dynamodb.region=eu-west-1",
-        "amazon.aws.accesskey=test1",
-        "amazon.aws.secretkey=test231",
         "ibm.maximo.url=http://localhost:9090/soap"
 })
 public class CucumberStepsDefinition {

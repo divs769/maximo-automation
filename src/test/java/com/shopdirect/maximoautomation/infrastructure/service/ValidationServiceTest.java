@@ -84,7 +84,7 @@ public class ValidationServiceTest {
     public void shouldValidateAndReturnNoErrorsForAValidUpdateValidations() {
         // Given
         BuildInfo buildInfo = mock(BuildInfo.class);
-        when(buildInfo.getId()).thenReturn(UUID.fromString("id"));
+        when(buildInfo.getId()).thenReturn(UUID.randomUUID());
         when(buildInfo.getStatus()).thenReturn(SUCCESS);
         OffsetDateTime startDateTime = OffsetDateTime.now().minusHours(2);
         when(buildInfo.getStartTime()).thenReturn(startDateTime);
@@ -103,7 +103,7 @@ public class ValidationServiceTest {
     public void shouldReturnErrorWhenRecordDoesNotExistInDatabaseForUpdateValidation() {
         // Given
         BuildInfo buildInfo = mock(BuildInfo.class);
-        when(buildInfo.getId()).thenReturn(UUID.fromString("id"));
+        when(buildInfo.getId()).thenReturn(UUID.randomUUID());
         when(buildInfo.getStatus()).thenReturn(SUCCESS);
         when(buildInfo.getFinishTime()).thenReturn(OffsetDateTime.now().minusHours(1));
 
@@ -118,7 +118,7 @@ public class ValidationServiceTest {
     public void shouldReturnErrorWhenFinishDateIsBeforeStartDateWhenUpdatingValidation() {
         // Given
         BuildInfo buildInfo = mock(BuildInfo.class);
-        when(buildInfo.getId()).thenReturn(UUID.fromString("id"));
+        when(buildInfo.getId()).thenReturn(UUID.randomUUID());
         when(buildInfo.getStatus()).thenReturn(SUCCESS);
         OffsetDateTime startDateTime = OffsetDateTime.now().minusHours(2);
         when(buildInfo.getStartTime()).thenReturn(startDateTime);
@@ -135,7 +135,7 @@ public class ValidationServiceTest {
 
     private BuildInfo createValidBuildInfo() {
         return new BuildInfo(
-                UUID.fromString("11111"),
+                UUID.randomUUID(),
                     "123",
                     "https://host:8080/job/project/123/",
                     OffsetDateTime.now(),

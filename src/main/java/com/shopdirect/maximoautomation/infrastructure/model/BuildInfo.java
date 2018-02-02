@@ -3,8 +3,7 @@ package com.shopdirect.maximoautomation.infrastructure.model;
 import com.amazonaws.services.dynamodbv2.datamodeling.*;
 import com.fasterxml.jackson.annotation.JsonCreator;
 import com.fasterxml.jackson.annotation.JsonProperty;
-import com.fasterxml.jackson.databind.annotation.JsonDeserialize;
-import com.shopdirect.maximoautomation.infrastructure.config.BuildStatusDeserializer;
+import com.shopdirect.maximoautomation.infrastructure.config.BuildStatusConverter;
 import com.shopdirect.maximoautomation.infrastructure.model.converter.OffsetDateTimeConverter;
 
 import java.time.OffsetDateTime;
@@ -38,7 +37,7 @@ public class BuildInfo {
     @DynamoDBAttribute
     private String vcDescription;
     @DynamoDBAttribute
-    @DynamoDBTyped(DynamoDBMapperFieldModel.DynamoDBAttributeType.S)
+    @DynamoDBTypeConverted(converter = BuildStatusConverter.class)
     private BuildStatus status;
 
     public BuildInfo() {
@@ -54,7 +53,7 @@ public class BuildInfo {
                      @JsonProperty("vcTag") String vcTag,
                      @JsonProperty("vcBranch") String vcBranch,
                      @JsonProperty("vcDescription") String vcDescription,
-                     @JsonProperty("status") @JsonDeserialize(using = BuildStatusDeserializer.class) BuildStatus status) {
+                     @JsonProperty("status") BuildStatus status) {
         this.id = id;
         this.buildId = buildId;
         this.url = url;
@@ -163,8 +162,8 @@ public class BuildInfo {
         private String vcDescription;
         private BuildStatus status;
 
-        public BuildInfoBuilder setId(String id) {
-            this.id = UUID.fromString(id);
+        public BuildInfoBuilder setId(UUID id) {
+            this.id = id;
             return this;
         }
 
