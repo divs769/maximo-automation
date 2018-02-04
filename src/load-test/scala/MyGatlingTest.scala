@@ -5,8 +5,8 @@ import io.gatling.http.Predef._
 import org.springframework.boot.SpringApplication
 import org.springframework.context.ConfigurableApplicationContext
 
-import scalaj.http._
 import scala.concurrent.duration._
+import scalaj.http._
 
 class MyGatlingTest extends Simulation {
 
@@ -80,13 +80,15 @@ class MyGatlingTest extends Simulation {
   }
 
   object GetBuild {
+    val buildId = scala.util.Random.alphanumeric.take(10).mkString
+
     val body =
-      """{"buildId":"build123", "url":"http://jenkins:8080/job/test/123/", "time":"2012-04-23T18:25:43.511Z",
-        |"vcHash":"665169b62d95c73d0de89337fa7ea6622c1a08c2", "vcTag":"1.1", "vcBranch":"test", "vcDescription":"description"}""".stripMargin
+      "{\"buildId\":\"" + buildId + "\", \"url\":\"http://jenkins:8080/job/test/123/\", \"time\":\"2012-04-23T18:25:43.511Z\"," +
+        "\"vcHash\":\"665169b62d95c73d0de89337fa7ea6622c1a08c2\", \"vcTag\":\"1.1\", \"vcBranch\":\"test\", \"vcDescription\":\"description\"}"
 
     Http(baseUrl + "/buildinfo").postData(body).header("Content-Type", "application/json").header("Charset", "UTF-8").asString
 
     val request = http("Get a stored build from build endpoint")
-      .get("/buildinfo/build123")
+      .get("/buildinfo/" + buildId)
   }
 }

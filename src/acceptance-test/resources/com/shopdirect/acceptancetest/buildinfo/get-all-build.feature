@@ -2,7 +2,6 @@ Feature: Get all builds
 
   Background:
     Given the database has been initialised and is running
-    And the database is clean
     And multiple build data records have been inserted
 
   Scenario: The database is empty
@@ -18,38 +17,31 @@ Feature: Get all builds
     Then the response is success
     And all of the builds are returned
 
-  Scenario: The request has startIndex parameter
-    Given a payload with a startIndex parameter
+  Scenario: The request has pageIndex parameter
+    Given a payload with a pageIndex parameter
+    When the get all endpoint is called
+    Then the response is failure
+
+  Scenario: The request has pageSize parameter
+    Given a payload with a pageSize parameter
     When the get all endpoint is called
     Then the response is success
-    And all of the builds, starting from startIndex, are returned
+    And the first page of builds with pageSize amount of entries is returned
 
-  Scenario: The startIndex is greater than the number of records
-    Given a payload with a startIndex greater than the number of stored records
-    When the get all endpoint is called
-    Then the response is success
-    And an empty list is returned
-
-  Scenario: The request has limit parameter
-    Given a payload with a limit parameter
-    When the get all endpoint is called
-    Then the response is success
-    And all of the builds, up the limit, is returned
-
-  Scenario: The request has limit paramter, but there are not enough records
-    Given a payload with a limit parameter greater than the number of records
+  Scenario: The request has pageSize parameter, but there are less records than pageSize
+    Given a payload with a pageSize parameter greater than the number of records
     When the get all endpoint is called
     Then the response is success
     And all of the builds are returned
 
-  Scenario: The request has startIndex and limit parameters
-    Given a payload with a startIndex and limit parameters
+  Scenario: The request has pageIndex and pageSize parameters
+    Given a payload with a pageIndex and pageSize parameters
     When the get all endpoint is called
     Then the response is success
-    And a list is returned, with records starting from startIndex and ending at limit
+    And the specified page of builds is returned with the requested size
 
-  Scenario: The request has startIndex and limit parameters, but there are not enough records
-    Given a payload with a startIndex and limit that is higher than the number of records
+  Scenario: The request has pageIndex and pageSize parameters, but there are not enough records
+    Given a payload with a pageIndex and pageSize that is higher than the number of records available
     When the get all endpoint is called
     Then the response is success
-    And a list is returned, with records starting from startIndex and ending at the last record
+    And a page of builds is returned, starting from pageIndex and ending at the last record

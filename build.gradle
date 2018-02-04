@@ -83,6 +83,9 @@ sourceCompatibility = 1.8
 
 repositories {
 	mavenCentral()
+	maven {
+		url "https://s3.eu-central-1.amazonaws.com/dynamodb-local-frankfurt/release"
+	}
 }
 
 sourceSets {
@@ -144,9 +147,12 @@ dependencies {
 	loadTestCompile "io.gatling:gatling-core:${GATLING_VERSION}"
 	loadTestCompile "io.gatling.highcharts:gatling-charts-highcharts:${GATLING_VERSION}"
 	loadTestCompile "org.scalaj:scalaj-http_2.12:2.3.0"
-	compile "com.rethinkdb:rethinkdb-driver:2.3.3"
 	compile "com.fasterxml.jackson.core:jackson-annotations:2.9.3"
 	compile "com.fasterxml.jackson.datatype:jackson-datatype-jsr310:2.9.3"
+	compile "com.amazonaws:aws-java-sdk-dynamodb:1.11.271"
+	compile "com.github.derjust:spring-data-dynamodb:4.5.4"
+	acceptanceTestCompile "com.amazonaws:DynamoDBLocal:[1.11,2.0)"
+	acceptanceTestCompile "com.almworks.sqlite4java:sqlite4java:1.0.392"
 }
 
 dependencyManagement {
@@ -193,8 +199,18 @@ assert file(configFile).exists()
 
 }
 
+task copyNativeDeps(type: Copy) {
+	from(configurations.compile + configurations.acceptanceTestCompile) {
+		include '*.dll'
+		include '*.dylib'
+		include '*.so'
+	}
+	into 'build/libs'
+}
+
 task acceptanceTest(type: Test) {
-	systemProperties = System.properties
+	dependsOn copyNativeDeps
+	systemProperty "java.library.path", 'build/libs'
 	testClassesDir = sourceSets.acceptanceTest.output.classesDir
 	classpath = sourceSets.acceptanceTest.runtimeClasspath
 	outputs.upToDateWhen { false }
@@ -213,6 +229,7 @@ task loadTest(type: GatlingTask, dependsOn: ['loadTestClasses']) {
 		minHeapSize = "1024m"
 		maxHeapSize = "1024m"
 		systemProperty 'gatling.execution.type', 'full'
+		systemProperty 'spring.profiles.active', 'NFT'
 	}
 }
 
@@ -236,9 +253,9 @@ task applicationCodeCoverageReport(type:JacocoReport){
 //	ext.maximoBuildInfoId = createMaximoChange()
 //}
 
-task releaseNotes {
-	generateReleaseNotes()
-}
+//task releaseNotes {
+//	generateReleaseNotes()
+//}
 
 task clientJar(type: Jar) {
 	from(sourceSets.main.output) {

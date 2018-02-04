@@ -1,7 +1,7 @@
 package com.shopdirect.maximoautomation.infrastructure.service;
 
-import com.shopdirect.maximoautomation.infrastructure.dao.BuildInfoDao;
 import com.shopdirect.maximoautomation.infrastructure.model.BuildInfo;
+import com.shopdirect.maximoautomation.infrastructure.repository.DynamoDBRepository;
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
@@ -10,6 +10,7 @@ import org.springframework.test.context.junit4.SpringRunner;
 
 import java.time.OffsetDateTime;
 import java.util.List;
+import java.util.UUID;
 
 import static com.shopdirect.maximoautomation.infrastructure.model.BuildStatus.SUCCESS;
 import static org.assertj.core.api.Assertions.assertThat;
@@ -20,12 +21,12 @@ import static org.mockito.Mockito.when;
 @RunWith(SpringRunner.class)
 public class ValidationServiceTest {
     @MockBean
-    private BuildInfoDao buildInfoDao;
+    private DynamoDBRepository dao;
     private ValidationService instance;
 
     @Before
     public void setUp() throws Exception {
-        instance = new ValidationService(buildInfoDao);
+        instance = new ValidationService(dao);
     }
 
     @Test
@@ -83,13 +84,13 @@ public class ValidationServiceTest {
     public void shouldValidateAndReturnNoErrorsForAValidUpdateValidations() {
         // Given
         BuildInfo buildInfo = mock(BuildInfo.class);
-        when(buildInfo.getId()).thenReturn("id");
+        when(buildInfo.getId()).thenReturn(UUID.randomUUID());
         when(buildInfo.getStatus()).thenReturn(SUCCESS);
         OffsetDateTime startDateTime = OffsetDateTime.now().minusHours(2);
         when(buildInfo.getStartTime()).thenReturn(startDateTime);
         when(buildInfo.getFinishTime()).thenReturn(startDateTime.plusHours(1));
 
-        when(buildInfoDao.getRecord(any(String.class))).thenReturn(buildInfo);
+        when(dao.findOne(any(UUID.class))).thenReturn(buildInfo);
 
         // When
         List<String> errors = instance.updateValidations(buildInfo);
@@ -102,11 +103,9 @@ public class ValidationServiceTest {
     public void shouldReturnErrorWhenRecordDoesNotExistInDatabaseForUpdateValidation() {
         // Given
         BuildInfo buildInfo = mock(BuildInfo.class);
-        when(buildInfo.getId()).thenReturn("id");
+        when(buildInfo.getId()).thenReturn(UUID.randomUUID());
         when(buildInfo.getStatus()).thenReturn(SUCCESS);
         when(buildInfo.getFinishTime()).thenReturn(OffsetDateTime.now().minusHours(1));
-
-        when(buildInfoDao.getRecord(any(String.class))).thenReturn(null);
 
         // When
         List<String> errors = instance.updateValidations(buildInfo);
@@ -119,13 +118,13 @@ public class ValidationServiceTest {
     public void shouldReturnErrorWhenFinishDateIsBeforeStartDateWhenUpdatingValidation() {
         // Given
         BuildInfo buildInfo = mock(BuildInfo.class);
-        when(buildInfo.getId()).thenReturn("id");
+        when(buildInfo.getId()).thenReturn(UUID.randomUUID());
         when(buildInfo.getStatus()).thenReturn(SUCCESS);
         OffsetDateTime startDateTime = OffsetDateTime.now().minusHours(2);
         when(buildInfo.getStartTime()).thenReturn(startDateTime);
         when(buildInfo.getFinishTime()).thenReturn(startDateTime.minusHours(1));
 
-        when(buildInfoDao.getRecord(any(String.class))).thenReturn(buildInfo);
+        when(dao.findOne(any(UUID.class))).thenReturn(buildInfo);
 
         // When
         List<String> errors = instance.updateValidations(buildInfo);
@@ -136,7 +135,7 @@ public class ValidationServiceTest {
 
     private BuildInfo createValidBuildInfo() {
         return new BuildInfo(
-                    "11111",
+                UUID.randomUUID(),
                     "123",
                     "https://host:8080/job/project/123/",
                     OffsetDateTime.now(),

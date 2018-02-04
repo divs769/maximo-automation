@@ -1,7 +1,7 @@
 package com.shopdirect.maximoautomation.infrastructure.service;
 
-import com.shopdirect.maximoautomation.infrastructure.dao.BuildInfoDao;
 import com.shopdirect.maximoautomation.infrastructure.model.BuildInfo;
+import com.shopdirect.maximoautomation.infrastructure.repository.DynamoDBRepository;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
@@ -14,11 +14,11 @@ import java.util.stream.Collectors;
 @Service
 public class ValidationService {
     private static final Pattern PATTERN = Pattern.compile("(https?://)?[\\w.]+(:\\d+)?/job/[\\w-]+/\\d+/$");
-    private final BuildInfoDao buildInfoDao;
+    private final DynamoDBRepository dao;
 
     @Autowired
-    public ValidationService(BuildInfoDao buildInfoDao) {
-        this.buildInfoDao = buildInfoDao;
+    public ValidationService(DynamoDBRepository dao) {
+        this.dao = dao;
     }
 
     public List<String> validateBuildStarted(BuildInfo buildInfo) {
@@ -49,7 +49,7 @@ public class ValidationService {
         if(buildInfo.getStatus() == null) {
             errors.add("Status is missing");
         }
-        BuildInfo existingRecord = buildInfoDao.getRecord(buildInfo.getId());
+        BuildInfo existingRecord = dao.findOne(buildInfo.getId());
         if(existingRecord == null) {
             errors.add("Record doesn't exist in the database");
         } else if(buildInfo.getFinishTime() != null && buildInfo.getFinishTime().isBefore(existingRecord.getStartTime())) {

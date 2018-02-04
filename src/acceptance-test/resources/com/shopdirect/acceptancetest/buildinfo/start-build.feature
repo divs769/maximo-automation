@@ -2,7 +2,6 @@ Feature: Start build
 
   Background:
     Given the database has been initialised and is running
-    And the database is clean
     And Maximo is up and running
 
   Scenario: The Post operation sends complete data

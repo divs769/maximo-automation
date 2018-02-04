@@ -2,7 +2,6 @@ Feature: Finish build
 
   Background:
     Given the database has been initialised and is running
-    And the database is clean
     And build data has been inserted
 
   Scenario: The put request sends the correct build information

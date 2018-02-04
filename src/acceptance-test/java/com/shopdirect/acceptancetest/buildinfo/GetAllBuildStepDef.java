@@ -1,17 +1,19 @@
 package com.shopdirect.acceptancetest.buildinfo;
 
+import com.amazonaws.services.dynamodbv2.AmazonDynamoDB;
 import com.shopdirect.acceptancetest.LatestResponse;
-import com.shopdirect.dao.TestBuildInfoDao;
 import com.shopdirect.maximoautomation.infrastructure.model.BuildInfo;
 import cucumber.api.java.en.And;
 import cucumber.api.java.en.Given;
 import cucumber.api.java.en.When;
+import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.web.client.RestTemplate;
 import org.springframework.web.util.UriComponentsBuilder;
 
 import java.net.URI;
-import java.util.ArrayList;
-import java.util.List;
+import java.util.HashMap;
+import java.util.Map;
+import java.util.UUID;
 
 import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.Matchers.equalTo;
@@ -19,21 +21,21 @@ import static org.hamcrest.Matchers.equalTo;
 public class GetAllBuildStepDef extends BaseBuildStepDef {
 
     private URI request;
-    private List<BuildInfo> testData;
+    private Map<UUID, BuildInfo> testData;
 
-    public GetAllBuildStepDef(RestTemplate restTemplate, LatestResponse latestResponse, TestBuildInfoDao testBuildInfoDao) {
-        super(restTemplate, latestResponse, testBuildInfoDao);
+    public GetAllBuildStepDef(RestTemplate restTemplate, LatestResponse latestResponse, @Qualifier("testClient") AmazonDynamoDB db) {
+        super(restTemplate, latestResponse, db);
     }
 
     @And("^multiple build data records have been inserted$")
     public void multipleBuildDataRecordsHaveBeenInserted() throws Throwable {
-        testData = new ArrayList<>();
-        for(Integer count = 0; count < 10; count++) {
-            BuildInfo build = createBuild(count);
-            testData.add(build);
-            testBuildInfoDao.insertRow(build);
+        testData = new HashMap<>();
+        for(int i = 0; i < 10; i++) {
+            BuildInfo build = createBuild(i);
+            testData.put(build.getId(), build);
+            addUpdateItem(build);
         }
-        assertThat(testBuildInfoDao.countRows(), equalTo(10L));
+        assertThat(countItems(), equalTo(10L));
     }
 
     @And("^a payload with no parameters$")
@@ -41,34 +43,34 @@ public class GetAllBuildStepDef extends BaseBuildStepDef {
         request = UriComponentsBuilder.fromUriString(ENDPOINT).build().toUri();
     }
 
-    @Given("^a payload with a startIndex parameter$")
+    @Given("^a payload with a pageIndex parameter$")
     public void aPayloadWithAStartIndexParameter() throws Throwable {
-        request = UriComponentsBuilder.fromUriString(ENDPOINT).queryParam("startIndex", 8).build().toUri();
+        request = UriComponentsBuilder.fromUriString(ENDPOINT).queryParam("pageIndex", 1).build().toUri();
     }
 
     @Given("^a payload with a startIndex greater than the number of stored records$")
     public void aPayloadWithAStartIndexGreaterThanTheNumberOfStoredRecords() throws Throwable {
-        request = UriComponentsBuilder.fromUriString(ENDPOINT).queryParam("startIndex", 12).build().toUri();
+        request = UriComponentsBuilder.fromUriString(ENDPOINT).queryParam("pageIndex", 12).build().toUri();
     }
 
-    @Given("^a payload with a limit parameter$")
+    @Given("^a payload with a pageSize parameter$")
     public void aPayloadWithALimitParameter() throws Throwable {
-        request = UriComponentsBuilder.fromUriString(ENDPOINT).queryParam("limit", 5).build().toUri();
+        request = UriComponentsBuilder.fromUriString(ENDPOINT).queryParam("pageSize", 5).build().toUri();
     }
 
-    @Given("^a payload with a limit parameter greater than the number of records$")
+    @Given("a payload with a pageSize parameter greater than the number of records")
     public void aPayloadWithALimitParameterGreaterThanTheNumberOfRecords() throws Throwable {
-        request = UriComponentsBuilder.fromUriString(ENDPOINT).queryParam("limit", 12).build().toUri();
+        request = UriComponentsBuilder.fromUriString(ENDPOINT).queryParam("pageSize", 12).build().toUri();
     }
 
-    @Given("^a payload with a startIndex and limit parameters$")
+    @Given("a payload with a pageIndex and pageSize parameters")
     public void aPayloadWithAStartIndexAndLimitParameters() throws Throwable {
-        request = UriComponentsBuilder.fromUriString(ENDPOINT).queryParam("startIndex", 3).queryParam("limit", 3).build().toUri();
+        request = UriComponentsBuilder.fromUriString(ENDPOINT).queryParam("pageIndex", 2).queryParam("pageSize", 3).build().toUri();
     }
 
-    @Given("^a payload with a startIndex and limit that is higher than the number of records$")
+    @Given("^a payload with a pageIndex and pageSize that is higher than the number of records available$")
     public void aPayloadWithAStartIndexAndLimitThatIsHigherThanTheNumberOfRecords() throws Throwable {
-        request = UriComponentsBuilder.fromUriString(ENDPOINT).queryParam("startIndex", 6).queryParam("limit", 10).build().toUri();
+        request = UriComponentsBuilder.fromUriString(ENDPOINT).queryParam("pageIndex", 3).queryParam("pageSize", 3).build().toUri();
     }
 
     @When("^the get all endpoint is called$")
@@ -87,43 +89,43 @@ public class GetAllBuildStepDef extends BaseBuildStepDef {
         BuildInfo[] response = (BuildInfo[]) latestResponse.getResponse().getBody();
         assertThat(response.length, equalTo(10));
         for(BuildInfo build : response) {
-            checkBuildsEqual(build, testData.get(Integer.valueOf(build.getId())));
+            checkBuildsEqual(build, testData.get(build.getId()));
         }
     }
 
-    @And("^all of the builds, starting from startIndex, are returned$")
+    @And("^all of the builds, starting from pageIndex, are returned$")
     public void allOfTheBuildsStartingFromStartIndexAreReturned() throws Throwable {
         BuildInfo[] response = (BuildInfo[]) latestResponse.getResponse().getBody();
         assertThat(response.length, equalTo(2));
         for(BuildInfo build : response) {
-            checkBuildsEqual(build, testData.get(Integer.valueOf(build.getId())));
+            checkBuildsEqual(build, testData.get(build.getId()));
         }
     }
 
-    @And("^all of the builds, up the limit, is returned$")
+    @And("^the first page of builds with pageSize amount of entries is returned$")
     public void allOfTheBuildsUpTheLimitIsReturned() throws Throwable {
         BuildInfo[] response = (BuildInfo[]) latestResponse.getResponse().getBody();
         assertThat(response.length, equalTo(5));
         for(BuildInfo build : response) {
-            checkBuildsEqual(build, testData.get(Integer.valueOf(build.getId())));
+            checkBuildsEqual(build, testData.get(build.getId()));
         }
     }
 
-    @And("^a list is returned, with records starting from startIndex and ending at limit$")
+    @And("^the specified page of builds is returned with the requested size$")
     public void aListIsReturnedWithRecordsStartingFromStartIndexAndEndingAtLimit() throws Throwable {
         BuildInfo[] response = (BuildInfo[]) latestResponse.getResponse().getBody();
         assertThat(response.length, equalTo(3));
         for(BuildInfo build : response) {
-            checkBuildsEqual(build, testData.get(Integer.valueOf(build.getId())));
+            checkBuildsEqual(build, testData.get(build.getId()));
         }
     }
 
-    @And("^a list is returned, with records starting from startIndex and ending at the last record$")
+    @And("^a page of builds is returned, starting from pageIndex and ending at the last record$")
     public void aListIsReturnedWithRecordsStartingFromStartIndexAndEndingAtTheLastRecord() throws Throwable {
         BuildInfo[] response = (BuildInfo[]) latestResponse.getResponse().getBody();
-        assertThat(response.length, equalTo(4));
+        assertThat(response.length, equalTo(1));
         for(BuildInfo build : response) {
-            checkBuildsEqual(build, testData.get(Integer.valueOf(build.getId())));
+            checkBuildsEqual(build, testData.get(build.getId()));
         }
     }
 

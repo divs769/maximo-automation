@@ -1,8 +1,10 @@
 package com.shopdirect.model;
 
+import java.util.UUID;
+
 public class BuildRequest {
 
-    private String id;
+    private UUID id;
     private String buildId;
     private String url;
     private String time;
@@ -12,7 +14,7 @@ public class BuildRequest {
     private String vcDescription;
     private String status;
 
-    public BuildRequest(String id, String time, String status) {
+    public BuildRequest(UUID id, String time, String status) {
         this.id = id;
         this.time = time;
         this.status = status;
@@ -41,7 +43,7 @@ public class BuildRequest {
         return time;
     }
 
-    public String getId() {
+    public UUID getId() {
         return id;
     }
 

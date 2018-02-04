@@ -1,23 +1,26 @@
 package com.shopdirect.acceptancetest.buildinfo;
 
-import com.github.tomakehurst.wiremock.client.RemoteMappingBuilder;
+import com.amazonaws.services.dynamodbv2.AmazonDynamoDB;
+import com.amazonaws.services.dynamodbv2.document.DynamoDB;
+import com.amazonaws.services.dynamodbv2.document.Table;
+import com.amazonaws.services.dynamodbv2.model.*;
 import com.github.tomakehurst.wiremock.client.ResponseDefinitionBuilder;
 import com.shopdirect.acceptancetest.LatestResponse;
-import com.shopdirect.dao.TestBuildInfoDao;
-import com.shopdirect.maximoautomation.infrastructure.config.DBInitializer;
 import cucumber.api.java.After;
 import cucumber.api.java.en.And;
 import cucumber.api.java.en.Given;
 import cucumber.api.java.en.Then;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.web.client.RestTemplate;
 
-import java.util.List;
+import java.util.Arrays;
 
 import static com.github.tomakehurst.wiremock.client.WireMock.*;
 import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.Matchers.is;
+import static com.shopdirect.acceptancetest.configuration.TestConfiguration.BUILDS_TB;
 
 public class CommonBuildStepDef extends BaseBuildStepDef {
 
@@ -25,30 +28,22 @@ public class CommonBuildStepDef extends BaseBuildStepDef {
     private String maximoUrl;
 
     @Autowired
-    public CommonBuildStepDef(RestTemplate restTemplate,
-                              LatestResponse latestResponse,
-                              TestBuildInfoDao testBuildInfoDao) {
-        super(restTemplate, latestResponse, testBuildInfoDao);
-    }
-
-    @After
-    public void closeConnection() {
-        testBuildInfoDao.closeConnection();
+    public CommonBuildStepDef(RestTemplate restTemplate, LatestResponse latestResponse, @Qualifier("testClient") AmazonDynamoDB db) {
+        super(restTemplate, latestResponse, db);
     }
 
     @Given("^the database has been initialised and is running$")
     public void theDatabaseHasBeenInitialised() throws Throwable {
-        testBuildInfoDao.createConnection();
-        List<String> dbList = testBuildInfoDao.getDatabases();
-        assertThat(dbList.contains(DBInitializer.MAXIMO_DB), is(true));
-        List<String> tableList = testBuildInfoDao.getTables();
-        assertThat(tableList.contains(DBInitializer.BUILDS_TB), is(true));
+        TableDescription tableDescription = createTable(db).getDescription();
+        assertThat(tableDescription.getTableStatus(), is(TableStatus.ACTIVE.toString()));
     }
 
     @And("^the database is clean$")
     public void theDatabaseIsClean() throws Throwable {
-        testBuildInfoDao.deleteAllRows();
-        assertThat(testBuildInfoDao.countRows(), is(0L));
+        cleanupTable();
+        TableDescription tableDescription = createTable(db).getDescription();
+        assertThat(tableDescription.getTableStatus(), is(TableStatus.ACTIVE.toString()));
+        assertThat(tableDescription.getItemCount(), is(0L));
     }
 
     @Then("^the response is success$")
@@ -63,13 +58,8 @@ public class CommonBuildStepDef extends BaseBuildStepDef {
 
     @Given("^Maximo is up and running")
     public void givenMaximoIsUpAndRunning() throws Throwable {
-        primeMaximoMockServerForCreateChange();
-        primeMaximoMockServerForUpdateChange();
-    }
-
-    private void primeMaximoMockServerForCreateChange() {
-        StringBuffer responseBodyForCreate = new StringBuffer();
-        responseBodyForCreate
+        StringBuffer responseBody = new StringBuffer();
+        responseBody
                 .append("<soapenv:Envelope xmlns:soapenv=\"http://schemas.xmlsoap.org/soap/envelope/\">")
                 .append("<soapenv:Body>")
                 .append("<CreateMXISWOCHANGEResponseType creationDateTime=\"2018-01-24T14:35:57+00:00\" transLanguage=\"EN\" baseLanguage=\"EN\" xmlns=\"http://www.ibm.com/maximo\" xmlns:xsi=\"http://www.w3.org/2001/XMLSchema-instance\">" )
@@ -85,46 +75,66 @@ public class CommonBuildStepDef extends BaseBuildStepDef {
 
         ResponseDefinitionBuilder responseBuilder = aResponse()
                 .withHeader("Content-Type", "text/xml; charset=UTF-8")
-                .withBody(responseBodyForCreate.toString());
+                .withBody(responseBody.toString());
 
-        primeMaximoMockServer(post(urlEqualTo("/soap")), responseBuilder);
-    }
-
-    private void primeMaximoMockServerForUpdateChange() {
-        StringBuffer responseBodyForUpdate = new StringBuffer();
-        responseBodyForUpdate
-                .append("<soapenv:Envelope xmlns:soapenv=\"http://schemas.xmlsoap.org/soap/envelope/\">")
-                .append("<soapenv:Body>")
-                .append("<UpdateMXISWOCHANGEResponseType messageID=\"4123413\" creationDateTime=\"2018-01-24T14:35:57+00:00\" transLanguage=\"EN\" baseLanguage=\"EN\" xmlns=\"http://www.ibm.com/maximo\" xmlns:xsi=\"http://www.w3.org/2001/XMLSchema-instance\">" )
-                .append("</UpdateMXISWOCHANGEResponseType>")
-                .append("</soapenv:Body>")
-                .append("</soapenv:Envelope>");
-
-        ResponseDefinitionBuilder responseBuilder = aResponse()
-                .withHeader("Content-Type", "text/xml; charset=UTF-8")
-                .withBody(responseBodyForUpdate.toString());
-
-        primeMaximoMockServer(post(urlEqualTo("/soap")), responseBuilder);
-    }
-
-    private void primeMaximoMockServer(
-            RemoteMappingBuilder mappingBuilder,
-            ResponseDefinitionBuilder responseDefinitionBuilder) {
         stubFor(
-                withDefaultHeaders(mappingBuilder)
+                post(urlEqualTo("/soap"))
+                        .withHeader("SOAPAction", matching(".*"))
+                        .withHeader("Accept", matching(".*"))
+                        .withHeader("User-Agent", matching(".*"))
+                        .withHeader("Connection", matching(".*"))
+                        .withHeader("Host", matching(".*"))
+                        .withHeader("Content-Length", matching(".*"))
+                        .withHeader("Content-Type", matching(".*"))
                         .withRequestBody(matching(".*"))
-                        .willReturn(responseDefinitionBuilder)
+                        .willReturn(responseBuilder)
         );
     }
 
-    private RemoteMappingBuilder withDefaultHeaders(RemoteMappingBuilder mappingBuilder) {
-        return mappingBuilder
-                .withHeader("SOAPAction", matching(".*"))
-                .withHeader("Accept", matching(".*"))
-                .withHeader("User-Agent", matching(".*"))
-                .withHeader("Connection", matching(".*"))
-                .withHeader("Host", matching(".*"))
-                .withHeader("Content-Length", matching(".*"))
-                .withHeader("Content-Type", matching(".*"));
+    private static Table createTable(DynamoDB db) throws Exception {
+        Table table = db.createTable(createTableRequest());
+        table.waitForActive();
+        return table;
+    }
+
+    private static CreateTableRequest createTableRequest() {
+        return new CreateTableRequest()
+                .withTableName(BUILDS_TB)
+                .withKeySchema(
+                        new KeySchemaElement()
+                                .withAttributeName("id")
+                                .withKeyType(KeyType.HASH))
+                .withAttributeDefinitions(Arrays.asList(
+                        new AttributeDefinition()
+                                .withAttributeName("id")
+                                .withAttributeType(ScalarAttributeType.S),
+                        new AttributeDefinition()
+                                .withAttributeName("buildId")
+                                .withAttributeType(ScalarAttributeType.S)))
+                .withProvisionedThroughput(new ProvisionedThroughput()
+                        .withReadCapacityUnits(1L)
+                        .withWriteCapacityUnits(1L))
+                .withGlobalSecondaryIndexes(new GlobalSecondaryIndex()
+                        .withIndexName("buildIdIndex")
+                        .withKeySchema(new KeySchemaElement()
+                                .withAttributeName("buildId")
+                                .withKeyType(KeyType.HASH))
+                        .withProjection(new Projection()
+                                .withProjectionType(ProjectionType.ALL))
+                        .withProvisionedThroughput(new ProvisionedThroughput()
+                                .withReadCapacityUnits(1L)
+                                .withWriteCapacityUnits(1L)));
+    }
+
+    @After
+    public void cleanupTable() throws Exception {
+        db.listTables().iterator().forEachRemaining(table -> {
+            table.delete();
+            try {
+                table.waitForDelete();
+            } catch (InterruptedException e) {
+                e.printStackTrace();
+            }
+        });
     }
 }

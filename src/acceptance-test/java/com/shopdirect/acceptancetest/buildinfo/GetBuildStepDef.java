@@ -1,11 +1,12 @@
 package com.shopdirect.acceptancetest.buildinfo;
 
+import com.amazonaws.services.dynamodbv2.AmazonDynamoDB;
 import com.shopdirect.acceptancetest.LatestResponse;
-import com.shopdirect.dao.TestBuildInfoDao;
 import com.shopdirect.maximoautomation.infrastructure.model.BuildInfo;
 import cucumber.api.java.en.And;
 import cucumber.api.java.en.Given;
 import cucumber.api.java.en.When;
+import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.web.client.RestTemplate;
 import org.springframework.web.util.UriComponentsBuilder;
 
@@ -21,8 +22,8 @@ public class GetBuildStepDef extends BaseBuildStepDef {
     private URI request;
     private List<BuildInfo> testData;
 
-    public GetBuildStepDef(RestTemplate restTemplate, LatestResponse latestResponse, TestBuildInfoDao testBuildInfoDao) {
-        super(restTemplate, latestResponse, testBuildInfoDao);
+    public GetBuildStepDef(RestTemplate restTemplate, LatestResponse latestResponse, @Qualifier("testClient") AmazonDynamoDB db) {
+        super(restTemplate, latestResponse, db);
     }
 
     @And("^some build data has been inserted$")
@@ -31,9 +32,9 @@ public class GetBuildStepDef extends BaseBuildStepDef {
         for(Integer count = 1; count <= 3; count++) {
             BuildInfo build = createBuild(count);
             testData.add(build);
-            testBuildInfoDao.insertRow(build);
+            addStartItem(build);
         }
-        assertThat(testBuildInfoDao.countRows(), equalTo(3L));
+        assertThat(countItems(), equalTo(3L));
     }
 
     @And("^a payload with a buildId$")
