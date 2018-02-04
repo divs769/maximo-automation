@@ -228,6 +228,7 @@ task loadTest(type: GatlingTask, dependsOn: ['loadTestClasses']) {
 		minHeapSize = "1024m"
 		maxHeapSize = "1024m"
 		systemProperty 'gatling.execution.type', 'full'
+		systemProperty 'spring.profiles.active', 'NFT'
 	}
 }
 

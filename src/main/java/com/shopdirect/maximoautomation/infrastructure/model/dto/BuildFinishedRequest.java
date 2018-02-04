@@ -12,12 +12,12 @@ import static java.time.format.DateTimeFormatter.ISO_OFFSET_DATE_TIME;
 
 public class BuildFinishedRequest {
 
-    private final String id;
+    private final UUID id;
     private final String time;
     private final BuildStatus status;
 
     @JsonCreator
-    public BuildFinishedRequest(@JsonProperty("id") String id,
+    public BuildFinishedRequest(@JsonProperty("id") UUID id,
                                 @JsonProperty("time") String time,
                                 @JsonProperty("status") BuildStatus status) {
         this.id = id;
@@ -33,7 +33,7 @@ public class BuildFinishedRequest {
                 .createBuildInfo();
     }
 
-    public String getId() {
+    public UUID getId() {
         return id;
     }
 

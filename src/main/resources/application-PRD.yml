@@ -33,7 +33,8 @@ ibm:
     user: gyowanny.pessattoqueiroz@shopdirect.com
     password: Viviana0906
 
-amazon:
-  dynamodb:
-    endpoint: dynamodb.eu-west-1.amazonaws.com
-    region: eu-west-1
+ amazon:
+   dynamodb:
+     endpoint: dynamodb.eu-west-1.amazonaws.com
+     region: eu-west-1
+     tablePrefix: PRD_

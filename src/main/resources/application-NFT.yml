@@ -26,13 +26,14 @@ spring:
 info:
     config: NFT
 
+amazon:
+  dynamodb:
+    endpoint: dynamodb.eu-west-1.amazonaws.com
+    region: eu-west-1
+    tablePrefix: NFT_
+
 ibm:
   maximo:
     url: https://esls1uat.eu.smi.ibm.com/meaweb/services/MXISWOCHANGE
     user: gyowanny.pessattoqueiroz@shopdirect.com
     password: Viviana0906
-
-amazon:
-  dynamodb:
-    endpoint: dynamodb.eu-west-1.amazonaws.com
-    region: eu-west-1

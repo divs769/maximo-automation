@@ -1,7 +1,6 @@
 package com.shopdirect.acceptancetest.buildinfo;
 
 import com.amazonaws.services.dynamodbv2.AmazonDynamoDB;
-import com.amazonaws.services.dynamodbv2.document.DynamoDB;
 import com.amazonaws.services.dynamodbv2.document.Item;
 import com.amazonaws.services.dynamodbv2.document.Table;
 import com.shopdirect.acceptancetest.LatestResponse;
@@ -16,7 +15,6 @@ import org.springframework.http.HttpEntity;
 import org.springframework.web.client.RestTemplate;
 
 import java.time.OffsetDateTime;
-import java.util.Map;
 import java.util.UUID;
 
 import static com.shopdirect.maximoautomation.infrastructure.model.BuildStatus.SUCCESS;
@@ -29,6 +27,7 @@ public class UpdateBuildStepDef extends BaseBuildStepDef {
 
     private BuildInfo data;
     private BuildRequest request;
+    private UUID id;
 
     @Autowired
     public UpdateBuildStepDef(RestTemplate restTemplate, LatestResponse latestResponse, @Qualifier("testClient") AmazonDynamoDB db) {
@@ -37,20 +36,21 @@ public class UpdateBuildStepDef extends BaseBuildStepDef {
 
     @And("^build data has been inserted$")
     public void buildDataHasBeenInserted() throws Throwable {
-        data = new BuildInfo(UUID.fromString(ID), BUILD_ID, URL, OffsetDateTime.now().minusMinutes(30), null, HASH, TAG, BRANCH, DESC, null);
+        id = UUID.randomUUID();
+        data = new BuildInfo(id, BUILD_ID, URL, OffsetDateTime.now().minusMinutes(30), null, HASH, TAG, BRANCH, DESC, null);
         Table table = db.getTable(BUILDS_TB);
-        table.putItem(createItem(data));
-        assertRecordsSame(getItem(ID));
+        table.putItem(createStartItem(data));
+        assertRecordsSame(getItem(id.toString()));
     }
 
     @Given("^a valid update payload$")
     public void aValidPayload() throws Throwable {
-        request = new BuildRequest(ID, OffsetDateTime.now().toString(), STATUS);
+        request = new BuildRequest(id, OffsetDateTime.now().toString(), STATUS);
     }
 
     @Given("^a valid update payload with different ID$")
     public void aValidUpdatePayloadWithDifferentID() throws Throwable {
-        request = new BuildRequest("2", OffsetDateTime.now().toString(), STATUS);
+        request = new BuildRequest(UUID.randomUUID(), OffsetDateTime.now().toString(), STATUS);
     }
 
     @Given("^a payload with a missing ID$")
@@ -60,27 +60,27 @@ public class UpdateBuildStepDef extends BaseBuildStepDef {
 
     @Given("^a payload with the time missing$")
     public void aPayloadWithTheTimeMissing() throws Throwable {
-        request = new BuildRequest(ID, null, STATUS);
+        request = new BuildRequest(id, null, STATUS);
     }
 
     @Given("^a payload with with an invalid time$")
     public void aPayloadWithWithAnInvalidTime() throws Throwable {
-        request = new BuildRequest(ID, OffsetDateTime.now().plusMinutes(1).toString(), STATUS);
+        request = new BuildRequest(id, OffsetDateTime.now().plusMinutes(1).toString(), STATUS);
     }
 
     @Given("^a payload with a time before the start time$")
     public void aPayloadWithATimeBeforeTheStartTime() throws Throwable {
-        request = new BuildRequest(ID, data.getStartTime().minusSeconds(1).toString(), STATUS);
+        request = new BuildRequest(id, data.getStartTime().minusSeconds(1).toString(), STATUS);
     }
 
     @Given("^a payload with the state missing$")
     public void aPayloadWithTheStateMissing() throws Throwable {
-        request = new BuildRequest(ID, data.getStartTime().toString(), null);
+        request = new BuildRequest(id, data.getStartTime().toString(), null);
     }
 
     @And("^a record in the database exists with the ID contained in the payload$")
     public void aRecordInTheDatabaseExistsWithTheIDContainedInThePayload() throws Throwable {
-        assertThat(getItem(ID), notNullValue());
+        assertThat(getItem(id), notNullValue());
     }
 
     @When("^the put endpoint is called$")

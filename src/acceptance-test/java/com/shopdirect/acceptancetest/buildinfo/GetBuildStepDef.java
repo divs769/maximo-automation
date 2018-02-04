@@ -1,7 +1,6 @@
 package com.shopdirect.acceptancetest.buildinfo;
 
 import com.amazonaws.services.dynamodbv2.AmazonDynamoDB;
-import com.amazonaws.services.dynamodbv2.document.DynamoDB;
 import com.shopdirect.acceptancetest.LatestResponse;
 import com.shopdirect.maximoautomation.infrastructure.model.BuildInfo;
 import cucumber.api.java.en.And;
@@ -33,7 +32,7 @@ public class GetBuildStepDef extends BaseBuildStepDef {
         for(Integer count = 1; count <= 3; count++) {
             BuildInfo build = createBuild(count);
             testData.add(build);
-            addItem(build);
+            addStartItem(build);
         }
         assertThat(countItems(), equalTo(3L));
     }

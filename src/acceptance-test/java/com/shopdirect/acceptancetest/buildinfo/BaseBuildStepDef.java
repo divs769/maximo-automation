@@ -8,7 +8,6 @@ import com.shopdirect.acceptancetest.CucumberStepsDefinition;
 import com.shopdirect.acceptancetest.LatestResponse;
 import com.shopdirect.acceptancetest.configuration.TestResponseErrorHandler;
 import com.shopdirect.maximoautomation.infrastructure.model.BuildInfo;
-import cucumber.api.java.After;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.web.client.RestTemplate;
@@ -17,6 +16,7 @@ import java.time.OffsetDateTime;
 import java.util.UUID;
 
 import static com.shopdirect.acceptancetest.configuration.TestConfiguration.BUILDS_TB;
+import static com.shopdirect.maximoautomation.infrastructure.model.BuildStatus.SUCCESS;
 
 public abstract class BaseBuildStepDef extends CucumberStepsDefinition {
 
@@ -43,10 +43,10 @@ public abstract class BaseBuildStepDef extends CucumberStepsDefinition {
         this.restTemplate.setErrorHandler(new TestResponseErrorHandler());
     }
 
-    protected BuildInfo createBuild(Integer count) {
-        return BuildInfo.builder().setId(count.toString()).setBuildId(BUILD_ID + String.valueOf(count)).setUrl(URL)
+    protected BuildInfo createBuild(int count) {
+        return BuildInfo.builder().setId(UUID.randomUUID()).setBuildId(BUILD_ID + String.valueOf(count)).setUrl(URL)
                 .setStartTime(OffsetDateTime.now().plusMinutes(count)).setFinishTime(OffsetDateTime.now().plusMinutes(count+1))
-                .setVcHash(HASH).setVcTag(TAG).setVcBranch(BRANCH).setVcDescription(DESC).createBuildInfo();
+                .setVcHash(HASH).setVcTag(TAG).setVcBranch(BRANCH).setVcDescription(DESC).setStatus(SUCCESS).createBuildInfo();
     }
 
     protected Item getItem(String id) {
@@ -54,7 +54,11 @@ public abstract class BaseBuildStepDef extends CucumberStepsDefinition {
         return table.getItem("id", id);
     }
 
-    protected Item createItem(BuildInfo buildInfo) {
+    protected Item getItem(UUID id) {
+        return getItem(id.toString());
+    }
+
+    protected Item createStartItem(BuildInfo buildInfo) {
         return new Item()
                 .withString("id", buildInfo.getId().toString())
                 .withString("buildId", buildInfo.getBuildId())
@@ -66,9 +70,21 @@ public abstract class BaseBuildStepDef extends CucumberStepsDefinition {
                 .withString("vcDescription", buildInfo.getVcDescription());
     }
 
-    protected void addItem(BuildInfo buildInfo) {
+    protected Item createUpdateItem(BuildInfo buildInfo) {
+        Item item = createStartItem(buildInfo);
+        item.with("finishTime", buildInfo.getFinishTime().toString());
+        item.withString("status", buildInfo.getStatus().toString());
+        return item;
+    }
+
+    protected void addStartItem(BuildInfo buildInfo) {
         Table table = db.getTable(BUILDS_TB);
-        table.putItem(createItem(buildInfo));
+        table.putItem(createStartItem(buildInfo));
+    }
+
+    protected void addUpdateItem(BuildInfo buildInfo) {
+        Table table = db.getTable(BUILDS_TB);
+        table.putItem(createUpdateItem(buildInfo));
     }
 
     protected long countItems() {
