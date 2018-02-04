@@ -17,11 +17,11 @@ import org.springframework.web.client.RestTemplate;
 import java.time.OffsetDateTime;
 import java.util.UUID;
 
+import static com.shopdirect.acceptancetest.configuration.TestConfiguration.BUILDS_TB;
 import static com.shopdirect.maximoautomation.infrastructure.model.BuildStatus.SUCCESS;
 import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.Matchers.*;
 import static org.springframework.http.HttpMethod.PUT;
-import static com.shopdirect.acceptancetest.configuration.TestConfiguration.BUILDS_TB;
 
 public class UpdateBuildStepDef extends BaseBuildStepDef {
 

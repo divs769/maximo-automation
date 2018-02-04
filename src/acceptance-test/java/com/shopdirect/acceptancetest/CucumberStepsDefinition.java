@@ -3,7 +3,6 @@ package com.shopdirect.acceptancetest;
 import com.shopdirect.maximoautomation.ServiceApplication;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.cloud.contract.wiremock.AutoConfigureWireMock;
-import org.springframework.test.context.ActiveProfiles;
 import org.springframework.test.context.ContextConfiguration;
 import org.springframework.test.context.TestPropertySource;
 

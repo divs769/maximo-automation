@@ -5,8 +5,8 @@ import io.gatling.http.Predef._
 import org.springframework.boot.SpringApplication
 import org.springframework.context.ConfigurableApplicationContext
 
-import scalaj.http._
 import scala.concurrent.duration._
+import scalaj.http._
 
 class MyGatlingTest extends Simulation {
 
