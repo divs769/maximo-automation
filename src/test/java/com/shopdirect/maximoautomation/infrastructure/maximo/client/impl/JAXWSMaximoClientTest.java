@@ -20,6 +20,7 @@ import org.springframework.test.context.TestPropertySource;
 import org.springframework.test.context.junit4.SpringRunner;
 
 import java.time.OffsetDateTime;
+import java.util.UUID;
 
 import static com.github.tomakehurst.wiremock.client.WireMock.*;
 import static com.shopdirect.maximoautomation.infrastructure.model.BuildStatus.SUCCESS;
@@ -109,7 +110,7 @@ public class JAXWSMaximoClientTest {
 
     private BuildInfo createBuildInfoMock() {
         BuildInfo buildInfo = mock(BuildInfo.class);
-        when(buildInfo.getId()).thenReturn("id");
+        when(buildInfo.getId()).thenReturn(UUID.randomUUID());
         when(buildInfo.getStatus()).thenReturn(SUCCESS);
         OffsetDateTime startDateTime = OffsetDateTime.now().minusHours(2);
         when(buildInfo.getStartTime()).thenReturn(startDateTime);

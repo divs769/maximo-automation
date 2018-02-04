@@ -12,6 +12,6 @@ public class BuildStatusConverter implements DynamoDBTypeConverter<String, Build
 
     @Override
     public BuildStatus unconvert(String object) {
-        return BuildStatus.getFromCode(object);
+        return BuildStatus.fromCode(object);
     }
 }
