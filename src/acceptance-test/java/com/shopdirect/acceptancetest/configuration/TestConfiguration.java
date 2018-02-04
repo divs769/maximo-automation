@@ -1,5 +1,6 @@
 package com.shopdirect.acceptancetest.configuration;
 
+import com.amazonaws.client.builder.AwsClientBuilder;
 import com.amazonaws.services.dynamodbv2.AmazonDynamoDB;
 import com.amazonaws.services.dynamodbv2.AmazonDynamoDBClient;
 import com.amazonaws.services.dynamodbv2.AmazonDynamoDBClientBuilder;
@@ -21,10 +22,8 @@ public class TestConfiguration {
         final DynamoDBProxyServer server = ServerRunner.createServerFromCommandLineArgs(localArgs);
         server.start();
         AmazonDynamoDBClient client = (AmazonDynamoDBClient) AmazonDynamoDBClientBuilder.standard()
-                .withRegion(region)
-//                .withEndpointConfiguration(new AwsClientBuilder.EndpointConfiguration(endpoint, region))
+                .withEndpointConfiguration(new AwsClientBuilder.EndpointConfiguration(endpoint, region))
                 .build();
-        client.setEndpoint(endpoint);
         Runtime.getRuntime().addShutdownHook(new ServerShutdownHook(server));
         return client;
     }

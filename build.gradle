@@ -149,8 +149,15 @@ dependencies {
 	loadTestCompile "org.scalaj:scalaj-http_2.12:2.3.0"
 	compile "com.fasterxml.jackson.core:jackson-annotations:2.9.3"
 	compile "com.fasterxml.jackson.datatype:jackson-datatype-jsr310:2.9.3"
-	compile "com.amazonaws:aws-java-sdk-dynamodb:1.11.271"
-	compile "com.github.derjust:spring-data-dynamodb:4.5.4"
+	compile ("com.amazonaws:aws-java-sdk-core:1.11.271")
+	compile ("com.amazonaws:aws-java-sdk-dynamodb:1.11.271") {
+		exclude group: 'org.amazonaws', module: 'java-sdk-core'
+	}
+	compile ("com.github.derjust:spring-data-dynamodb:4.5.4") {
+		exclude group: 'org.springframework', module: 'spring-context'
+		exclude group: 'org.springframework', module: 'spring-aop'
+		exclude group: 'org.springframework', module: 'spring-tx'
+	}
 	acceptanceTestCompile "com.amazonaws:DynamoDBLocal:[1.11,2.0)"
 	acceptanceTestCompile "com.almworks.sqlite4java:sqlite4java:1.0.392"
 }
@@ -164,38 +171,38 @@ dependencyManagement {
 
 task version {
 
-def dataList = [:]
-def configFileName = "src/main/resources/service-config"
+	def dataList = [:]
+	def configFileName = "src/main/resources/service-config"
 
-File configFile = new File(configFileName)
+	File configFile = new File(configFileName)
 
-def words
-def key
-def value
+	def words
+	def key
+	def value
 
-assert file(configFile).exists()
+	assert file(configFile).exists()
 
 
- configFile.eachLine { line ->
+	 configFile.eachLine { line ->
 
- if (line.trim().size() == 0) {
-	 serviceVersion = "application"
-	 serviceName = "shopdirect"
-	 println "File does not exist"
+	 if (line.trim().size() == 0) {
+		 serviceVersion = "application"
+		 serviceName = "shopdirect"
+		 println "File does not exist"
 
- } else {
+	 } else {
 
-  words = line.split("=")
-  key=words[0]
-  value=words[1]
-  dataList[key]=value
+		  words = line.split("=")
+		  key=words[0]
+		  value=words[1]
+		  dataList[key]=value
 
-  }
+		  }
 
- serviceVersion = dataList.get("ServiceVersion")
- serviceName = dataList.get("ServiceName")
- sharedAccountNumber = dataList.get("SharedAccountNumber")
-}
+		 serviceVersion = dataList.get("ServiceVersion")
+		 serviceName = dataList.get("ServiceName")
+		 sharedAccountNumber = dataList.get("SharedAccountNumber")
+	}
 
 }
 

@@ -1,7 +1,7 @@
 package com.shopdirect.maximoautomation.infrastructure.config;
 
+import com.amazonaws.client.builder.AwsClientBuilder;
 import com.amazonaws.services.dynamodbv2.AmazonDynamoDB;
-import com.amazonaws.services.dynamodbv2.AmazonDynamoDBClient;
 import com.amazonaws.services.dynamodbv2.AmazonDynamoDBClientBuilder;
 import com.amazonaws.services.dynamodbv2.datamodeling.DynamoDBMapperConfig;
 import com.amazonaws.util.StringUtils;
@@ -20,12 +20,9 @@ public class DynamoDBConfig {
     @Bean
     public AmazonDynamoDB amazonDynamoDB(@Value("${amazon.dynamodb.endpoint}") String endpoint,
                                          @Value("${amazon.dynamodb.region}") String region) {
-        AmazonDynamoDBClient client = (AmazonDynamoDBClient) AmazonDynamoDBClientBuilder.standard()
-                .withRegion(region)
-//                .withEndpointConfiguration(new AwsClientBuilder.EndpointConfiguration(endpoint, region))
+        return AmazonDynamoDBClientBuilder.standard()
+                .withEndpointConfiguration(new AwsClientBuilder.EndpointConfiguration(endpoint, region))
                 .build();
-        client.setEndpoint(endpoint);
-        return client;
     }
 
     @Bean
