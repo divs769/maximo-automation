@@ -120,7 +120,7 @@
           },
           "targets": [
             {
-              "expr": "ecs_service_running_tasks{cluster=\"microservice-template\"}",
+              "expr": "ecs_service_running_tasks{cluster=\"maximo-automation\"}",
               "intervalFactor": 2,
               "legendFormat": "Running Task",
               "metric": "",
@@ -202,7 +202,7 @@
           },
           "targets": [
             {
-              "expr": "ecs_service_pending_tasks{cluster=\"microservice-template\"}",
+              "expr": "ecs_service_pending_tasks{cluster=\"maximo-automation\"}",
               "intervalFactor": 2,
               "legendFormat": "",
               "metric": "",
@@ -278,7 +278,7 @@
           },
           "targets": [
             {
-              "expr": "ecs_service_desired_tasks{cluster=\"microservice-template\"}",
+              "expr": "ecs_service_desired_tasks{cluster=\"maximo-automation\"}",
               "intervalFactor": 2,
               "refId": "A",
               "step": 40
@@ -352,7 +352,7 @@
           },
           "targets": [
             {
-              "expr": "ecs_container_instances{cluster=\"microservice-template\"}",
+              "expr": "ecs_container_instances{cluster=\"maximo-automation\"}",
               "intervalFactor": 2,
               "legendFormat": "",
               "refId": "A",
@@ -427,7 +427,7 @@
           },
           "targets": [
             {
-              "expr": "ecs_services{cluster=\"microservice-template\"}",
+              "expr": "ecs_services{cluster=\"maximo-automation\"}",
               "intervalFactor": 2,
               "refId": "A",
               "step": 40
@@ -490,21 +490,21 @@
           "steppedLine": false,
           "targets": [
             {
-              "expr": "ecs_service_running_tasks{service=\"microservice-template\"}",
+              "expr": "ecs_service_running_tasks{service=\"maximo-automation\"}",
               "intervalFactor": 2,
               "legendFormat": "Running",
               "refId": "A",
               "step": 4
             },
             {
-              "expr": "ecs_service_desired_tasks{service=\"microservice-template\"}",
+              "expr": "ecs_service_desired_tasks{service=\"maximo-automation\"}",
               "intervalFactor": 2,
               "legendFormat": "Desired",
               "refId": "B",
               "step": 4
             },
             {
-              "expr": "ecs_service_pending_tasks{service=\"microservice-template\"}",
+              "expr": "ecs_service_pending_tasks{service=\"maximo-automation\"}",
               "intervalFactor": 2,
               "legendFormat": "Pending",
               "refId": "C",
@@ -514,7 +514,7 @@
           "thresholds": [],
           "timeFrom": null,
           "timeShift": null,
-          "title": "Microservice Template - Tasks",
+          "title": "Maximo Automation - Tasks",
           "tooltip": {
             "shared": true,
             "sort": 0,
@@ -576,7 +576,7 @@
           "targets": [
             {
               "dimensions": {},
-              "expr": "ecs_container_instances{cluster=\"microservice-template\"}",
+              "expr": "ecs_container_instances{cluster=\"maximo-automation\"}",
               "interval": "1s",
               "intervalFactor": 2,
               "legendFormat": "Number of instances",
@@ -594,7 +594,7 @@
           "thresholds": [],
           "timeFrom": null,
           "timeShift": null,
-          "title": "Microservice Template - Number of Instances",
+          "title": "Maximo Automation - Number of Instances",
           "tooltip": {
             "shared": true,
             "sort": 0,
@@ -676,7 +676,7 @@
           "targets": [
             {
               "dimensions": {
-                "ClusterName": "microservice-template"
+                "ClusterName": "maximo-automation"
               },
               "expr": "",
               "intervalFactor": 2,
@@ -695,7 +695,7 @@
           "thresholds": [],
           "timeFrom": null,
           "timeShift": null,
-          "title": "Microservice Template - Memory Utilization",
+          "title": "Maximo Automation - Memory Utilization",
           "tooltip": {
             "shared": true,
             "sort": 0,
@@ -761,7 +761,7 @@
             {
               "alias": "",
               "dimensions": {
-                "ClusterName": "microservice-template"
+                "ClusterName": "maximo-automation"
               },
               "expr": "",
               "intervalFactor": 2,
@@ -780,7 +780,7 @@
           "thresholds": [],
           "timeFrom": null,
           "timeShift": null,
-          "title": "Microservice Template - CPU Utilization",
+          "title": "Maximo Automation - CPU Utilization",
           "tooltip": {
             "shared": true,
             "sort": 0,
@@ -853,7 +853,7 @@
           "steppedLine": false,
           "targets": [
             {
-              "expr": "ecs_services{cluster=\"microservice-template\"}",
+              "expr": "ecs_services{cluster=\"maximo-automation\"}",
               "intervalFactor": 2,
               "legendFormat": "Number of services",
               "refId": "A",
@@ -863,7 +863,7 @@
           "thresholds": [],
           "timeFrom": null,
           "timeShift": null,
-          "title": "Microservice Template - Number of Services",
+          "title": "Maximo Automation - Number of Services",
           "tooltip": {
             "shared": true,
             "sort": 0,
@@ -942,7 +942,7 @@
     ]
   },
   "timezone": "browser",
-  "title": "Microservice Template",
+  "title": "Maximo Automation",
   "version": 2
   },
   "overwrite": true

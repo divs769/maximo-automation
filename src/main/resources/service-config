@@ -1,5 +1,5 @@
-ServiceName=microservice-template
-ServiceVersion=1.2.47
+ServiceName=maximo-automation
+ServiceVersion=1.0.0
 TeamAccountNumber=669711333016
 SharedAccountNumber=669711333016
 NumberOfEcsTasks=2

@@ -1,4 +1,4 @@
-ServiceName=microservice-template
+ServiceName=maximo-automation
 ExposedPort=80
 InternetFacing=true
 ClusterName=microservices
