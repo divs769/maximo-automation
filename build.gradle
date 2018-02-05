@@ -141,7 +141,7 @@ dependencies {
 	testCompile('info.cukes:cucumber-junit:1.2.5') //to run in junit via the ide
 	testCompile('info.cukes:cucumber-spring:1.2.5') //to use dependency injection
 	testCompile "org.springframework.cloud:spring-cloud-contract-wiremock"
-	acceptanceTestCompile('org.springframework:spring-tx:4.3.6.RELEASE') //to run acceptance tests from feature file in IDE
+	testCompile('org.springframework:spring-tx:4.3.6.RELEASE') //to run acceptance tests from feature file in IDE
 	compile "org.scala-lang:scala-library:${SCALA_VERSION}"
 	loadTestCompile "io.gatling:gatling-http:${GATLING_VERSION}"
 	loadTestCompile "io.gatling:gatling-core:${GATLING_VERSION}"
