@@ -17,6 +17,9 @@ import org.springframework.web.client.RestTemplate;
 import java.time.OffsetDateTime;
 import java.util.UUID;
 
+import static com.github.tomakehurst.wiremock.client.WireMock.postRequestedFor;
+import static com.github.tomakehurst.wiremock.client.WireMock.urlEqualTo;
+import static com.github.tomakehurst.wiremock.client.WireMock.verify;
 import static com.shopdirect.acceptancetest.configuration.TestConfiguration.BUILDS_TB;
 import static com.shopdirect.maximoautomation.infrastructure.model.BuildStatus.SUCCESS;
 import static org.hamcrest.MatcherAssert.assertThat;
@@ -37,7 +40,7 @@ public class UpdateBuildStepDef extends BaseBuildStepDef {
     @And("^build data has been inserted$")
     public void buildDataHasBeenInserted() throws Throwable {
         id = UUID.randomUUID();
-        data = new BuildInfo(id, BUILD_ID, URL, OffsetDateTime.now().minusMinutes(30), null, HASH, TAG, BRANCH, DESC, null);
+        data = new BuildInfo(id, BUILD_ID, URL, OffsetDateTime.now().minusMinutes(30), null, HASH, TAG, BRANCH, DESC, null, CHANGE_ID);
         Table table = db.getTable(BUILDS_TB);
         table.putItem(createStartItem(data));
         assertRecordsSame(getItem(id.toString()));
@@ -45,37 +48,37 @@ public class UpdateBuildStepDef extends BaseBuildStepDef {
 
     @Given("^a valid update payload$")
     public void aValidPayload() throws Throwable {
-        request = new BuildRequest(id, OffsetDateTime.now().toString(), STATUS);
+        request = new BuildRequest(id, OffsetDateTime.now().toString(), STATUS, CHANGE_ID);
     }
 
     @Given("^a valid update payload with different ID$")
     public void aValidUpdatePayloadWithDifferentID() throws Throwable {
-        request = new BuildRequest(UUID.randomUUID(), OffsetDateTime.now().toString(), STATUS);
+        request = new BuildRequest(UUID.randomUUID(), OffsetDateTime.now().toString(), STATUS, CHANGE_ID);
     }
 
     @Given("^a payload with a missing ID$")
     public void aPayloadWithAMissingID() throws Throwable {
-        request = new BuildRequest(null, OffsetDateTime.now().toString(), STATUS);
+        request = new BuildRequest(null, OffsetDateTime.now().toString(), STATUS, CHANGE_ID);
     }
 
     @Given("^a payload with the time missing$")
     public void aPayloadWithTheTimeMissing() throws Throwable {
-        request = new BuildRequest(id, null, STATUS);
+        request = new BuildRequest(id, null, STATUS, CHANGE_ID);
     }
 
     @Given("^a payload with with an invalid time$")
     public void aPayloadWithWithAnInvalidTime() throws Throwable {
-        request = new BuildRequest(id, OffsetDateTime.now().plusMinutes(1).toString(), STATUS);
+        request = new BuildRequest(id, OffsetDateTime.now().plusMinutes(1).toString(), STATUS, CHANGE_ID);
     }
 
     @Given("^a payload with a time before the start time$")
     public void aPayloadWithATimeBeforeTheStartTime() throws Throwable {
-        request = new BuildRequest(id, data.getStartTime().minusSeconds(1).toString(), STATUS);
+        request = new BuildRequest(id, data.getStartTime().minusSeconds(1).toString(), STATUS, CHANGE_ID);
     }
 
     @Given("^a payload with the state missing$")
     public void aPayloadWithTheStateMissing() throws Throwable {
-        request = new BuildRequest(id, data.getStartTime().toString(), null);
+        request = new BuildRequest(id, data.getStartTime().toString(), null, CHANGE_ID);
     }
 
     @And("^a record in the database exists with the ID contained in the payload$")
@@ -114,5 +117,11 @@ public class UpdateBuildStepDef extends BaseBuildStepDef {
         assertThat(result.get("vcTag"), equalTo(data.getVcTag()));
         assertThat(result.get("vcBranch"), equalTo(data.getVcBranch()));
         assertThat(result.get("vcDescription"), equalTo(data.getVcDescription()));
+        assertThat(result.get("maximoChangeId"), equalTo(data.getMaximoChangeId()));
+    }
+
+    @And("^the maximo closes the change$")
+    public void theMaximoClosesTheChange() throws Throwable {
+        verify(postRequestedFor(urlEqualTo("/soap")));
     }
 }

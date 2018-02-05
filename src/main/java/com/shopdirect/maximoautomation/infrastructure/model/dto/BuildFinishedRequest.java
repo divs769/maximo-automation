@@ -15,14 +15,17 @@ public class BuildFinishedRequest {
     private final UUID id;
     private final String time;
     private final BuildStatus status;
+    private final String maximoChangeId;
 
     @JsonCreator
     public BuildFinishedRequest(@JsonProperty("id") UUID id,
                                 @JsonProperty("time") String time,
-                                @JsonProperty("status") BuildStatus status) {
+                                @JsonProperty("status") BuildStatus status,
+                                @JsonProperty("maximoChangeId") String maximoChangeId) {
         this.id = id;
         this.time = time;
         this.status = status;
+        this.maximoChangeId = maximoChangeId;
     }
 
     public BuildInfo createBuildInfo() {
@@ -30,6 +33,7 @@ public class BuildFinishedRequest {
                 .setId(id)
                 .setFinishTime(time == null ? null : OffsetDateTime.parse(time, ISO_OFFSET_DATE_TIME))
                 .setStatus(status)
+                .setMaximoChangeId(maximoChangeId)
                 .createBuildInfo();
     }
 

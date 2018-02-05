@@ -144,7 +144,8 @@ public class ValidationServiceTest {
                     "tag",
                     "branch",
                     "description",
-                    SUCCESS
+                    SUCCESS,
+                    "123"
             );
     }
 }

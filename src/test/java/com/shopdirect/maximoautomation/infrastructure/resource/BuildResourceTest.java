@@ -84,7 +84,8 @@ public class BuildResourceTest {
                 .andReturn();
 
         // Then
-        verify(dao).save(any(BuildInfo.class));
+        verify(client).createChange(isA(BuildInfo.class));
+        verify(dao).save(isA(BuildInfo.class));
         assertThat(result.getResponse().getContentAsString(), equalTo(id.toString()));
     }
 
@@ -102,6 +103,7 @@ public class BuildResourceTest {
                 .andReturn();
 
         // Then
+        verify(client, never()).createChange(isA(BuildInfo.class));
         verify(dao, never()).save(any(BuildInfo.class));
     }
 
@@ -121,6 +123,7 @@ public class BuildResourceTest {
 
         // Then
         verify(dao).save(any(BuildInfo.class));
+        verify(client).closeChange(anyString());
     }
 
     @Test
@@ -139,6 +142,7 @@ public class BuildResourceTest {
 
         // Then
         verify(dao, never()).save(any(BuildInfo.class));
+        verify(client, never()).closeChange(anyString());
     }
 
     @Test
@@ -209,7 +213,7 @@ public class BuildResourceTest {
     }
 
     private static BuildFinishedRequest createFinishedBuildInfo() {
-        return new BuildFinishedRequest(UUID.randomUUID(), "2012-04-23T18:25:44.511Z", SUCCESS);
+        return new BuildFinishedRequest(UUID.randomUUID(), "2012-04-23T18:25:44.511Z", SUCCESS, "123");
     }
 
 

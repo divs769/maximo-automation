@@ -32,7 +32,7 @@ public class GetBuildStepDef extends BaseBuildStepDef {
         for(Integer count = 1; count <= 3; count++) {
             BuildInfo build = createBuild(count);
             testData.add(build);
-            addStartItem(build);
+            addUpdateItem(build);
         }
         assertThat(countItems(), equalTo(3L));
     }
@@ -57,5 +57,14 @@ public class GetBuildStepDef extends BaseBuildStepDef {
         BuildInfo buildInfo = (BuildInfo) latestResponse.getResponse().getBody();
         assertThat(buildInfo.getId(), equalTo(testData.get(1).getId()));
         assertThat(buildInfo.getBuildId(), equalTo(testData.get(1).getBuildId()));
+        assertThat(buildInfo.getUrl(), equalTo(testData.get(1).getUrl()));
+        assertThat(buildInfo.getStartTime(), equalTo(testData.get(1).getStartTime()));
+        assertThat(buildInfo.getFinishTime(), equalTo(testData.get(1).getFinishTime()));
+        assertThat(buildInfo.getVcHash(), equalTo(testData.get(1).getVcHash()));
+        assertThat(buildInfo.getVcTag(), equalTo(testData.get(1).getVcTag()));
+        assertThat(buildInfo.getVcBranch(), equalTo(testData.get(1).getVcBranch()));
+        assertThat(buildInfo.getVcDescription(), equalTo(testData.get(1).getVcDescription()));
+        assertThat(buildInfo.getStatus(), equalTo(testData.get(1).getStatus()));
+        assertThat(buildInfo.getMaximoChangeId(), equalTo(testData.get(1).getMaximoChangeId()));
     }
 }

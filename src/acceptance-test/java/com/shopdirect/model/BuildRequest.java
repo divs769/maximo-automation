@@ -13,11 +13,13 @@ public class BuildRequest {
     private String vcBranch;
     private String vcDescription;
     private String status;
+    private String maximoChangeId;
 
-    public BuildRequest(UUID id, String time, String status) {
+    public BuildRequest(UUID id, String time, String status, String maximoChangeId) {
         this.id = id;
         this.time = time;
         this.status = status;
+        this.maximoChangeId = maximoChangeId;
     }
 
     public BuildRequest(String buildId, String url, String time,
@@ -65,5 +67,9 @@ public class BuildRequest {
 
     public String getStatus() {
         return status;
+    }
+
+    public String getMaximoChangeId() {
+        return maximoChangeId;
     }
 }

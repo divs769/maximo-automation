@@ -46,10 +46,10 @@ public class BuildResource {
         BuildInfo buildInfo = request.createBuildInfo();
         List<String> errors = validationService.validateBuildStarted(buildInfo);
         if(errors.isEmpty()) {
+            String maximoChangeId = maximoClient.createChange(buildInfo);
+            buildInfo.setMaximoChangeId(maximoChangeId);
             BuildInfo result = dao.save(buildInfo);
-            UUID buildInfoId = result.getId();
-//            maximoClient.createChange(buildInfo);
-            return ResponseEntity.ok(buildInfoId.toString());
+            return ResponseEntity.ok(result.getId().toString());
         } else {
             LOGGER.error("Validation error: {}", ValidationService.generateErrorString(errors));
             return ResponseEntity.status(BAD_REQUEST).body(ValidationService.generateErrorString(errors));
@@ -66,6 +66,7 @@ public class BuildResource {
             existingBuild.setFinishTime(OffsetDateTime.parse(request.getTime()));
             existingBuild.setStatus(request.getStatus());
             dao.save(existingBuild);
+            maximoClient.closeChange(existingBuild.getMaximoChangeId());
             return ResponseEntity.ok().build();
         } else {
             return ResponseEntity.status(BAD_REQUEST).body(ValidationService.generateErrorString(errors));

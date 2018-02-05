@@ -2,7 +2,7 @@ Feature: Start build
 
   Background:
     Given the database has been initialised and is running
-    And Maximo is up and running
+    And Maximo is running and ready to accept new change requests
 
   Scenario: The Post operation sends complete data
     Given a valid payload containing the build info

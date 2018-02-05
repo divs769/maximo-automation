@@ -39,6 +39,8 @@ public class BuildInfo {
     @DynamoDBAttribute
     @DynamoDBTypeConverted(converter = BuildStatusConverter.class)
     private BuildStatus status;
+    @DynamoDBAttribute
+    private String maximoChangeId;
 
     public BuildInfo() {
     }
@@ -53,7 +55,8 @@ public class BuildInfo {
                      @JsonProperty("vcTag") String vcTag,
                      @JsonProperty("vcBranch") String vcBranch,
                      @JsonProperty("vcDescription") String vcDescription,
-                     @JsonProperty("status") BuildStatus status) {
+                     @JsonProperty("status") BuildStatus status,
+                     @JsonProperty("maximoChangeId") String maximoChangeId) {
         this.id = id;
         this.buildId = buildId;
         this.url = url;
@@ -64,6 +67,7 @@ public class BuildInfo {
         this.vcBranch = vcBranch;
         this.vcDescription = vcDescription;
         this.status = status;
+        this.maximoChangeId = maximoChangeId;
     }
 
     public UUID getId() {
@@ -110,6 +114,10 @@ public class BuildInfo {
         return status;
     }
 
+    public String getMaximoChangeId() {
+        return maximoChangeId;
+    }
+
     public void setBuildId(String buildId) {
         this.buildId = buildId;
     }
@@ -146,6 +154,10 @@ public class BuildInfo {
         this.status = status;
     }
 
+    public void setMaximoChangeId(String maximoChangeId) {
+        this.maximoChangeId = maximoChangeId;
+    }
+
     public static BuildInfoBuilder builder() {
         return new BuildInfoBuilder();
     }
@@ -161,6 +173,7 @@ public class BuildInfo {
         private String vcBranch;
         private String vcDescription;
         private BuildStatus status;
+        private String maximoChangeId;
 
         public BuildInfoBuilder setId(UUID id) {
             this.id = id;
@@ -212,9 +225,14 @@ public class BuildInfo {
             return this;
         }
 
+        public BuildInfoBuilder setMaximoChangeId(String maximoChangeId) {
+            this.maximoChangeId = maximoChangeId;
+            return this;
+        }
+
         public BuildInfo createBuildInfo() {
             return new BuildInfo(id, buildId, url, startTime, finishTime,
-                    vcHash, vcTag, vcBranch, vcDescription, status);
+                    vcHash, vcTag, vcBranch, vcDescription, status, maximoChangeId);
         }
     }
 

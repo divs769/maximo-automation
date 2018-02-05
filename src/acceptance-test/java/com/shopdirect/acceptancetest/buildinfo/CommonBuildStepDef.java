@@ -6,7 +6,9 @@ import com.amazonaws.services.dynamodbv2.document.Table;
 import com.amazonaws.services.dynamodbv2.model.*;
 import com.github.tomakehurst.wiremock.client.RemoteMappingBuilder;
 import com.github.tomakehurst.wiremock.client.ResponseDefinitionBuilder;
+import com.github.tomakehurst.wiremock.matching.StringValuePattern;
 import com.shopdirect.acceptancetest.LatestResponse;
+import cucumber.api.PendingException;
 import cucumber.api.java.After;
 import cucumber.api.java.en.And;
 import cucumber.api.java.en.Given;
@@ -57,9 +59,13 @@ public class CommonBuildStepDef extends BaseBuildStepDef {
         assertThat(latestResponse.getResponse().getStatusCode().is4xxClientError(), is(true));
     }
 
-    @Given("^Maximo is up and running")
-    public void givenMaximoIsUpAndRunning() throws Throwable {
+    @And("^Maximo is running and ready to accept new change requests$")
+    public void maximoIsRunningAndReadyToAcceptNewChangeRequests() throws Throwable {
         primeMaximoMockServerForCreateChange();
+    }
+
+    @And("^Maximo is running and ready to close change requests$")
+    public void maximoIsRunningAndReadyToCloseChangeRequests() throws Throwable {
         primeMaximoMockServerForUpdateChange();
     }
 
@@ -72,7 +78,7 @@ public class CommonBuildStepDef extends BaseBuildStepDef {
                 .append("<WOCHANGEMboKeySet>")
                 .append("<WOCHANGE>")
                 .append("<SITEID>ITD-ESLS</SITEID>")
-                .append("<WONUM>CH1659</WONUM>")
+                .append(String.format("<WONUM>%s</WONUM>", CHANGE_ID))
                 .append("</WOCHANGE>")
                 .append("</WOCHANGEMboKeySet>")
                 .append("</CreateMXISWOCHANGEResponseType>")
@@ -83,7 +89,7 @@ public class CommonBuildStepDef extends BaseBuildStepDef {
                 .withHeader("Content-Type", "text/xml; charset=UTF-8")
                 .withBody(responseBodyForCreate.toString());
 
-        primeMaximoMockServer(post(urlEqualTo("/soap")), responseBuilder);
+        primeMaximoMockServer(post(urlEqualTo("/soap")), containing("CreateMXISWOCHANGE"), responseBuilder);
     }
 
     private void primeMaximoMockServerForUpdateChange() {
@@ -100,15 +106,16 @@ public class CommonBuildStepDef extends BaseBuildStepDef {
                 .withHeader("Content-Type", "text/xml; charset=UTF-8")
                 .withBody(responseBodyForUpdate.toString());
 
-        primeMaximoMockServer(post(urlEqualTo("/soap")), responseBuilder);
+        primeMaximoMockServer(post(urlEqualTo("/soap")), containing("UpdateMXISWOCHANGE"), responseBuilder);
     }
 
     private void primeMaximoMockServer(
             RemoteMappingBuilder mappingBuilder,
+            StringValuePattern bodyMatcher,
             ResponseDefinitionBuilder responseDefinitionBuilder) {
         stubFor(
                 withDefaultHeaders(mappingBuilder)
-                        .withRequestBody(matching(".*"))
+                        .withRequestBody(bodyMatcher)
                         .willReturn(responseDefinitionBuilder)
         );
     }

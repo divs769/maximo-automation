@@ -30,6 +30,7 @@ public abstract class BaseBuildStepDef extends CucumberStepsDefinition {
     protected static final String BRANCH = "test";
     protected static final String DESC = "description";
     protected static final String STATUS = "SUCCESS";
+    protected static final String CHANGE_ID = "CH1659";
 
     protected RestTemplate restTemplate;
     protected LatestResponse latestResponse;
@@ -46,7 +47,8 @@ public abstract class BaseBuildStepDef extends CucumberStepsDefinition {
     protected BuildInfo createBuild(int count) {
         return BuildInfo.builder().setId(UUID.randomUUID()).setBuildId(BUILD_ID + String.valueOf(count)).setUrl(URL)
                 .setStartTime(OffsetDateTime.now().plusMinutes(count)).setFinishTime(OffsetDateTime.now().plusMinutes(count+1))
-                .setVcHash(HASH).setVcTag(TAG).setVcBranch(BRANCH).setVcDescription(DESC).setStatus(SUCCESS).createBuildInfo();
+                .setVcHash(HASH).setVcTag(TAG).setVcBranch(BRANCH).setVcDescription(DESC).setStatus(SUCCESS).setMaximoChangeId(CHANGE_ID)
+                .createBuildInfo();
     }
 
     protected Item getItem(String id) {
@@ -67,13 +69,14 @@ public abstract class BaseBuildStepDef extends CucumberStepsDefinition {
                 .withString("vcHash", buildInfo.getVcHash())
                 .withString("vcTag", buildInfo.getVcTag())
                 .withString("vcBranch", buildInfo.getVcBranch())
-                .withString("vcDescription", buildInfo.getVcDescription());
+                .withString("vcDescription", buildInfo.getVcDescription())
+                .withString("maximoChangeId", buildInfo.getMaximoChangeId());
     }
 
     protected Item createUpdateItem(BuildInfo buildInfo) {
         Item item = createStartItem(buildInfo);
         item.with("finishTime", buildInfo.getFinishTime().toString());
-        item.withString("status", buildInfo.getStatus().toString());
+        item.withString("status", buildInfo.getStatus().getCode());
         return item;
     }
 

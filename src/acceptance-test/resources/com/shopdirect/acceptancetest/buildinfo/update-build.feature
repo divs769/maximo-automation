@@ -3,6 +3,7 @@ Feature: Finish build
   Background:
     Given the database has been initialised and is running
     And build data has been inserted
+    And Maximo is running and ready to close change requests
 
   Scenario: The put request sends the correct build information
     Given a valid update payload
@@ -10,6 +11,7 @@ Feature: Finish build
     When the put endpoint is called
     Then the response is success
     And the build info record is updated in the database
+    And the maximo closes the change
 
   Scenario: The put request is sent and the ID is missing
     Given a payload with a missing ID

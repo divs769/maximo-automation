@@ -1,11 +1,8 @@
 package com.shopdirect.acceptancetest.buildinfo;
 
 import com.amazonaws.services.dynamodbv2.AmazonDynamoDB;
-import com.amazonaws.services.dynamodbv2.document.DynamoDB;
 import com.amazonaws.services.dynamodbv2.document.Item;
-import com.amazonaws.services.dynamodbv2.document.Table;
 import com.shopdirect.acceptancetest.LatestResponse;
-import com.shopdirect.maximoautomation.infrastructure.model.BuildInfo;
 import com.shopdirect.model.BuildRequest;
 import cucumber.api.java.en.And;
 import cucumber.api.java.en.Given;
@@ -18,7 +15,6 @@ import java.time.OffsetDateTime;
 
 import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.Matchers.*;
-import static com.shopdirect.acceptancetest.configuration.TestConfiguration.BUILDS_TB;
 
 public class StartBuildStepDef extends BaseBuildStepDef {
 
@@ -93,5 +89,6 @@ public class StartBuildStepDef extends BaseBuildStepDef {
         assertThat(record.get("vcTag"), equalTo(request.getVcTag()));
         assertThat(record.get("vcBranch"), equalTo(request.getVcBranch()));
         assertThat(record.get("vcDescription"), equalTo(request.getVcDescription()));
+        assertThat(record.get("maximoChangeId"), equalTo(CHANGE_ID));
     }
 }

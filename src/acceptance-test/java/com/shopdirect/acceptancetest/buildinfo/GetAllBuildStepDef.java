@@ -135,5 +135,11 @@ public class GetAllBuildStepDef extends BaseBuildStepDef {
         assertThat(response.getUrl(), equalTo(testData.getUrl()));
         assertThat(response.getStartTime(), equalTo(testData.getStartTime()));
         assertThat(response.getFinishTime(), equalTo(testData.getFinishTime()));
+        assertThat(response.getVcHash(), equalTo(testData.getVcHash()));
+        assertThat(response.getVcTag(), equalTo(testData.getVcTag()));
+        assertThat(response.getVcBranch(), equalTo(testData.getVcBranch()));
+        assertThat(response.getVcDescription(), equalTo(testData.getVcDescription()));
+        assertThat(response.getStatus(), equalTo(testData.getStatus()));
+        assertThat(response.getMaximoChangeId(), equalTo(testData.getMaximoChangeId()));
     }
 }
