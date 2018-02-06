@@ -40,8 +40,8 @@ pipeline {
                     args '-v /$(pwd):/usr/bin/app:rw'
                 }
             }
-            when {
-                branch 'master'
+			when {
+				branch 'master'
             }
             steps {
                 echo 'Running code quality'
