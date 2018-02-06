@@ -26,6 +26,9 @@ spring:
 info:
     config: Development
 
+server:
+  port: 8090
+
 amazon:
   dynamodb:
     endpoint: dynamodb.eu-west-1.amazonaws.com

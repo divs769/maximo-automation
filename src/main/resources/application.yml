@@ -31,6 +31,9 @@ logging:
 info:
     config: Local
 
+server:
+  port: 8090
+
 ibm:
   maximo:
     url: https://esls1uat.eu.smi.ibm.com/meaweb/services/MXISWOCHANGE
