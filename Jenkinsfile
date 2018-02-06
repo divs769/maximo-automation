@@ -40,6 +40,9 @@ pipeline {
                     args '-v /$(pwd):/usr/bin/app:rw'
                 }
             }
+			when {
+				branch 'master'
+            }
             steps {
                 echo 'Running code quality'
                 sh 'gradle sonarqube'
