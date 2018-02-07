@@ -20,6 +20,7 @@ public class DynamoDBConfig {
     @Bean
     public AmazonDynamoDB amazonDynamoDB(@Value("${amazon.dynamodb.endpoint}") String endpoint,
                                          @Value("${amazon.dynamodb.region}") String region) {
+        System.out.println("@@@@@@@@@@@ DYNAMODB ENDPOINT " + endpoint + "  region: " + region);
         return AmazonDynamoDBClientBuilder.standard()
                 .withEndpointConfiguration(new AwsClientBuilder.EndpointConfiguration(endpoint, region))
                 .build();
@@ -29,6 +30,7 @@ public class DynamoDBConfig {
     public DynamoDBMapperConfig dynamoDBMapperConfig(@Value("${amazon.dynamodb.tablePrefix}") String tablePrefix) {
         DynamoDBMapperConfig.Builder builder = new DynamoDBMapperConfig.Builder();
         if(!StringUtils.isNullOrEmpty(tablePrefix)) {
+            System.out.println("@@@@@@@@@@@ DYNAMODB TABLE PREFIX " + tablePrefix);
             builder.withTableNameOverride(DynamoDBMapperConfig.TableNameOverride.withTableNamePrefix(tablePrefix));
         }
         return builder.build();

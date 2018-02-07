@@ -1,6 +1,7 @@
 package com.shopdirect.acceptancetest.buildinfo;
 
 import com.amazonaws.services.dynamodbv2.AmazonDynamoDB;
+import com.amazonaws.services.dynamodbv2.datamodeling.DynamoDBMapper;
 import com.amazonaws.services.dynamodbv2.document.DynamoDB;
 import com.amazonaws.services.dynamodbv2.document.Item;
 import com.amazonaws.services.dynamodbv2.document.Table;
@@ -35,12 +36,14 @@ public abstract class BaseBuildStepDef extends CucumberStepsDefinition {
     protected RestTemplate restTemplate;
     protected LatestResponse latestResponse;
     protected DynamoDB db;
+    protected DynamoDBMapper dynamoDBMapper;
 
     @Autowired
     public BaseBuildStepDef(RestTemplate restTemplate, LatestResponse latestResponse, @Qualifier("testClient") AmazonDynamoDB db) {
         this.restTemplate = restTemplate;
         this.latestResponse = latestResponse;
         this.db = new DynamoDB(db);
+        this.dynamoDBMapper = new DynamoDBMapper(db);
         this.restTemplate.setErrorHandler(new TestResponseErrorHandler());
     }
 
