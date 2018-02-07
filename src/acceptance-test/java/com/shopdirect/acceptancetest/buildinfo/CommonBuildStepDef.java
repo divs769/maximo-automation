@@ -8,7 +8,6 @@ import com.github.tomakehurst.wiremock.client.RemoteMappingBuilder;
 import com.github.tomakehurst.wiremock.client.ResponseDefinitionBuilder;
 import com.github.tomakehurst.wiremock.matching.StringValuePattern;
 import com.shopdirect.acceptancetest.LatestResponse;
-import cucumber.api.PendingException;
 import cucumber.api.java.After;
 import cucumber.api.java.en.And;
 import cucumber.api.java.en.Given;
@@ -132,8 +131,11 @@ public class CommonBuildStepDef extends BaseBuildStepDef {
     }
 
     private static Table createTable(DynamoDB db) throws Exception {
-        Table table = db.createTable(createTableRequest());
-        table.waitForActive();
+        Table table = db.getTable(BUILDS_TB);
+        if (table == null) {
+            table = db.createTable(createTableRequest());
+            table.waitForActive();
+        }
         return table;
     }
 
@@ -168,13 +170,13 @@ public class CommonBuildStepDef extends BaseBuildStepDef {
 
     @After
     public void cleanupTable() throws Exception {
-        db.listTables().iterator().forEachRemaining(table -> {
-            table.delete();
-            try {
-                table.waitForDelete();
-            } catch (InterruptedException e) {
-                e.printStackTrace();
-            }
-        });
+//        db.listTables().iterator().forEachRemaining(table -> {
+//            table.delete();
+//            try {
+//                table.waitForDelete();
+//            } catch (InterruptedException e) {
+//                e.printStackTrace();
+//            }
+//        });
     }
 }
