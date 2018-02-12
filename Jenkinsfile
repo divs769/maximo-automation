@@ -74,7 +74,7 @@ pipeline {
             steps {
                 echo 'Running up the Jar and acceptance tests'
                 script {
-                    sh "/usr/bin/runApp.sh build/libs/${servicePackage} AcceptanceTest"
+                    sh "java -jar -Dspring.profiles.active=TEST build/libs/${servicePackage} & gradle AcceptanceTest --stacktrace --info"
                 }
                 // -u sets the user context for the docker container
             }
