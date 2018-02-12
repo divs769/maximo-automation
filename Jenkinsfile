@@ -74,7 +74,7 @@ pipeline {
             steps {
                 echo 'Running up the Jar and acceptance tests'
                 script {
-                    sh "gradle AcceptanceTest --stacktrace --info"
+                    sh "gradle AcceptanceTest"
                 }
                 // -u sets the user context for the docker container
             }
