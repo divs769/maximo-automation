@@ -64,7 +64,7 @@ pipeline {
             }
         }
 
-        stage('Acceptance Test') {
+/*        stage('Acceptance Test') {
             agent {
                 docker {
                     image 'jachno/jarrunner:latest'
@@ -91,7 +91,7 @@ pipeline {
                     ]
                 }
             }
-        }
+        }*/
 
         stage('Load Test') {
             agent {
@@ -103,7 +103,7 @@ pipeline {
             steps {
                 echo 'Running up the Jar and Load_test'
                 script {
-                    sh "gradle loadTest"
+                    sh "gradle loadTest --stacktrace  --info"
                 }
                 // -u sets the user context for the docker container
             }
