@@ -64,7 +64,7 @@ pipeline {
             }
         }
 
-/*        stage('Acceptance Test') {
+        stage('Acceptance Test') {
             agent {
                 docker {
                     image 'jachno/jarrunner:latest'
@@ -91,38 +91,9 @@ pipeline {
                     ]
                 }
             }
-        }*/
-
-        stage('Load Test') {
-            agent {
-                docker {
-                    image 'jachno/jarrunner:latest'
-                    args '-v /$(pwd):/usr/bin/app:rw'
-                }
-            }
-            steps {
-                echo 'Running up the Jar and Load_test'
-                script {
-                    sh "gradle loadTest --stacktrace  --info"
-                }
-                // -u sets the user context for the docker container
-            }
-            post {
-                always {
-
-                    sh 'mv build/reports/loadtest/onboarding-example* build/reports/loadtest/onboarding-example-loadtest'
-                    // publish html
-                    publishHTML target: [
-                            allowMissing         : false,
-                            alwaysLinkToLastBuild: true,
-                            keepAll              : false,
-                            reportDir            : 'build/reports/loadtest/onboarding-example-loadtest',
-                            reportFiles          : 'index.html',
-                            reportName           : 'Load_Test_Report'
-                    ]
-                }
-            }
         }
+
+
 
      stage('Bake and Push') {
             agent any
