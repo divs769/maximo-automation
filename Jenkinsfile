@@ -103,7 +103,7 @@ pipeline {
             steps {
                 echo 'Running up the Jar and Load_test'
                 script {
-                    sh "/usr/bin/runApp.sh build/libs/${servicePackage} loadTest"
+                    sh "gradle loadTest"
                 }
                 // -u sets the user context for the docker container
             }
