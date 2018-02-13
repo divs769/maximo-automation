@@ -56,7 +56,7 @@ fi
 
 awsLoadBalancerDNS=$(echo "$awsDescribeLoadBalancers=" | grep DNSName | cut -d \: -f2 | cut -d \" -f2)
 
-for numberOfTimesChecked in {1..5};
+for numberOfTimesChecked in 1 2 3 4 5;
 do
   liveVersionNumber=$(curl -s ${awsLoadBalancerDNS}/version | grep \"ServiceVersion\" | cut -f2 -d":" | cut -d '"' -f2)
 
@@ -65,7 +65,7 @@ do
    exit 0
  else
    echo "Deployment failure. Version ${liveVersionNumber} is live at ${awsLoadBalancerDNS}, instead of the expected ${newlyDeployedVersionNumber}."
-   if [ $numberOfTimesChecked == 5 ]; then
+   if [ $numberOfTimesChecked = 5 ]; then
      echo "Tried refreshing endpoint 5 times, service is still on incorrect version!"
      exit 1
    fi
