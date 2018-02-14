@@ -1,11 +1,10 @@
 package com.shopdirect.version.infrastructure.model;
 
-import java.util.HashMap;
 import java.util.Map;
 
 public class Version {
 
-    private Map version = new HashMap<String, String>();
+    private final Map<String, String> version;
 
     public Version(Map version) {
         this.version = version;
@@ -15,7 +14,4 @@ public class Version {
         return version;
     }
 
-    public void setVersion(Map version) {
-        this.version = version;
-    }
 }

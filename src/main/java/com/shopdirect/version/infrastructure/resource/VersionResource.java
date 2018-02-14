@@ -9,6 +9,8 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.RestController;
 
+import static org.springframework.http.MediaType.APPLICATION_JSON_UTF8_VALUE;
+
 @RestController
 @RequestMapping(path = "/version")
 public class VersionResource {
@@ -20,7 +22,7 @@ public class VersionResource {
         this.versionReader = versionReader;
     }
 
-    @RequestMapping(method = RequestMethod.GET, produces = "application/json")
+    @RequestMapping(method = RequestMethod.GET, produces = APPLICATION_JSON_UTF8_VALUE)
     public ResponseEntity<Version> getVersion() throws VersionException {
         return ResponseEntity.ok(new Version(versionReader.getVersion()));
     }

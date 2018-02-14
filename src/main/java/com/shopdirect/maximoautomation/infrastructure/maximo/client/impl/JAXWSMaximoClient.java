@@ -35,6 +35,16 @@ public class JAXWSMaximoClient implements MaximoClient {
         this.client = createAndConfigureClient(maximoUrl);
     }
 
+    private MXISWOCHANGEPortType createAndConfigureClient(String maximoUrl) {
+        LOGGER.info("Initializing Maximo client. Endpoint: {}", maximoUrl);
+
+        MXISWOCHANGEPortType port = new MXISWOCHANGE().getMXISWOCHANGESOAP11Port();
+        ((BindingProvider) port).getRequestContext()
+                .put(BindingProvider.ENDPOINT_ADDRESS_PROPERTY, maximoUrl);
+
+        return port;
+    }
+
     @HystrixCommand(groupKey = "createMaximoChange", fallbackMethod = "fallbackCreateChange",
             commandProperties = {
                     @HystrixProperty(name = "circuitBreaker.requestVolumeThreshold", value = "5"),
@@ -43,7 +53,7 @@ public class JAXWSMaximoClient implements MaximoClient {
     )
     @Override
     public String createChange(BuildInfo buildInfo) {
-        LOGGER.info("Calling IBM Maximo to CREATE a change request");
+        LOGGER.info("Calling IBM Maximo to CREATE a change request...");
 
         try {
             CreateMXISWOCHANGEResponseType response = client
@@ -53,7 +63,7 @@ public class JAXWSMaximoClient implements MaximoClient {
             LOGGER.error("Data type error before calling maximo", e);
             throw new RuntimeException("Can't call IBM Maximo due to data error", e);
         } catch (Exception e) {
-            LOGGER.error("Error calling IBM Maximo to create change", e);
+            LOGGER.error("Error calling IBM Maximo for create change", e);
             throw new RuntimeException("Error calling IBM Maximo to create change", e);
         }
     }
@@ -65,33 +75,23 @@ public class JAXWSMaximoClient implements MaximoClient {
             }
     )
     @Override
-    public void closeChange(String changeID) {
-        LOGGER.info("Calling IBM Maximo to CLOSE a change request");
+    public void closeChange(String changeId) {
+        LOGGER.info("Calling IBM Maximo to CLOSE a change request ID {}", changeId);
 
         try {
             UpdateMXISWOCHANGEResponseType response = client
-                    .updateMXISWOCHANGE(createUpdateMXISWOCHANGETypeForClose(changeID));
+                    .updateMXISWOCHANGE(createUpdateMXISWOCHANGETypeForClose(changeId));
 
-            LOGGER.info("Change #{} has been successfuly closed. Maximo message ID is {}",
-                    changeID, response.getMessageID());
+            LOGGER.info("Change ID {} has been successfuly closed. Maximo message ID is {}",
+                    changeId, response.getMessageID());
         } catch(Exception e) {
-            LOGGER.error("Error calling IBM Maximo to close change #" + changeID, e);
-            throw new RuntimeException("Error calling IBM Maximo to close change #{}" + changeID, e);
+            LOGGER.error("Error calling IBM Maximo to close change ID " + changeId, e);
+            throw new RuntimeException("Error calling IBM Maximo to close change ID {}" + changeId, e);
         }
     }
 
     public String fallbackCreateChange(BuildInfo buildInfo) {
         return null;
-    }
-
-    private MXISWOCHANGEPortType createAndConfigureClient(String maximoUrl) {
-        LOGGER.info("Initializing Maximo client. URL: {}", maximoUrl);
-
-        MXISWOCHANGEPortType port = new MXISWOCHANGE().getMXISWOCHANGESOAP11Port();
-        ((BindingProvider) port).getRequestContext()
-                .put(BindingProvider.ENDPOINT_ADDRESS_PROPERTY, maximoUrl);
-
-        return port;
     }
 
     private CreateMXISWOCHANGEType createMXISWOCHANGEType(BuildInfo buildInfo) throws DatatypeConfigurationException {

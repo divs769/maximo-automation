@@ -3,7 +3,7 @@ package com.shopdirect.maximoautomation.infrastructure.service;
 import com.shopdirect.maximoautomation.infrastructure.model.BuildInfo;
 import com.shopdirect.maximoautomation.infrastructure.repository.DynamoDBRepository;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.stereotype.Service;
+import org.springframework.stereotype.Component;
 
 import java.time.OffsetDateTime;
 import java.util.ArrayList;
@@ -11,9 +11,9 @@ import java.util.List;
 import java.util.regex.Pattern;
 import java.util.stream.Collectors;
 
-@Service
+@Component
 public class ValidationService {
-    private static final Pattern PATTERN = Pattern.compile("(https?://)?[\\w.]+(:\\d+)?/job/[\\w-]+/\\d+/$");
+    private static final Pattern URL_PATTERN = Pattern.compile("(https?://)?[\\w.]+(:\\d+)?/job/[\\w-]+/\\d+/$");
     private final DynamoDBRepository dao;
 
     @Autowired
@@ -28,7 +28,7 @@ public class ValidationService {
         }
         if(buildInfo.getUrl() == null) {
             errors.add("Missing URL");
-        } else if(!PATTERN.matcher(buildInfo.getUrl()).matches()) {
+        } else if(!URL_PATTERN.matcher(buildInfo.getUrl()).matches()) {
             errors.add("Invalid URL");
         }
         if(buildInfo.getVcTag() == null) {

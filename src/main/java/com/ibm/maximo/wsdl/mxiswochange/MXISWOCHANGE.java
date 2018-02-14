@@ -13,7 +13,7 @@ import java.net.URL;
  * Generated source version: 2.2
  * 
  */
-@WebServiceClient(name = "MXISWOCHANGE", targetNamespace = "http://www.ibm.com/maximo/wsdl/MXISWOCHANGE", wsdlLocation = "file:/C:/Downloads/maximo/esls1uat.eu.smi.ibm.com_meaweb_wsdl_MXISWOCHANGE.wsdl")
+@WebServiceClient(name = "MXISWOCHANGE", targetNamespace = "http://www.ibm.com/maximo/wsdl/MXISWOCHANGE", wsdlLocation = "file:/C:/Downloads/maximo/maximo-change.wsdl")
 public class MXISWOCHANGE
     extends Service
 {
@@ -26,7 +26,7 @@ public class MXISWOCHANGE
         URL url = null;
         WebServiceException e = null;
         try {
-            url = new URL("classpath:maximo/esls1uat.eu.smi.ibm.com_meaweb_wsdl_MXISWOCHANGE.wsdl");
+            url = new URL("classpath:maximo/maximo-change.wsdl");
         } catch (MalformedURLException ex) {
             e = new WebServiceException(ex);
         }

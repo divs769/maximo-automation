@@ -12,7 +12,6 @@ import java.net.PasswordAuthentication;
 
 @Configuration
 public class MaximoConfiguration {
-    //https://esls1uat.eu.smi.ibm.com/meaweb/services/MXISWOCHANGE
     @Value("${ibm.maximo.url}")
     private String maximoUrl;
     @Value("${ibm.maximo.user}")
