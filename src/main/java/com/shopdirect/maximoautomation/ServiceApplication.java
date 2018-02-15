@@ -32,6 +32,7 @@ public class ServiceApplication {
 					.configure(SerializationFeature.WRITE_NULL_MAP_VALUES, false)
 					.configure(SerializationFeature.WRITE_DATES_AS_TIMESTAMPS, false)
 					.configure(DeserializationFeature.FAIL_ON_UNKNOWN_PROPERTIES, false)
+					.configure(SerializationFeature.INDENT_OUTPUT, true)
 					.setNodeFactory(JsonNodeFactory.withExactBigDecimals(true))
 					.setDateFormat(new ISO8601DateFormat());
 			}
