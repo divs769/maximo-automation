@@ -14,7 +14,6 @@ import org.springframework.cloud.client.circuitbreaker.EnableCircuitBreaker;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Import;
 import org.springframework.http.converter.json.Jackson2ObjectMapperBuilder;
-import org.springframework.web.filter.CommonsRequestLoggingFilter;
 
 @SpringBootApplication(scanBasePackages = { "com.shopdirect", "com.shopdirect.maximoautomation" })
 @Import(MaximoConfiguration.class)
@@ -37,16 +36,6 @@ public class ServiceApplication {
 					.setDateFormat(new ISO8601DateFormat());
 			}
 		};
-	}
-
-	@Bean
-	public CommonsRequestLoggingFilter requestLoggingFilter() {
-		CommonsRequestLoggingFilter loggingFilter = new CommonsRequestLoggingFilter();
-		loggingFilter.setIncludeClientInfo(true);
-		loggingFilter.setIncludeQueryString(true);
-		loggingFilter.setIncludePayload(true);
-		loggingFilter.setIncludeHeaders(false);
-		return loggingFilter;
 	}
 
 	public static void main(String[] args) {

@@ -3,10 +3,11 @@ change:
   impact: 3
   urgency: 3
   classificationID: CHANGE
-  ciNum: SAP
   changeType: Normal
   siteId: ITD-ESLS
   description: Deploying Microservices
   implDescription: Deploying project %s to production.\n\nTag: %s\nHash: %s\nDescription: %s\n
-  ownerGroup: I-SM-IE-SSM-CHG-CHGMGMT
   reasonForChange: Release of new version
+  assetNum: 1072681
+  location: GB-AR0O-0001/BLDG
+  plusPCustomer: SDG-00

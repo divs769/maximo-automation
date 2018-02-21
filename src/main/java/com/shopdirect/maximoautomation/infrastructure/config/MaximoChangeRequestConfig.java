@@ -21,9 +21,6 @@ public class MaximoChangeRequestConfig {
     @Value("${classificationID}")
     private String classificationID;
 
-    @Value("${ciNum}")
-    private String ciNum;
-
     @Value("${changeType}")
     private String changeType;
 
@@ -36,11 +33,17 @@ public class MaximoChangeRequestConfig {
     @Value("${description}")
     private String description;
 
-    @Value("${ownerGroup}")
-    private String ownerGroup;
-
     @Value("${reasonForChange}")
     private String reasonForChange;
+
+    @Value("${assetNum}")
+    private String assetNum;
+
+    @Value("${location}")
+    private String location;
+
+    @Value("${plusPCustomer}")
+    private String plusPCustomer;
 
     public MaximoChangeRequestConfig() {
     }
@@ -61,10 +64,6 @@ public class MaximoChangeRequestConfig {
         return classificationID;
     }
 
-    public String getCiNum() {
-        return ciNum;
-    }
-
     public String getChangeType() {
         return changeType;
     }
@@ -81,12 +80,20 @@ public class MaximoChangeRequestConfig {
         return description;
     }
 
-    public String getOwnerGroup() {
-        return ownerGroup;
-    }
-
     public String getReasonForChange() {
         return reasonForChange;
+    }
+
+    public String getAssetNum() {
+        return assetNum;
+    }
+
+    public String getLocation() {
+        return location;
+    }
+
+    public String getPlusPCustomer() {
+        return plusPCustomer;
     }
 
     @Override
@@ -96,13 +103,14 @@ public class MaximoChangeRequestConfig {
         sb.append(", impact=").append(impact);
         sb.append(", urgency=").append(urgency);
         sb.append(", classificationID='").append(classificationID).append('\'');
-        sb.append(", ciNum='").append(ciNum).append('\'');
         sb.append(", changeType='").append(changeType).append('\'');
         sb.append(", siteId='").append(siteId).append('\'');
         sb.append(", implDescription='").append(implDescription).append('\'');
         sb.append(", description='").append(description).append('\'');
-        sb.append(", ownerGroup='").append(ownerGroup).append('\'');
         sb.append(", reasonForChange='").append(reasonForChange).append('\'');
+        sb.append(", assetNum='").append(assetNum).append('\'');
+        sb.append(", location='").append(location).append('\'');
+        sb.append(", plusPCustomer='").append(plusPCustomer).append('\'');
         sb.append('}');
         return sb.toString();
     }

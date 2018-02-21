@@ -85,7 +85,7 @@ public class BuildResourceTest {
 
         // Then
         verify(client).createChange(isA(BuildInfo.class));
-        verify(dao).save(isA(BuildInfo.class));
+        verify(dao, times(2)).save(isA(BuildInfo.class));
         assertThat(result.getResponse().getContentAsString(), equalTo(id.toString()));
     }
 

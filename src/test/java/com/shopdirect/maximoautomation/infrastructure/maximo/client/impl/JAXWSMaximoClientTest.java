@@ -47,13 +47,11 @@ public class JAXWSMaximoClientTest {
 
     @Before
     public void setUp() throws Exception {
-        when(maximoChangeRequestConfig.getCiNum()).thenReturn("ciNum");
         when(maximoChangeRequestConfig.getChangeType()).thenReturn("chgType");
         when(maximoChangeRequestConfig.getClassificationID()).thenReturn("classID");
         when(maximoChangeRequestConfig.getDescription()).thenReturn("Description");
         when(maximoChangeRequestConfig.getImplDescription()).thenReturn("desc %s %s %s %s");
         when(maximoChangeRequestConfig.getImpact()).thenReturn(3L);
-        when(maximoChangeRequestConfig.getOwnerGroup()).thenReturn("OwnerGroup");
         when(maximoChangeRequestConfig.getProbabilityFailure()).thenReturn(3L);
         when(maximoChangeRequestConfig.getSiteId()).thenReturn("SiteID");
         when(maximoChangeRequestConfig.getReasonForChange()).thenReturn("Reason");

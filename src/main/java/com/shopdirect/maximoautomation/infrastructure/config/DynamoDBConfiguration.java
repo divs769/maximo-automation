@@ -16,8 +16,8 @@ import static org.springframework.util.StringUtils.isEmpty;
 @Configuration
 @EnableDynamoDBRepositories(dynamoDBMapperConfigRef = "dynamoDBMapperConfig",
         basePackages = "com.shopdirect.maximoautomation.infrastructure.repository")
-public class DynamoDBConfig {
-    private static final Logger LOGGER = LoggerFactory.getLogger(DynamoDBConfig.class);
+public class DynamoDBConfiguration {
+    private static final Logger LOGGER = LoggerFactory.getLogger(DynamoDBConfiguration.class);
 
     public static final String BUILDS_TB = "BUILDS_TB";
 

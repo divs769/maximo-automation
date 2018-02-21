@@ -17,7 +17,6 @@ import java.time.OffsetDateTime;
 import java.util.Collections;
 import java.util.List;
 import java.util.Optional;
-import java.util.UUID;
 
 import static org.springframework.http.HttpStatus.BAD_REQUEST;
 import static org.springframework.http.MediaType.APPLICATION_JSON_UTF8_VALUE;
@@ -46,10 +45,15 @@ public class BuildResource {
         BuildInfo buildInfo = request.createBuildInfo();
         List<String> errors = validationService.validateBuildStarted(buildInfo);
         if(errors.isEmpty()) {
+            // Saving the build request in the database before calling maximo
+            buildInfo = dao.save(buildInfo);
+            // Calling maximo
             String maximoChangeId = maximoClient.createChange(buildInfo);
+            // Updating the build info with the maximo change id
             buildInfo.setMaximoChangeId(maximoChangeId);
-            BuildInfo result = dao.save(buildInfo);
-            return ResponseEntity.ok(result.getId().toString());
+            buildInfo = dao.save(buildInfo);
+
+            return ResponseEntity.ok(buildInfo.getId().toString());
         } else {
             LOGGER.error("Validation error: {}", ValidationService.generateErrorString(errors));
             return ResponseEntity.status(BAD_REQUEST).body(ValidationService.generateErrorString(errors));

@@ -10,7 +10,7 @@ import java.time.OffsetDateTime;
 import java.util.Objects;
 import java.util.UUID;
 
-import static com.shopdirect.maximoautomation.infrastructure.config.DynamoDBConfig.BUILDS_TB;
+import static com.shopdirect.maximoautomation.infrastructure.config.DynamoDBConfiguration.BUILDS_TB;
 
 @DynamoDBTable(tableName = BUILDS_TB)
 public class BuildInfo {
@@ -250,11 +250,12 @@ public class BuildInfo {
                 Objects.equals(vcTag, buildInfo.vcTag) &&
                 Objects.equals(vcBranch, buildInfo.vcBranch) &&
                 Objects.equals(vcDescription, buildInfo.vcDescription) &&
-                status == buildInfo.status;
+                status == buildInfo.status &&
+                Objects.equals(maximoChangeId, buildInfo.maximoChangeId);
     }
 
     @Override
     public int hashCode() {
-        return Objects.hash(id, buildId, url, startTime, finishTime, vcHash, vcTag, vcBranch, vcDescription, status);
+        return Objects.hash(id, buildId, url, startTime, finishTime, vcHash, vcTag, vcBranch, vcDescription, status, maximoChangeId);
     }
 }

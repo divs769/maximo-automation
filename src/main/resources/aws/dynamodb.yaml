@@ -1,0 +1,24 @@
+Parameters:
+  TablePrefix:
+    Type: String
+    Default: DEV
+    AllowedValues:
+      - DEV
+      - UAT
+      - NFT
+      - PRD
+Resources:
+  TBDynamo:
+    Type: "AWS::DynamoDB::Table"
+    Properties:
+      TableName: !Join ["_", [Ref: "TablePrefix", "BUILDS_TB"]]
+      AttributeDefinitions:
+        - AttributeName: "id"
+          AttributeType: "S"
+      KeySchema:
+        -
+          AttributeName: "id"
+          KeyType: "HASH"
+      ProvisionedThroughput:
+        ReadCapacityUnits: 10
+        WriteCapacityUnits: 10
