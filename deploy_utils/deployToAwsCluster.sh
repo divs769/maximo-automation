@@ -66,8 +66,7 @@ export AWS_SESSION_TOKEN=$SessionToken
 
 awsTimeOutEcho="Timed out $timeOut seconds - service unstable, please check AWS Cluster tasks"
 
-registerTask="(aws ecs register-task-definition --region eu-west-1 --family $awsTaskDefinition --container-definitions '[{\"name\": \"${awsContainerName}\", \"image\": \"${awsRepository}\", \"memory\": 512, \"logConfiguration\": { \"logDriver\": \"awslogs\", \"options\": { \"awslogs-group\": \"Services\", \"awslogs-region\": \"eu-west-1\", \"awslogs-stream-prefix\": \"${awsServiceName}\" }}, \"portMappings\": [{\"containerPort\": 8080, \"hostPort\": 0}], \"environment\":[{\"name\":\"SPRING_PROFILES_ACTIVE\",\"value\":\"$environmentId\"}]}]' | grep \"taskDefinitionArn\" | cut -d '/' -f 2 | cut -d '\"' -f 1)"
-
+registerTask="(aws ecs register-task-definition --region eu-west-1 --family $awsTaskDefinition --task-role-arn arn:aws:iam::669711333016:role/aws-service-role/dynamodb.application-autoscaling.amazonaws.com/AWSServiceRoleForApplicationAutoScaling_DynamoDBTable --container-definitions '[{\"name\": \"${awsContainerName}\", \"image\": \"${awsRepository}\", \"memory\": 512, \"logConfiguration\": { \"logDriver\": \"awslogs\", \"options\": { \"awslogs-group\": \"Services\", \"awslogs-region\": \"eu-west-1\", \"awslogs-stream-prefix\": \"${awsServiceName}\" }}, \"portMappings\": [{\"containerPort\": 8080, \"hostPort\": 0}], \"environment\":[{\"name\":\"SPRING_PROFILES_ACTIVE\",\"value\":\"$environmentId\"}]}]' | grep \"taskDefinitionArn\" | cut -d '/' -f 2 | cut -d '\"' -f 1)"
 
 taskId=$(eval $registerTask) || { echo "Failure on registerTask command" ; exit 1; }
 
